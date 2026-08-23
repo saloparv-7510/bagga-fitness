@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  One entry, because this is a single page. The nav targets (#about, #plans,
+  #contact …) are hash fragments of this same document, not separate URLs, and
+  listing them would only report duplicates to crawlers.
+
+  No <lastmod>: nothing regenerates this file on deploy, so a hardcoded date
+  would start lying the moment the next commit lands. Crawlers discount a
+  lastmod they cannot trust, so an absent one costs nothing.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://bagga-fitness.vercel.app/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

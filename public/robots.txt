@@ -1,0 +1,8 @@
+# BAGGA FITNESS — https://bagga-fitness.vercel.app/
+# Single-page marketing site. Everything is public; nothing here is private,
+# so there is nothing to disallow.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://bagga-fitness.vercel.app/sitemap.xml
