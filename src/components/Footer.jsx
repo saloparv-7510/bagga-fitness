@@ -112,7 +112,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-silver-300/8">
-        <div className="shell flex flex-col items-center justify-between gap-2 py-5 text-center text-xs text-silver-600 sm:flex-row sm:text-left">
+        <div className="shell flex flex-col items-center justify-between gap-2 py-5 text-center text-xs text-silver-500 sm:flex-row sm:text-left">
           <p>© {year} {brand.name}. All rights reserved.</p>
           <p className="flex items-center gap-1.5">
             Built with <Heart className="h-3.5 w-3.5 text-rage-400" /> for people who train hard.

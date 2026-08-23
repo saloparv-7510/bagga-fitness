@@ -13,6 +13,24 @@ import Calendar from './components/Calendar.jsx'
 import Gallery from './components/Gallery.jsx'
 import Contact from './components/Contact.jsx'
 import Footer from './components/Footer.jsx'
+import ErrorBoundary from './components/ui/ErrorBoundary.jsx'
+
+/* Section order, and the id each one owns. Kept here so every section can be
+   wrapped in its own error boundary — a throw in the BMI calculator must not
+   take the contact details down with it. */
+const SECTIONS = [
+  { id: 'home', name: 'intro', Component: Hero },
+  { id: 'about', name: 'gym and membership details', Component: About },
+  { id: 'bmi', name: 'BMI calculator', Component: BmiCalculator },
+  { id: 'plans', name: 'workout plans', Component: WorkoutPlanner },
+  { id: 'exercises', name: 'exercise guide', Component: ExerciseGuide },
+  { id: 'protein', name: 'protein calculator', Component: ProteinCalculator },
+  { id: 'foods', name: 'protein foods list', Component: ProteinFoods },
+  { id: 'supplements', name: 'supplement guide', Component: Supplements },
+  { id: 'calendar', name: 'training calendar', Component: Calendar },
+  { id: 'gallery', name: 'gallery', Component: Gallery },
+  { id: 'contact', name: 'contact details', Component: Contact },
+]
 
 /* Thin scroll-progress bar. Reads scroll on rAF — cheap, compositor-only. */
 function ScrollProgress() {
@@ -59,21 +77,19 @@ export default function App() {
       </a>
       <BackgroundFX />
       <ScrollProgress />
-      <Navbar />
+      <ErrorBoundary name="navigation" quiet>
+        <Navbar />
+      </ErrorBoundary>
       <main>
-        <Hero />
-        <About />
-        <BmiCalculator />
-        <WorkoutPlanner />
-        <ExerciseGuide />
-        <ProteinCalculator />
-        <ProteinFoods />
-        <Supplements />
-        <Calendar />
-        <Gallery />
-        <Contact />
+        {SECTIONS.map(({ id, name, Component }) => (
+          <ErrorBoundary key={id} id={id} name={name}>
+            <Component />
+          </ErrorBoundary>
+        ))}
       </main>
-      <Footer />
+      <ErrorBoundary name="footer" quiet>
+        <Footer />
+      </ErrorBoundary>
     </>
   )
 }

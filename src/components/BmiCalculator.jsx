@@ -13,11 +13,39 @@ function computeHeightCm({ mode, cm, ft, inch }) {
   return totalInches * 2.54
 }
 
+const BMI_MIN = 15
+const BMI_MAX = 40
+
+/* Accepted input range. Shared by the validity gate, the input min/max and the
+   out-of-range message so the three can never disagree. */
+const H_MIN = 120
+const H_MAX = 230
+const W_MIN = 25
+const W_MAX = 250
+
+/* Single source of truth for the scale. Category thresholds, the coloured bar
+   segments and the tick labels under the bar are all derived from this, so a
+   label can never drift away from the band it points at. */
+const BANDS = [
+  { key: 'under', label: 'Underweight', short: 'Under', to: 18.5, accent: 'volt', bar: 'bg-volt-500/70' },
+  { key: 'normal', label: 'Normal', short: 'Normal', to: 25, accent: 'titan', bar: 'bg-titan-500/80' },
+  { key: 'over', label: 'Overweight', short: 'Over', to: 30, accent: 'amber', bar: 'bg-amber-500/70' },
+  { key: 'obese', label: 'Obese', short: 'Obese', to: Infinity, accent: 'rage', bar: 'bg-rage-600/80' },
+]
+
+const scalePct = (bmi) => ((bmi - BMI_MIN) / (BMI_MAX - BMI_MIN)) * 100
+
+// Segment widths in %, walking the thresholds. Clamped to the drawn scale.
+const bandWidths = BANDS.map((b, i) => {
+  const from = i === 0 ? BMI_MIN : BANDS[i - 1].to
+  return Math.max(0, scalePct(Math.min(b.to, BMI_MAX)) - scalePct(from))
+})
+
+// Boundary values labelled beneath the bar, positioned at their true offsets.
+const TICKS = [BMI_MIN, ...BANDS.slice(0, -1).map((b) => b.to), BMI_MAX]
+
 function bmiCategory(bmi) {
-  if (bmi < 18.5) return { key: 'under', label: 'Underweight', accent: 'volt' }
-  if (bmi < 25) return { key: 'normal', label: 'Normal', accent: 'titan' }
-  if (bmi < 30) return { key: 'over', label: 'Overweight', accent: 'rage' }
-  return { key: 'obese', label: 'Obese', accent: 'rage' }
+  return BANDS.find((b) => bmi < b.to) || BANDS[BANDS.length - 1]
 }
 
 function recommendation(cat) {
@@ -33,9 +61,6 @@ function recommendation(cat) {
   }
 }
 
-const BMI_MIN = 15
-const BMI_MAX = 40
-
 export default function BmiCalculator() {
   const [gender, setGender] = useState('male')
   const [mode, setMode] = useState('cm') // 'cm' | 'ft'
@@ -47,7 +72,7 @@ export default function BmiCalculator() {
   const result = useMemo(() => {
     const hCm = computeHeightCm({ mode, cm, ft, inch })
     const w = Number(weight) || 0
-    if (hCm < 120 || hCm > 230 || w < 25 || w > 250) return null
+    if (hCm < H_MIN || hCm > H_MAX || w < W_MIN || w > W_MAX) return null
 
     const h = hCm / 100
     const bmi = w / (h * h)
@@ -60,7 +85,7 @@ export default function BmiCalculator() {
     const inchesOver5ft = Math.max(hCm / 2.54 - 60, 0)
     const ideal = (gender === 'male' ? 50 : 45.5) + 2.3 * inchesOver5ft
 
-    const pct = clamp(((bmi - BMI_MIN) / (BMI_MAX - BMI_MIN)) * 100, 1.5, 98.5)
+    const pct = clamp(scalePct(bmi), 1.5, 98.5)
     return {
       bmi: bmi.toFixed(1),
       cat,
@@ -74,8 +99,23 @@ export default function BmiCalculator() {
     }
   }, [gender, mode, cm, ft, inch, weight])
 
-  const accentText = { volt: 'text-volt-300', titan: 'text-titan-300', rage: 'text-rage-300' }
-  const accentBadge = { volt: 'badge-volt', titan: 'badge-titan', rage: 'badge-rage' }
+  /* Both fields filled but no result ⇒ the numbers are out of range. Worth
+     saying so, instead of showing the same "fill this in" prompt. */
+  const heightFilled = mode === 'cm' ? cm !== '' : ft !== '' || inch !== ''
+  const outOfRange = heightFilled && weight !== '' && !result
+
+  const accentText = {
+    volt: 'text-volt-300',
+    titan: 'text-titan-300',
+    amber: 'text-amber-300',
+    rage: 'text-rage-300',
+  }
+  const accentBadge = {
+    volt: 'badge-volt',
+    titan: 'badge-titan',
+    amber: 'badge-amber',
+    rage: 'badge-rage',
+  }
 
   return (
     <Section id="bmi">
@@ -96,14 +136,17 @@ export default function BmiCalculator() {
           </div>
 
           {/* Gender */}
-          <div className="mt-5">
-            <span className="label">Gender</span>
+          <div className="mt-5" role="group" aria-labelledby="bmi-gender-label">
+            <span className="label" id="bmi-gender-label">
+              Gender
+            </span>
             <div className="grid grid-cols-2 gap-2">
               {['male', 'female'].map((g) => (
                 <button
                   key={g}
                   type="button"
                   onClick={() => setGender(g)}
+                  aria-pressed={gender === g}
                   className={`rounded-xl border px-4 py-3 text-sm font-medium capitalize transition ${
                     gender === g
                       ? 'border-volt-400/60 bg-volt-500/12 text-volt-100'
@@ -119,8 +162,14 @@ export default function BmiCalculator() {
           {/* Height mode toggle */}
           <div className="mt-5">
             <div className="flex items-center justify-between">
-              <span className="label mb-0">Height</span>
-              <div className="inline-flex rounded-lg border border-silver-300/12 bg-ink-900/70 p-0.5 text-xs">
+              <span className="label mb-0" id="bmi-height-label">
+                Height
+              </span>
+              <div
+                className="inline-flex rounded-lg border border-silver-300/12 bg-ink-900/70 p-0.5 text-xs"
+                role="group"
+                aria-label="Height unit"
+              >
                 {[
                   ['cm', 'cm'],
                   ['ft', 'ft / in'],
@@ -129,6 +178,7 @@ export default function BmiCalculator() {
                     key={m}
                     type="button"
                     onClick={() => setMode(m)}
+                    aria-pressed={mode === m}
                     className={`rounded-md px-3 py-1.5 font-medium transition ${
                       mode === m ? 'bg-volt-500/20 text-volt-100' : 'text-silver-500 hover:text-silver-200'
                     }`}
@@ -142,6 +192,9 @@ export default function BmiCalculator() {
               <input
                 type="number"
                 inputMode="decimal"
+                min={H_MIN}
+                max={H_MAX}
+                step="1"
                 value={cm}
                 onChange={(e) => setCm(e.target.value)}
                 placeholder="e.g. 175"
@@ -153,6 +206,9 @@ export default function BmiCalculator() {
                 <input
                   type="number"
                   inputMode="numeric"
+                  min="3"
+                  max="7"
+                  step="1"
                   value={ft}
                   onChange={(e) => setFt(e.target.value)}
                   placeholder="feet"
@@ -162,6 +218,9 @@ export default function BmiCalculator() {
                 <input
                   type="number"
                   inputMode="numeric"
+                  min="0"
+                  max="11"
+                  step="1"
                   value={inch}
                   onChange={(e) => setInch(e.target.value)}
                   placeholder="inches"
@@ -178,6 +237,9 @@ export default function BmiCalculator() {
             <input
               type="number"
               inputMode="decimal"
+              min={W_MIN}
+              max={W_MAX}
+              step="0.1"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
               placeholder="e.g. 72"
@@ -202,10 +264,24 @@ export default function BmiCalculator() {
 
           {!result ? (
             <div className="mt-8 flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-silver-300/12 bg-ink-900/40 px-6 py-14 text-center">
-              <Scale className="h-10 w-10 text-silver-600" />
-              <p className="max-w-xs text-sm text-silver-500">
-                Fill in your gender, height and a realistic weight to see your BMI and healthy range.
-              </p>
+              <Scale className="h-10 w-10 text-silver-500" />
+              {outOfRange ? (
+                <p className="max-w-xs text-sm text-silver-400">
+                  Those numbers are outside the range this calculator covers. Use a height of{' '}
+                  <span className="font-semibold text-silver-200">
+                    {H_MIN}–{H_MAX} cm
+                  </span>{' '}
+                  (about 3 ft 11 in – 7 ft 7 in) and a weight of{' '}
+                  <span className="font-semibold text-silver-200">
+                    {W_MIN}–{W_MAX} kg
+                  </span>
+                  .
+                </p>
+              ) : (
+                <p className="max-w-xs text-sm text-silver-500">
+                  Fill in your gender, height and a realistic weight to see your BMI and healthy range.
+                </p>
+              )}
             </div>
           ) : (
             <div className="mt-6">
@@ -218,26 +294,57 @@ export default function BmiCalculator() {
                 <span className={`${accentBadge[result.cat.accent]} text-sm`}>{result.cat.label}</span>
               </div>
 
-              {/* BMI scale bar */}
+              {/* BMI scale bar — segments, ticks and marker all derive from BANDS */}
               <div className="mt-5">
                 <div className="relative h-3 overflow-hidden rounded-full bg-ink-900">
                   <div className="absolute inset-0 flex">
-                    <div className="h-full bg-volt-500/70" style={{ width: `${((18.5 - BMI_MIN) / (BMI_MAX - BMI_MIN)) * 100}%` }} />
-                    <div className="h-full bg-titan-500/80" style={{ width: `${((25 - 18.5) / (BMI_MAX - BMI_MIN)) * 100}%` }} />
-                    <div className="h-full bg-amber-500/70" style={{ width: `${((30 - 25) / (BMI_MAX - BMI_MIN)) * 100}%` }} />
-                    <div className="h-full flex-1 bg-rage-600/80" />
+                    {BANDS.map((b, i) => (
+                      <div key={b.key} className={`h-full ${b.bar}`} style={{ width: `${bandWidths[i]}%` }} />
+                    ))}
                   </div>
                   <div
                     className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-ink-950 shadow-lg transition-[left] duration-500 ease-power"
                     style={{ left: `${result.pct}%` }}
                   />
                 </div>
-                <div className="mt-1.5 flex justify-between text-[0.6rem] uppercase tracking-brand text-silver-600">
-                  <span>15</span>
-                  <span>Under</span>
-                  <span>Normal</span>
-                  <span>Over</span>
-                  <span>40</span>
+
+                {/* Boundary values, each sitting exactly where its band ends */}
+                <div className="relative mt-1.5 h-3.5 text-[0.6rem] tracking-brand text-silver-500">
+                  {TICKS.map((t, i) => (
+                    <span
+                      key={t}
+                      className="absolute top-0 whitespace-nowrap"
+                      style={{
+                        left: `${scalePct(t)}%`,
+                        transform:
+                          i === 0
+                            ? 'none'
+                            : i === TICKS.length - 1
+                              ? 'translateX(-100%)'
+                              : 'translateX(-50%)',
+                      }}
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Band legend, with the one you are in called out */}
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                  {BANDS.map((b) => {
+                    const on = b.key === result.cat.key
+                    return (
+                      <span
+                        key={b.key}
+                        className={`flex items-center gap-1.5 text-[0.62rem] uppercase tracking-brand ${
+                          on ? `font-semibold ${accentText[b.accent]}` : 'text-silver-500'
+                        }`}
+                      >
+                        <span className={`h-1.5 w-1.5 rounded-full ${b.bar}`} />
+                        {b.short}
+                      </span>
+                    )
+                  })}
                 </div>
               </div>
 

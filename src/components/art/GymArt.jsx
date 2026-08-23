@@ -7,11 +7,19 @@ import { ACCENTS } from './Decor.jsx'
 let n = 0
 const uid = () => `gm${(n += 1)}`
 
-function Scene({ accent, children }) {
+/* `label` names the scene for screen readers where it stands alone (the
+   lightbox). Left off, the scene is decorative and hidden from the a11y tree —
+   the tile caption next to it already carries the same words. */
+function Scene({ accent, label, children }) {
   const c = ACCENTS[accent] || ACCENTS.volt
   const id = uid()
   return (
-    <svg viewBox="0 0 320 240" className="h-full w-full" role="img" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+    <svg
+      viewBox="0 0 320 240"
+      className="h-full w-full"
+      preserveAspectRatio="xMidYMid slice"
+      {...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true', focusable: 'false' })}
+    >
       <defs>
         <linearGradient id={`${id}sky`} x1="0" y1="0" x2="0" y2="240" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#10141f" />
@@ -131,11 +139,13 @@ const ART = {
   ),
 }
 
-export default function GymArt({ name, accent = 'volt', className = '' }) {
+export default function GymArt({ name, accent = 'volt', className = '', label }) {
   const draw = ART[name] || ART.rack
   return (
     <span className={className}>
-      <Scene accent={accent}>{draw}</Scene>
+      <Scene accent={accent} label={label}>
+        {draw}
+      </Scene>
     </span>
   )
 }

@@ -205,7 +205,7 @@ export default function Contact() {
               )}
             </div>
             {(!gym.email || !gym.youtube) && (
-              <p className="mt-3 text-[0.7rem] text-silver-600">
+              <p className="mt-3 text-[0.7rem] text-silver-500">
                 {!gym.email && !gym.youtube
                   ? 'Email and YouTube are not set up yet — call or message us on WhatsApp instead.'
                   : !gym.email

@@ -12,11 +12,18 @@ let n = 0
 const uid = () => `ex${(n += 1)}`
 
 // Shared frame: gradient defs + backdrop. Children draw in a 0..200 x 0..150 box.
-function Frame({ accent, children }) {
+// `label` decides the a11y treatment: named image when the drawing carries
+// meaning on its own, hidden when the surrounding text already says it.
+function Frame({ accent, label, children }) {
   const c = ACCENTS[accent] || ACCENTS.volt
   const id = uid()
   return (
-    <svg viewBox="0 0 200 150" className="h-full w-full" role="img" preserveAspectRatio="xMidYMid meet">
+    <svg
+      viewBox="0 0 200 150"
+      className="h-full w-full"
+      preserveAspectRatio="xMidYMid meet"
+      {...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true', focusable: 'false' })}
+    >
       <defs>
         <linearGradient id={`${id}g`} x1="0" y1="0" x2="0" y2="150" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor={c.light} />
@@ -248,11 +255,13 @@ const ART = {
   ),
 }
 
-export default function ExerciseArt({ name, accent = 'volt', className = '' }) {
+export default function ExerciseArt({ name, accent = 'volt', className = '', label }) {
   const draw = ART[name] || ART.pushup
   return (
-    <span className={className} aria-hidden="false">
-      <Frame accent={accent}>{draw}</Frame>
+    <span className={className}>
+      <Frame accent={accent} label={label}>
+        {draw}
+      </Frame>
     </span>
   )
 }

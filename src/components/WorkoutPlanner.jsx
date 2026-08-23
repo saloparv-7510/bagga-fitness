@@ -26,7 +26,11 @@ export default function WorkoutPlanner() {
 
       {/* Level tabs */}
       <Reveal className="mx-auto mb-6 flex max-w-xl flex-col items-center gap-3">
-        <div className="inline-flex w-full rounded-2xl border border-silver-300/12 bg-ink-900/70 p-1 sm:w-auto">
+        <div
+          className="inline-flex w-full rounded-2xl border border-silver-300/12 bg-ink-900/70 p-1 sm:w-auto"
+          role="group"
+          aria-label="Training level"
+        >
           {levels.map((l) => {
             const a = accentMap[l.accent]
             const on = level === l.id
@@ -35,6 +39,7 @@ export default function WorkoutPlanner() {
                 key={l.id}
                 type="button"
                 onClick={() => setLevel(l.id)}
+                aria-pressed={on}
                 className={`flex-1 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition sm:px-6 ${
                   on ? `${a.chip}` : 'text-silver-400 hover:text-silver-100'
                 }`}

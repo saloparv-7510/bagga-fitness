@@ -4,7 +4,7 @@ import { gallery } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import GymArt from './art/GymArt.jsx'
-import { useLockBodyScroll, useKeyDown } from '../hooks/index.js'
+import { useLockBodyScroll, useKeyDown, useFocusTrap } from '../hooks/index.js'
 
 const accentBadge = { volt: 'badge-volt', titan: 'badge-titan', rage: 'badge-rage' }
 
@@ -19,6 +19,7 @@ export default function Gallery() {
   const [idx, setIdx] = useState(-1)
   const open = idx >= 0
   useLockBodyScroll(open)
+  const trapRef = useFocusTrap(open)
 
   const show = (i) => setIdx((i + gallery.length) % gallery.length)
   const active = open ? gallery[idx] : null
@@ -66,16 +67,23 @@ export default function Gallery() {
 
       {/* Lightbox */}
       {open && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" role="dialog" aria-modal="true">
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="gallery-lightbox-title"
+        >
           <div className="absolute inset-0 bg-ink-950/90" onClick={() => setIdx(-1)} />
-          <div className="relative z-10 w-full max-w-3xl">
+          <div ref={trapRef} className="relative z-10 w-full max-w-3xl">
             <div className="card overflow-hidden">
               <div className="relative aspect-[16/10] w-full">
-                <GymArt name={active.art} accent={active.accent} className="block h-full w-full" />
+                <GymArt name={active.art} accent={active.accent} label={`${active.title} — ${active.tag}`} className="block h-full w-full" />
               </div>
               <div className="flex items-center justify-between p-4">
                 <div>
-                  <div className="text-lg font-semibold text-silver-100">{active.title}</div>
+                  <div id="gallery-lightbox-title" className="text-lg font-semibold text-silver-100">
+                    {active.title}
+                  </div>
                   <span className={accentBadge[active.accent]}>{active.tag}</span>
                 </div>
                 <span className="text-xs text-silver-500">
@@ -88,7 +96,7 @@ export default function Gallery() {
               type="button"
               onClick={() => setIdx(-1)}
               className="absolute -top-3 right-0 grid h-10 w-10 -translate-y-full place-items-center rounded-full bg-ink-800 text-silver-200 hover:text-white sm:-right-3 sm:top-0 sm:translate-y-0"
-              aria-label="Close"
+              aria-label="Close gallery viewer"
             >
               <X className="h-5 w-5" />
             </button>
@@ -96,7 +104,7 @@ export default function Gallery() {
               type="button"
               onClick={() => show(idx - 1)}
               className="absolute left-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-ink-950/70 text-silver-200 hover:text-white"
-              aria-label="Previous"
+              aria-label="Previous image"
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
@@ -104,7 +112,7 @@ export default function Gallery() {
               type="button"
               onClick={() => show(idx + 1)}
               className="absolute right-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-ink-950/70 text-silver-200 hover:text-white"
-              aria-label="Next"
+              aria-label="Next image"
             >
               <ChevronRight className="h-6 w-6" />
             </button>

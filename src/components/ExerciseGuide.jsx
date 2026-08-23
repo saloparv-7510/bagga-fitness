@@ -4,7 +4,7 @@ import { exercises, muscleGroups } from '../data/exercises.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import ExerciseArt from './art/ExerciseArt.jsx'
-import { useLockBodyScroll, useKeyDown } from '../hooks/index.js'
+import { useLockBodyScroll, useKeyDown, useFocusTrap } from '../hooks/index.js'
 
 const levelBadge = {
   Beginner: 'badge-titan',
@@ -26,18 +26,32 @@ const accentOf = (ex) => ex.accent || groupAccent[ex.group] || 'volt'
 function ExerciseModal({ ex, onClose }) {
   useLockBodyScroll(!!ex)
   useKeyDown(!!ex, { Escape: onClose })
+  const trapRef = useFocusTrap(!!ex)
   if (!ex) return null
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="exercise-modal-title"
+    >
       <div className="absolute inset-0 bg-ink-950/80" onClick={onClose} />
-      <div className="glass-strong relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-silver-300/12 shadow-plate sm:rounded-3xl">
+      <div
+        ref={trapRef}
+        className="glass-strong relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-silver-300/12 shadow-plate sm:rounded-3xl"
+      >
         <div className="relative aspect-[16/10] w-full overflow-hidden rounded-t-3xl">
-          <ExerciseArt name={ex.art} accent={accentOf(ex)} className="block h-full w-full" />
+          <ExerciseArt
+            name={ex.art}
+            accent={accentOf(ex)}
+            label={`Illustration of the ${ex.name}`}
+            className="block h-full w-full"
+          />
           <button
             type="button"
             onClick={onClose}
             className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-ink-950/70 text-silver-200 hover:text-white"
-            aria-label="Close"
+            aria-label={`Close ${ex.name}`}
           >
             <X className="h-5 w-5" />
           </button>
@@ -48,7 +62,9 @@ function ExerciseModal({ ex, onClose }) {
             <span className="badge-silver">{ex.equipment}</span>
             <span className="badge-silver">{ex.sets}</span>
           </div>
-          <h3 className="mt-3 text-2xl font-bold text-silver-100">{ex.name}</h3>
+          <h3 id="exercise-modal-title" className="mt-3 text-2xl font-bold text-silver-100">
+            {ex.name}
+          </h3>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-volt-300">
             <Target className="h-4 w-4" /> {ex.body}
           </p>
@@ -103,12 +119,17 @@ export default function ExerciseGuide() {
 
       {/* Filter rail */}
       <Reveal className="mb-8 -mx-4 overflow-x-auto px-4 no-scrollbar rail-fade sm:mx-0 sm:px-0">
-        <div className="flex w-max gap-2 sm:w-auto sm:flex-wrap sm:justify-center">
+        <div
+          className="flex w-max gap-2 sm:w-auto sm:flex-wrap sm:justify-center"
+          role="group"
+          aria-label="Filter exercises by body part"
+        >
           {muscleGroups.map((g) => (
             <button
               key={g.id}
               type="button"
               onClick={() => setFilter(g.id)}
+              aria-pressed={filter === g.id}
               className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
                 filter === g.id
                   ? 'border-volt-400/50 bg-volt-500/12 text-volt-100'

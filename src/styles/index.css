@@ -262,6 +262,13 @@
     @apply chip border-rage-500/35 text-rage-300;
     background-color: rgba(239, 68, 68, 0.12);
   }
+  /* Overweight band on the BMI scale — keeps the badge in step with the amber
+     segment of the scale bar (blue → green → amber → red is the conventional
+     BMI ramp, so the badge must not be red while the segment is amber). */
+  .badge-amber {
+    @apply chip border-amber-400/35 text-amber-200;
+    background-color: rgba(245, 158, 11, 0.12);
+  }
   .badge-silver {
     @apply chip border-silver-300/25 text-silver-200;
   }

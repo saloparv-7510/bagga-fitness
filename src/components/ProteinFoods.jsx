@@ -24,12 +24,13 @@ export default function ProteinFoods() {
         sub="Veg and non-veg sources with protein per 100 g and a real-world serving. Build your plate around these."
       />
 
-      <Reveal className="mb-8 flex flex-wrap justify-center gap-2">
+      <Reveal className="mb-8 flex flex-wrap justify-center gap-2" role="group" aria-label="Filter foods by category">
         {foodCategories.map((c) => (
           <button
             key={c.id}
             type="button"
             onClick={() => setCat(c.id)}
+            aria-pressed={cat === c.id}
             className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
               cat === c.id
                 ? 'border-titan-400/50 bg-titan-500/12 text-titan-100'

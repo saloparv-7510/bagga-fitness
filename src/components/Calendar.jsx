@@ -100,30 +100,57 @@ export default function Calendar() {
           </div>
 
           {/* Weekday header */}
-          <div className="mt-5 grid grid-cols-7 gap-1.5 sm:gap-2">
+          <div
+            className="mt-5 grid grid-cols-7 gap-1.5 sm:gap-2"
+            role="list"
+            aria-label={`${MONTHS[view.m]} ${view.y} training calendar`}
+          >
             {DOW.map((d) => (
-              <div key={d} className="pb-1 text-center text-[0.6rem] font-semibold uppercase tracking-brand text-silver-500 sm:text-xs">
+              <div
+                key={d}
+                aria-hidden="true"
+                className="pb-1 text-center text-[0.6rem] font-semibold uppercase tracking-brand text-silver-500 sm:text-xs"
+              >
                 {d}
               </div>
             ))}
             {cells.map((c, i) => {
-              if (!c) return <div key={`e${i}`} className="aspect-square" />
+              if (!c) return <div key={`e${i}`} className="aspect-square" aria-hidden="true" />
               const a = c.split.accent
+              /* The visible cell is a number plus a colour. Spell the whole
+                 thing out for screen readers — and for keyboards, which never
+                 see the `title` tooltip. role="listitem" so the name is
+                 actually announced: a bare div supports no accessible name. */
+              const label = `${c.d} ${MONTHS[view.m]}, ${c.split.day}: ${
+                c.split.rest ? 'rest day' : c.split.focus
+              }${isToday(c) ? ' (today)' : ''}`
               return (
                 <div
                   key={c.d}
+                  role="listitem"
                   className={`relative flex aspect-square flex-col justify-between rounded-lg border p-1.5 transition sm:p-2 ${
                     c.split.rest ? 'border-silver-300/10 bg-ink-900/40 stripes' : accentCell[a] || accentCell.volt
                   } ${isToday(c) ? 'ring-2 ring-white/70' : ''}`}
                   title={`${c.split.day}: ${c.split.focus}`}
+                  aria-label={label}
+                  {...(isToday(c) ? { 'aria-current': 'date' } : {})}
                 >
-                  <span className={`text-xs font-bold sm:text-sm ${isToday(c) ? 'text-white' : 'text-silver-200'}`}>
+                  <span
+                    aria-hidden="true"
+                    className={`text-xs font-bold sm:text-sm ${isToday(c) ? 'text-white' : 'text-silver-200'}`}
+                  >
                     {c.d}
                   </span>
-                  <span className={`hidden text-[0.58rem] font-medium leading-tight sm:block ${accentText[a] || 'text-silver-400'}`}>
+                  <span
+                    aria-hidden="true"
+                    className={`hidden text-[0.58rem] font-medium leading-tight sm:block ${accentText[a] || 'text-silver-400'}`}
+                  >
                     {c.split.rest ? 'Rest' : c.split.focus.split(' + ')[0]}
                   </span>
-                  <span className={`h-1.5 w-1.5 rounded-full sm:hidden ${c.split.rest ? 'bg-silver-500' : accentDot[a]}`} />
+                  <span
+                    aria-hidden="true"
+                    className={`h-1.5 w-1.5 rounded-full sm:hidden ${c.split.rest ? 'bg-silver-500' : accentDot[a]}`}
+                  />
                 </div>
               )
             })}

@@ -43,7 +43,10 @@ export default {
           200: '#e2e8f0',
           300: '#c7d0de',
           400: '#94a3b8',
-          500: '#6b7688',
+          // Dimmest step on purpose: this is the muted/fine-print colour, so it
+          // is tuned to clear WCAG AA 4.5:1 on the ink-950 base (4.8:1).
+          // There is no `600` — anything dimmer fails contrast on this palette.
+          500: '#707c8e',
         },
       },
       fontFamily: {

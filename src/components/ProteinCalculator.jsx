@@ -13,6 +13,11 @@ const goals = [
 const accentText = { volt: 'text-volt-300', titan: 'text-titan-300', rage: 'text-rage-300' }
 const accentBadge = { volt: 'badge-volt', titan: 'badge-titan', rage: 'badge-rage' }
 
+/* Accepted bodyweight range. One pair of constants drives the slider bounds,
+   the number input, the validity gate and the message, so they cannot drift. */
+const W_MIN = 35
+const W_MAX = 160
+
 export default function ProteinCalculator() {
   const [weight, setWeight] = useState(70)
   const [goal, setGoal] = useState('build')
@@ -20,7 +25,7 @@ export default function ProteinCalculator() {
 
   const res = useMemo(() => {
     const w = Number(weight) || 0
-    if (w < 30 || w > 200) return null
+    if (w < W_MIN || w > W_MAX) return null
     const lo = Math.round(w * active.lo)
     const hi = Math.round(w * active.hi)
     const mid = Math.round((lo + hi) / 2)
@@ -34,6 +39,14 @@ export default function ProteinCalculator() {
       chicken: Math.round((mid / 31) * 100),
     }
   }, [weight, active])
+
+  /* The field can be empty (the user cleared it) or hold an out-of-range
+     number. Neither may leak into the slider fill or the readout. */
+  const numeric = Number(weight)
+  const hasWeight = weight !== '' && Number.isFinite(numeric)
+  const sliderValue = hasWeight ? Math.min(Math.max(numeric, W_MIN), W_MAX) : W_MIN
+  const sliderPct = ((sliderValue - W_MIN) / (W_MAX - W_MIN)) * 100
+
 
   return (
     <Section id="protein" plated>
@@ -54,7 +67,7 @@ export default function ProteinCalculator() {
           </div>
 
           {/* Goal selector */}
-          <div className="mt-5 grid gap-2">
+          <div className="mt-5 grid gap-2" role="group" aria-label="Training goal">
             {goals.map((g) => {
               const on = goal === g.id
               return (
@@ -62,6 +75,7 @@ export default function ProteinCalculator() {
                   key={g.id}
                   type="button"
                   onClick={() => setGoal(g.id)}
+                  aria-pressed={on}
                   className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left transition ${
                     on
                       ? 'border-titan-400/50 bg-titan-500/10'
@@ -86,25 +100,30 @@ export default function ProteinCalculator() {
           <div className="mt-6">
             <div className="flex items-center justify-between">
               <span className="label mb-0">Bodyweight</span>
-              <span className="text-sm font-bold text-silver-100">{weight} kg</span>
+              <span className="text-sm font-bold text-silver-100">
+                {hasWeight ? `${weight} kg` : <span className="text-silver-500">— kg</span>}
+              </span>
             </div>
             <input
               type="range"
-              min="35"
-              max="160"
-              value={weight}
+              min={W_MIN}
+              max={W_MAX}
+              value={sliderValue}
               onChange={(e) => setWeight(e.target.value)}
               className="range mt-3"
-              style={{ backgroundSize: `${((weight - 35) / (160 - 35)) * 100}% 100%` }}
+              style={{ backgroundSize: `${sliderPct}% 100%` }}
               aria-label="Bodyweight in kilograms"
             />
             <input
               type="number"
               inputMode="numeric"
+              min={W_MIN}
+              max={W_MAX}
+              step="0.5"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
               className="field mt-3"
-              aria-label="Bodyweight exact"
+              aria-label="Bodyweight in kilograms, exact value"
             />
           </div>
 
@@ -127,7 +146,16 @@ export default function ProteinCalculator() {
 
           {!res ? (
             <div className="mt-8 rounded-2xl border border-dashed border-silver-300/12 bg-ink-900/40 px-6 py-14 text-center text-sm text-silver-500">
-              Enter a realistic bodyweight (35–160 kg) to see your target.
+              {hasWeight ? (
+                <>
+                  <span className="font-semibold text-silver-200">{weight} kg</span> is outside the range this
+                  calculator covers. Enter a bodyweight between {W_MIN} and {W_MAX} kg.
+                </>
+              ) : (
+                <>
+                  Enter a realistic bodyweight ({W_MIN}–{W_MAX} kg) to see your target.
+                </>
+              )}
             </div>
           ) : (
             <div className="mt-6">

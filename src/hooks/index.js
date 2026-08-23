@@ -17,8 +17,10 @@ export function useScrollSpy(ids, offset = 90) {
         if (top - line <= 0) current = id
       }
       // near the very bottom, force the last section (short final sections
-      // can never reach the trigger line on their own)
-      if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) {
+      // can never reach the trigger line on their own).
+      // documentElement, not body: body can be shorter than the scrollable
+      // document once margins collapse, which fires this clamp too early.
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
         current = ids[ids.length - 1]
       }
       setActive((prev) => (prev === current ? prev : current))
@@ -35,16 +37,93 @@ export function useScrollSpy(ids, offset = 90) {
   return active
 }
 
-/* Lock body scroll while the mobile menu / lightbox is open. */
+/* Lock body scroll while the mobile menu / lightbox is open.
+   Pads the body by the width of the scrollbar it removes, otherwise every
+   desktop overlay shifts the whole page ~15px to the right as it opens. */
 export function useLockBodyScroll(locked) {
   useEffect(() => {
     if (!locked) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const { body } = document
+    const prevOverflow = body.style.overflow
+    const prevPad = body.style.paddingRight
+    // Overlay scrollbars (most phones, macOS by default) report 0 — no padding.
+    const gap = window.innerWidth - document.documentElement.clientWidth
+    body.style.overflow = 'hidden'
+    if (gap > 0) {
+      const current = parseFloat(window.getComputedStyle(body).paddingRight) || 0
+      body.style.paddingRight = `${current + gap}px`
+    }
     return () => {
-      document.body.style.overflow = prev
+      body.style.overflow = prevOverflow
+      body.style.paddingRight = prevPad
     }
   }, [locked])
+}
+
+/* Accessible overlay plumbing: move focus in, keep Tab inside, put focus back
+   where it was on close. Returns the ref to spread on the dialog container. */
+export function useFocusTrap(active) {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!active) return
+    const container = ref.current
+    if (!container) return
+
+    const previous = document.activeElement
+    const focusables = () =>
+      Array.from(
+        container.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => el.offsetParent !== null || el === document.activeElement)
+
+    // Focus the first control, or the container itself as a fallback.
+    const first = focusables()[0]
+    if (first) first.focus()
+    else {
+      container.setAttribute('tabindex', '-1')
+      container.focus()
+    }
+
+    const onKey = (e) => {
+      if (e.key !== 'Tab') return
+      const items = focusables()
+      if (!items.length) {
+        e.preventDefault()
+        return
+      }
+      const firstEl = items[0]
+      const lastEl = items[items.length - 1]
+      // Focus escaping the dialog (or sitting on the container) wraps back in.
+      if (!container.contains(document.activeElement)) {
+        e.preventDefault()
+        firstEl.focus()
+        return
+      }
+      if (e.shiftKey && document.activeElement === firstEl) {
+        e.preventDefault()
+        lastEl.focus()
+      } else if (!e.shiftKey && document.activeElement === lastEl) {
+        e.preventDefault()
+        firstEl.focus()
+      }
+    }
+
+    document.addEventListener('keydown', onKey, true)
+    return () => {
+      document.removeEventListener('keydown', onKey, true)
+      /* Restore focus only if it would otherwise be lost. Two cases reach
+         here: the dialog is still mounted and holds focus, or React already
+         removed it and focus fell back to <body>. Anything else means focus
+         moved somewhere deliberate, so leave it alone. */
+      const activeEl = document.activeElement
+      const focusWouldBeLost = !activeEl || activeEl === document.body || container.contains(activeEl)
+      if (previous instanceof HTMLElement && focusWouldBeLost) previous.focus()
+    }
+  }, [active])
+
+  return ref
 }
 
 /* Close-on-Escape for overlays (mobile drawer, modal, lightbox).
