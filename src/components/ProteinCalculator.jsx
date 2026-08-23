@@ -104,14 +104,18 @@ export default function ProteinCalculator() {
                 {hasWeight ? `${weight} kg` : <span className="text-silver-500">— kg</span>}
               </span>
             </div>
+            {/* The input's own box is a full 44px touch target — the visible
+                6px track is drawn on its track pseudo-element, which is why the
+                fill arrives as a `--fill` custom property rather than as
+                background-size on the element. See `.range` in index.css. */}
             <input
               type="range"
               min={W_MIN}
               max={W_MAX}
               value={sliderValue}
               onChange={(e) => setWeight(e.target.value)}
-              className="range mt-3"
-              style={{ backgroundSize: `${sliderPct}% 100%` }}
+              className="range mt-1"
+              style={{ '--fill': `${sliderPct}%` }}
               aria-label="Bodyweight in kilograms"
             />
             <input
@@ -122,7 +126,7 @@ export default function ProteinCalculator() {
               step="0.5"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
-              className="field mt-3"
+              className="field mt-1"
               aria-label="Bodyweight in kilograms, exact value"
             />
           </div>

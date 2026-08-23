@@ -31,7 +31,7 @@ export default function ProteinFoods() {
             type="button"
             onClick={() => setCat(c.id)}
             aria-pressed={cat === c.id}
-            className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
+            className={`tap whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
               cat === c.id
                 ? 'border-titan-400/50 bg-titan-500/12 text-titan-100'
                 : 'border-silver-300/12 bg-ink-900/70 text-silver-400 hover:text-silver-100'

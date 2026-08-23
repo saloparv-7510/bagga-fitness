@@ -10,7 +10,15 @@ import {
   Crown,
   MessageCircle,
 } from 'lucide-react'
-import { facilities, coaches, coachSplit, membership, waLink } from '../data/site.js'
+import {
+  facilities,
+  facilitiesNote,
+  coaches,
+  coachSplit,
+  membership,
+  membershipNote,
+  waLink,
+} from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import { TorsoMark } from './art/Decor.jsx'
@@ -70,6 +78,12 @@ export default function About() {
           )
         })}
       </div>
+
+      {/* The cards describe the training on offer, not an inventory we have not
+          verified. This note is the honest route to the specifics. */}
+      <Reveal delay={80} className="mx-auto mt-6 max-w-2xl text-center">
+        <p className="text-xs leading-relaxed text-silver-500">{facilitiesNote}</p>
+      </Reveal>
 
       {/* Coaches */}
       <div className="mt-16">
@@ -181,6 +195,12 @@ export default function About() {
             </Reveal>
           ))}
         </div>
+
+        {/* Prices are confirmed; what a tier "includes" is not. Say which is
+            which instead of padding the cards with invented inclusions. */}
+        <Reveal delay={80} className="mx-auto mt-6 max-w-2xl text-center">
+          <p className="text-xs leading-relaxed text-silver-500">{membershipNote}</p>
+        </Reveal>
       </div>
     </Section>
   )

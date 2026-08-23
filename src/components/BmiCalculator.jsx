@@ -179,7 +179,10 @@ export default function BmiCalculator() {
                     type="button"
                     onClick={() => setMode(m)}
                     aria-pressed={mode === m}
-                    className={`rounded-md px-3 py-1.5 font-medium transition ${
+                    /* 2.5rem per segment puts the group itself at 44px, which
+                       is the region a thumb actually lands on. py-1.5 left
+                       these at 28px — too small to hit on a phone. */
+                    className={`grid min-h-[2.5rem] place-items-center rounded-md px-3.5 font-medium transition ${
                       mode === m ? 'bg-volt-500/20 text-volt-100' : 'text-silver-500 hover:text-silver-200'
                     }`}
                   >

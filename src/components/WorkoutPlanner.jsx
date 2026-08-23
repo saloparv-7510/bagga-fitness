@@ -40,7 +40,7 @@ export default function WorkoutPlanner() {
                 type="button"
                 onClick={() => setLevel(l.id)}
                 aria-pressed={on}
-                className={`flex-1 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition sm:px-6 ${
+                className={`tap flex-1 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition sm:px-6 ${
                   on ? `${a.chip}` : 'text-silver-400 hover:text-silver-100'
                 }`}
               >

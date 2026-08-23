@@ -190,6 +190,241 @@ export function WebCorner({ className = '', accent = 'volt' }) {
   )
 }
 
+/* ---------------------------------------------------------------------------
+   SPIDER-INSPIRED SET.
+   A web is a geometric structure, not a character — every shape below is
+   generated from our own maths (a fan of spokes plus sagging chords between
+   them). No Marvel logo, costume, character or spider silhouette appears here,
+   deliberately: the emblem is an eight-spoke web rosette, which is a web motif
+   rather than anybody's trademark.
+   Performance: all strokes, no filters, no per-frame geometry. Anything that
+   moves does it with opacity/transform only (see animate-senseRing).
+   --------------------------------------------------------------------------- */
+
+/* Large corner-anchored web with the proper inward sag, for section
+   backgrounds. Anchored at the viewBox's top-left corner — flip it with
+   `-scale-x-100` for the opposite corner. */
+export function WebNet({
+  className = '',
+  accent = 'silver',
+  opacity = 0.5,
+  spokes = 9,
+  rings = 6,
+  size = 400,
+}) {
+  const c = ACCENTS[accent] || ACCENTS.silver
+  const R = size * 1.05
+  const angles = Array.from({ length: spokes }, (_, i) => (Math.PI / 2) * (i / (spokes - 1)))
+  const radii = Array.from({ length: rings }, (_, i) => (R * (i + 1)) / (rings + 0.5))
+  const at = (a, r) => [Math.cos(a) * r, Math.sin(a) * r]
+
+  /* One ring = a chain of quadratic curves whose control point sits nearer the
+     anchor than its endpoints, which is what gives a real web its sag. */
+  const ring = (r) => {
+    const [x0, y0] = at(angles[0], r)
+    let d = `M${x0.toFixed(1)} ${y0.toFixed(1)}`
+    for (let i = 0; i < angles.length - 1; i += 1) {
+      const [qx, qy] = at((angles[i] + angles[i + 1]) / 2, r * 0.9)
+      const [x, y] = at(angles[i + 1], r)
+      d += ` Q${qx.toFixed(1)} ${qy.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`
+    }
+    return d
+  }
+
+  return (
+    <svg
+      viewBox={`0 0 ${size} ${size}`}
+      className={className}
+      fill="none"
+      aria-hidden="true"
+      style={{ opacity }}
+    >
+      <g stroke={c.main} strokeLinecap="round">
+        {angles.map((a, i) => {
+          const [x, y] = at(a, R)
+          return (
+            <line
+              key={`s${i}`}
+              x1="0"
+              y1="0"
+              x2={x.toFixed(1)}
+              y2={y.toFixed(1)}
+              strokeWidth={i % 2 ? 0.6 : 0.95}
+            />
+          )
+        })}
+        {radii.map((r, i) => (
+          <path key={`r${i}`} d={ring(r)} strokeWidth={i % 2 ? 0.55 : 0.85} />
+        ))}
+      </g>
+    </svg>
+  )
+}
+
+/* Eight-spoke web rosette. Our own geometric mark — a web structure, not a
+   spider and not anyone's logo. Used as the Legend Protocols badge. */
+export function WebEmblem({ className = '', accent = 'rage' }) {
+  const c = ACCENTS[accent] || ACCENTS.rage
+  const id = nextId()
+  const spokes = 8
+  const at = (i, r) => {
+    const a = (Math.PI * 2 * i) / spokes - Math.PI / 2
+    return [50 + Math.cos(a) * r, 50 + Math.sin(a) * r]
+  }
+  const ring = (r, sag) => {
+    const [x0, y0] = at(0, r)
+    let d = `M${x0.toFixed(1)} ${y0.toFixed(1)}`
+    for (let i = 1; i <= spokes; i += 1) {
+      const [qx, qy] = at(i - 0.5, r * sag)
+      const [x, y] = at(i, r)
+      d += ` Q${qx.toFixed(1)} ${qy.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`
+    }
+    return `${d}Z`
+  }
+  return (
+    <svg viewBox="0 0 100 100" className={className} fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id={`${id}w`} x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor={c.light} />
+          <stop offset="1" stopColor={c.deep} />
+        </linearGradient>
+      </defs>
+      <g stroke={`url(#${id}w)`} strokeLinecap="round" strokeLinejoin="round">
+        {Array.from({ length: spokes }, (_, i) => {
+          const [x, y] = at(i, 44)
+          return <line key={i} x1="50" y1="50" x2={x.toFixed(1)} y2={y.toFixed(1)} strokeWidth="1.5" />
+        })}
+        <path d={ring(44, 0.9)} strokeWidth="1.7" />
+        <path d={ring(30, 0.9)} strokeWidth="1.3" />
+        <path d={ring(16, 0.9)} strokeWidth="1.1" />
+      </g>
+      <circle cx="50" cy="50" r="3.4" fill={c.light} />
+    </svg>
+  )
+}
+
+/* A single hanging strand with dew nodes — used as a section divider.
+   `animate-strandSway` gives it a barely-there drift; transform only. */
+export function WebStrand({ className = '', accent = 'volt' }) {
+  const c = ACCENTS[accent] || ACCENTS.volt
+  const id = nextId()
+  return (
+    <svg viewBox="0 0 24 160" className={className} fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id={`${id}s`} x1="12" y1="0" x2="12" y2="160" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor={c.main} stopOpacity="0" />
+          <stop offset=".45" stopColor={c.main} stopOpacity=".9" />
+          <stop offset="1" stopColor={c.light} stopOpacity=".9" />
+        </linearGradient>
+      </defs>
+      <path d="M12 0v138" stroke={`url(#${id}s)`} strokeWidth="1.2" strokeLinecap="round" />
+      <g stroke={c.main} strokeWidth="1" strokeLinecap="round" opacity=".55">
+        <path d="M6 54q6 5 12 0M7 84q5 4 10 0M8 112q4 3 8 0" />
+      </g>
+      <circle cx="12" cy="144" r="4" fill={c.light} />
+      <circle cx="12" cy="144" r="7.5" stroke={c.main} strokeWidth="0.8" opacity=".5" />
+    </svg>
+  )
+}
+
+/* "Spider-sense" pulse: concentric rings expanding out of a point. Each ring
+   animates scale + opacity only, staggered, so it stays on the compositor. */
+export function SenseRings({ className = '', accent = 'volt' }) {
+  const c = ACCENTS[accent] || ACCENTS.volt
+  return (
+    <svg viewBox="0 0 120 120" className={className} fill="none" aria-hidden="true">
+      <g stroke={c.main} fill="none">
+        {[24, 38, 52].map((r, i) => (
+          <circle
+            key={r}
+            cx="60"
+            cy="60"
+            r={r}
+            strokeWidth={1.5 - i * 0.35}
+            className="animate-senseRing"
+            style={{
+              animationDelay: `${i * 420}ms`,
+              transformBox: 'fill-box',
+              transformOrigin: 'center',
+            }}
+          />
+        ))}
+      </g>
+      <circle cx="60" cy="60" r="4.5" fill={c.light} />
+    </svg>
+  )
+}
+
+/* Deadlift lockout, line art. Fronts the Iron Volume Protocol card — an
+   abstract figure, not a portrait of anyone. */
+export function PowerLiftMark({ className = '', accent = 'rage' }) {
+  const c = ACCENTS[accent] || ACCENTS.rage
+  return (
+    <svg viewBox="0 0 200 240" className={className} fill="none" aria-hidden="true">
+      <g
+        stroke={c.main}
+        strokeWidth="1.5"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity=".85"
+      >
+        {/* head, torso */}
+        <circle cx="100" cy="30" r="14" />
+        <path d="M78 54c12-8 32-8 44 0 6 5 8 26 6 42-2 14-5 22-5 22H79s-3-8-5-22c-2-16 0-37 4-42Z" />
+        {/* arms hanging straight to the bar */}
+        <path d="M78 60 72 132M122 60l6 72" />
+        {/* the bar and its plates */}
+        <path d="M18 134h164" strokeWidth="2.2" />
+        <circle cx="36" cy="134" r="24" strokeWidth="2" />
+        <circle cx="36" cy="134" r="13" />
+        <circle cx="164" cy="134" r="24" strokeWidth="2" />
+        <circle cx="164" cy="134" r="13" />
+        {/* legs locked out, feet on the floor */}
+        <path d="M89 118c-3 34-3 70-1 104M111 118c3 34 3 70 1 104" />
+        <path d="M42 224h116" strokeWidth="1.8" opacity=".6" />
+      </g>
+    </svg>
+  )
+}
+
+/* Loaded squat, line art. Fronts the Strong & Sculpted card. This is an
+   illustration of a movement, deliberately abstract — see legends.js on why no
+   photograph or likeness of any person is used anywhere on this site. */
+export function AthleteMark({ className = '', accent = 'titan' }) {
+  const c = ACCENTS[accent] || ACCENTS.titan
+  return (
+    <svg viewBox="0 0 200 240" className={className} fill="none" aria-hidden="true">
+      <g
+        stroke={c.main}
+        strokeWidth="1.5"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity=".85"
+      >
+        {/* head + tied-back hair */}
+        <circle cx="100" cy="32" r="13" />
+        <path d="M89 26c-11-3-19 4-20 14 6-4 13-4 19 2" />
+        {/* the bar across the shoulders */}
+        <path d="M24 58h152" strokeWidth="2.2" />
+        <circle cx="42" cy="58" r="21" strokeWidth="2" />
+        <circle cx="42" cy="58" r="11" />
+        <circle cx="158" cy="58" r="21" strokeWidth="2" />
+        <circle cx="158" cy="58" r="11" />
+        {/* arms up to the grip */}
+        <path d="M82 66 66 58M118 66l16-8" />
+        {/* torso braced */}
+        <path d="M80 62c12-6 28-6 40 0 5 4 7 22 5 36-2 12-5 20-5 20H80s-3-8-5-20c-2-14 0-32 5-36Z" />
+        {/* thighs out, shins down — bottom of a squat */}
+        <path d="M84 118c-15 13-20 30-17 46M116 118c15 13 20 30 17 46" />
+        <path d="M67 164c-2 22-1 40 1 58M133 164c2 22 1 40-1 58" />
+        <path d="M40 222h120" strokeWidth="1.8" opacity=".6" />
+      </g>
+    </svg>
+  )
+}
+
 /* Abstract muscle/anatomy silhouette used as a faint watermark. */
 export function TorsoMark({ className = '', accent = 'silver' }) {
   const c = ACCENTS[accent] || ACCENTS.silver

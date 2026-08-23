@@ -10,7 +10,7 @@ const accentBadge = { volt: 'badge-volt', titan: 'badge-titan', rage: 'badge-rag
 
 export default function Supplements() {
   return (
-    <Section id="supplements" plated>
+    <Section id="supplements" plated strand>
       <SectionHeading
         eyebrow="Smart Support"
         title="Supplements That"

@@ -13,19 +13,24 @@ export default function Footer() {
   const [show, setShow] = useState(false)
   useEffect(() => {
     const onScroll = () => setShow(window.scrollY > 700)
+    onScroll() // in case the page opened on a deep #hash, already scrolled
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   const year = new Date().getFullYear()
-  const cols = [nav.slice(1, 6), nav.slice(6)]
+  /* Every section except Home, split evenly. Derived rather than hard-sliced so
+     adding a section to `nav` cannot silently leave one column stranded. */
+  const links = nav.slice(1)
+  const half = Math.ceil(links.length / 2)
+  const cols = [links.slice(0, half), links.slice(half)]
 
   return (
     <footer className="relative mt-8 border-t border-silver-300/10 bg-ink-950/60">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-volt-400/50 to-transparent" />
       <div className="shell grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
-          <a href="#home" onClick={go('home')} className="flex items-center gap-2.5">
+          <a href="#home" onClick={go('home')} className="flex items-center gap-2.5 py-0.5">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-ink-800 shadow-volt">
               <Dumbbell className="h-5 w-5 text-volt-300" strokeWidth={2.4} />
             </span>
@@ -42,7 +47,7 @@ export default function Footer() {
           </p>
           <a
             href={gym.phoneHref}
-            className="mt-2.5 inline-flex items-center gap-2 text-sm text-silver-400 transition-colors hover:text-volt-200"
+            className="mt-1.5 inline-flex items-center gap-2 py-1.5 text-sm text-silver-400 transition-colors hover:text-volt-200"
           >
             <Phone className="h-4 w-4 shrink-0 text-volt-300" />
             {gym.phone}
@@ -52,7 +57,7 @@ export default function Footer() {
               href={waLink(footerEnquiry)}
               target="_blank"
               rel="noopener"
-              className="inline-flex items-center gap-2 rounded-lg border border-silver-300/12 bg-ink-800/70 px-3 py-2 text-xs font-medium text-silver-300 transition-colors hover:border-titan-400/40 hover:text-titan-200"
+              className="tap inline-flex items-center gap-2 rounded-lg border border-silver-300/12 bg-ink-800/70 px-3.5 text-xs font-medium text-silver-300 transition-colors hover:border-titan-400/40 hover:text-titan-200"
             >
               <MessageCircle className="h-4 w-4 text-titan-300" /> WhatsApp
             </a>
@@ -61,7 +66,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener"
               aria-label={`BAGGA FITNESS on Instagram — @${gym.instagramHandle}`}
-              className="inline-flex items-center gap-2 rounded-lg border border-silver-300/12 bg-ink-800/70 px-3 py-2 text-xs font-medium text-silver-300 transition-colors hover:border-rage-500/40 hover:text-rage-300"
+              className="tap inline-flex items-center gap-2 rounded-lg border border-silver-300/12 bg-ink-800/70 px-3.5 text-xs font-medium text-silver-300 transition-colors hover:border-rage-500/40 hover:text-rage-300"
             >
               <Instagram className="h-4 w-4" /> @{gym.instagramHandle}
             </a>
@@ -69,7 +74,7 @@ export default function Footer() {
             {gym.email && (
               <a
                 href={`mailto:${gym.email}`}
-                className="inline-flex items-center gap-2 rounded-lg border border-silver-300/12 bg-ink-800/70 px-3 py-2 text-xs font-medium text-silver-300 transition-colors hover:border-volt-400/40 hover:text-volt-200"
+                className="tap inline-flex items-center gap-2 rounded-lg border border-silver-300/12 bg-ink-800/70 px-3.5 text-xs font-medium text-silver-300 transition-colors hover:border-volt-400/40 hover:text-volt-200"
               >
                 <Mail className="h-4 w-4" /> Email
               </a>
@@ -81,7 +86,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener"
                 aria-label={`BAGGA FITNESS on YouTube — @${gym.youtubeHandle}`}
-                className="inline-flex items-center gap-2 rounded-lg border border-silver-300/12 bg-ink-800/70 px-3 py-2 text-xs font-medium text-silver-300 transition-colors hover:border-rage-500/40 hover:text-rage-300"
+                className="tap inline-flex items-center gap-2 rounded-lg border border-silver-300/12 bg-ink-800/70 px-3.5 text-xs font-medium text-silver-300 transition-colors hover:border-rage-500/40 hover:text-rage-300"
               >
                 <Youtube className="h-4 w-4" /> YouTube
               </a>
@@ -94,13 +99,13 @@ export default function Footer() {
             <h4 className="text-xs font-semibold uppercase tracking-forge text-silver-500">
               {i === 0 ? 'Explore' : 'Tools & More'}
             </h4>
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-3 space-y-0.5">
               {col.map((item) => (
                 <li key={item.id}>
                   <a
                     href={`#${item.id}`}
                     onClick={go(item.id)}
-                    className="text-sm text-silver-400 transition-colors hover:text-volt-200"
+                    className="inline-block py-1.5 text-sm text-silver-400 transition-colors hover:text-volt-200"
                   >
                     {item.label}
                   </a>

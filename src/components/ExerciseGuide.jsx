@@ -130,7 +130,7 @@ export default function ExerciseGuide() {
               type="button"
               onClick={() => setFilter(g.id)}
               aria-pressed={filter === g.id}
-              className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
+              className={`tap whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
                 filter === g.id
                   ? 'border-volt-400/50 bg-volt-500/12 text-volt-100'
                   : 'border-silver-300/12 bg-ink-900/70 text-silver-400 hover:text-silver-100'

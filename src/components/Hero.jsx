@@ -1,7 +1,7 @@
 import React from 'react'
 import { ArrowRight, Zap, ChevronDown, ShieldCheck } from 'lucide-react'
-import { brand, stats } from '../data/site.js'
-import { LightningWarrior, GreenTitan, LightningField, Bolt } from './art/Decor.jsx'
+import { brand, gym, stats } from '../data/site.js'
+import { LightningWarrior, GreenTitan, LightningField, Bolt, WebNet } from './art/Decor.jsx'
 import CountUp from './ui/CountUp.jsx'
 
 const scrollTo = (id) => (e) => {
@@ -12,6 +12,19 @@ const scrollTo = (id) => (e) => {
 export default function Hero() {
   return (
     <section id="home" className="relative flex min-h-[100svh] items-center overflow-hidden pt-[var(--nav-h)]">
+      {/* Webs strung into both top corners. Kept under 0.12 opacity so they read
+          as structure behind the headline rather than as decoration on it. */}
+      <WebNet
+        accent="rage"
+        opacity={0.11}
+        className="pointer-events-none absolute left-0 top-[var(--nav-h)] hidden h-[24rem] w-[24rem] sm:block lg:h-[30rem] lg:w-[30rem]"
+      />
+      <WebNet
+        accent="volt"
+        opacity={0.1}
+        className="pointer-events-none absolute right-0 top-[var(--nav-h)] hidden h-[24rem] w-[24rem] -scale-x-100 sm:block lg:h-[30rem] lg:w-[30rem]"
+      />
+
       {/* Decorative superhero-inspired figures, framing the copy on large screens */}
       <LightningWarrior
         accent="volt"
@@ -31,7 +44,7 @@ export default function Hero() {
         <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
           <span className="badge-volt animate-riseIn">
             <Zap className="h-3.5 w-3.5" />
-            Prahladpur • Est. {brand.established} • Strength &amp; Conditioning
+            {gym.locality} • Strength &amp; Conditioning
           </span>
 
           <h1
@@ -73,7 +86,7 @@ export default function Hero() {
             style={{ animationDelay: '320ms' }}
           >
             <ShieldCheck className="h-4 w-4 text-titan-400" />
-            No fluff. Certified coaches, honest guidance, open 7 days a week.
+            No fluff. Certified coaches, honest guidance, and a plan for your level.
           </div>
         </div>
 
@@ -97,7 +110,7 @@ export default function Hero() {
       <a
         href="#about"
         onClick={scrollTo('about')}
-        className="absolute inset-x-0 bottom-5 z-10 mx-auto hidden w-fit flex-col items-center gap-1 text-silver-500 transition-colors hover:text-volt-300 sm:flex"
+        className="absolute inset-x-0 bottom-5 z-10 mx-auto hidden w-fit flex-col items-center gap-1 px-4 text-silver-500 transition-colors hover:text-volt-300 sm:flex"
         aria-label="Scroll to about"
       >
         <Bolt className="h-5 w-3 animate-breathe" stroke="#38bdf8" />

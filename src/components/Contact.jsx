@@ -12,9 +12,10 @@ import {
   ChevronDown,
   CheckCircle2,
 } from 'lucide-react'
-import { gym, hours, faqs, waLink } from '../data/site.js'
+import { gym, timings, faqs, waLink } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
+import { WebCorner } from './art/Decor.jsx'
 
 const mapsSearch = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gym.mapQuery)}`
 const mapEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(gym.mapQuery)}&z=14&output=embed`
@@ -97,17 +98,17 @@ export default function Contact() {
   ]
 
   return (
-    <Section id="contact" plated>
+    <Section id="contact" plated strand>
       <SectionHeading
         eyebrow="Visit Our Gym"
         title="Come Train At"
         accentWord="BAGGA FITNESS"
         accent="volt"
-        sub="Drop by, call, or send a message. Your first session is the hardest — after that, it's momentum."
+        sub="Call us, message us, or come and see the place for yourself. Your first session is the hardest — after that, it's momentum."
       />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        {/* Left column — address, hours, contacts */}
+        {/* Left column — address, timings, contacts */}
         <div className="flex flex-col gap-5">
           {/* Address */}
           <Reveal className="card plate-edge p-6">
@@ -136,27 +137,36 @@ export default function Contact() {
             </div>
           </Reveal>
 
-          {/* Hours */}
+          {/* Timings. We do not publish a timetable we cannot vouch for — see
+              the TRUTH POLICY block at the top of src/data/site.js. Instead of
+              inventing hours, this card sends the question straight to the gym. */}
           <Reveal delay={70} className="card plate-edge p-6">
             <div className="flex items-center gap-2 text-silver-100">
               <Clock className="h-5 w-5 text-titan-300" />
-              <h3 className="text-lg font-semibold">Opening Hours</h3>
+              <h3 className="text-lg font-semibold">{timings.title}</h3>
             </div>
-            <ul className="mt-4 divide-y divide-silver-300/8">
-              {hours.map((h) => (
-                <li key={h.day} className="flex items-start justify-between gap-4 py-2.5">
-                  <span className="text-sm font-medium text-silver-300">{h.day}</span>
-                  <span className="text-right text-sm text-silver-400">
-                    {h.slots.map((s) => (
-                      <span key={s} className="block">
-                        {s}
-                      </span>
-                    ))}
-                    {h.note && <span className="block text-xs text-volt-300">{h.note}</span>}
-                  </span>
+            <p className="mt-3 text-sm leading-relaxed text-silver-400">{timings.lead}</p>
+            <ul className="mt-4 grid gap-2.5">
+              {timings.points.map((p) => (
+                <li key={p} className="flex items-start gap-2.5 text-sm leading-relaxed text-silver-300">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-titan-400" />
+                  <span>{p}</span>
                 </li>
               ))}
             </ul>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <a
+                href={waLink(timings.askMessage)}
+                target="_blank"
+                rel="noopener"
+                className="btn-titan !py-2.5"
+              >
+                <MessageCircle className="h-4 w-4" /> Ask Today's Timings
+              </a>
+              <a href={gym.phoneHref} className="btn-ghost !py-2.5">
+                <Phone className="h-4 w-4" /> {gym.phone}
+              </a>
+            </div>
           </Reveal>
 
           {/* Contact methods + socials */}
@@ -185,7 +195,7 @@ export default function Contact() {
                 target="_blank"
                 rel="noopener"
                 aria-label={`BAGGA FITNESS on Instagram — @${gym.instagramHandle}`}
-                className="inline-flex items-center gap-2 rounded-lg bg-ink-800 px-3 py-2 text-sm text-silver-300 transition hover:text-rage-300"
+                className="tap inline-flex items-center gap-2 rounded-lg bg-ink-800 px-3.5 text-sm text-silver-300 transition hover:text-rage-300"
               >
                 <Instagram className="h-4 w-4" />
                 <span>@{gym.instagramHandle}</span>
@@ -197,7 +207,7 @@ export default function Contact() {
                   target="_blank"
                   rel="noopener"
                   aria-label={`BAGGA FITNESS on YouTube — @${gym.youtubeHandle}`}
-                  className="inline-flex items-center gap-2 rounded-lg bg-ink-800 px-3 py-2 text-sm text-silver-300 transition hover:text-rage-300"
+                  className="tap inline-flex items-center gap-2 rounded-lg bg-ink-800 px-3.5 text-sm text-silver-300 transition hover:text-rage-300"
                 >
                   <Youtube className="h-4 w-4" />
                   <span>@{gym.youtubeHandle}</span>
@@ -218,37 +228,45 @@ export default function Contact() {
 
         {/* Right column — form + map */}
         <div className="flex flex-col gap-5">
-          <Reveal delay={70} className="card plate-edge p-6">
-            <h3 className="text-lg font-semibold text-silver-100">Send an Enquiry</h3>
-            <p className="mt-1 text-sm text-silver-400">We'll open WhatsApp with your details ready to send.</p>
-            <form onSubmit={submit} className="mt-5 grid gap-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="label" htmlFor="c-name">Name</label>
-                  <input id="c-name" required value={form.name} onChange={onChange('name')} className="field" placeholder="Your name" />
+          <Reveal delay={70} className="card plate-edge relative overflow-hidden p-6">
+            {/* Same web corner the Feedback form carries, so both WhatsApp
+                handoffs on the site read as the same kind of card. */}
+            <WebCorner
+              accent="volt"
+              className="pointer-events-none absolute right-0 top-0 h-24 w-24 -scale-x-100 opacity-[0.14]"
+            />
+            <div className="relative">
+              <h3 className="text-lg font-semibold text-silver-100">Send an Enquiry</h3>
+              <p className="mt-1 text-sm text-silver-400">We'll open WhatsApp with your details ready to send.</p>
+              <form onSubmit={submit} className="mt-5 grid gap-3">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="label" htmlFor="c-name">Name</label>
+                    <input id="c-name" required value={form.name} onChange={onChange('name')} className="field tap" placeholder="Your name" autoComplete="name" />
+                  </div>
+                  <div>
+                    <label className="label" htmlFor="c-phone">Phone</label>
+                    <input id="c-phone" type="tel" inputMode="tel" value={form.phone} onChange={onChange('phone')} className="field tap" placeholder="Mobile number" autoComplete="tel" />
+                  </div>
                 </div>
                 <div>
-                  <label className="label" htmlFor="c-phone">Phone</label>
-                  <input id="c-phone" type="tel" value={form.phone} onChange={onChange('phone')} className="field" placeholder="Mobile number" />
+                  <label className="label" htmlFor="c-goal">Primary Goal</label>
+                  <select id="c-goal" value={form.goal} onChange={onChange('goal')} className="field tap">
+                    <option>Build Muscle</option>
+                    <option>Fat Loss</option>
+                    <option>General Fitness</option>
+                    <option>Strength / Powerlifting</option>
+                  </select>
                 </div>
-              </div>
-              <div>
-                <label className="label" htmlFor="c-goal">Primary Goal</label>
-                <select id="c-goal" value={form.goal} onChange={onChange('goal')} className="field">
-                  <option>Build Muscle</option>
-                  <option>Fat Loss</option>
-                  <option>General Fitness</option>
-                  <option>Strength / Powerlifting</option>
-                </select>
-              </div>
-              <div>
-                <label className="label" htmlFor="c-msg">Message</label>
-                <textarea id="c-msg" rows={3} value={form.message} onChange={onChange('message')} className="field resize-none" placeholder="Tell us a little about where you're starting from." />
-              </div>
-              <button type="submit" className="btn-volt w-full">
-                {sent ? <><CheckCircle2 className="h-4 w-4" /> Opening WhatsApp…</> : <><Send className="h-4 w-4" /> Send via WhatsApp</>}
-              </button>
-            </form>
+                <div>
+                  <label className="label" htmlFor="c-msg">Message</label>
+                  <textarea id="c-msg" rows={3} value={form.message} onChange={onChange('message')} className="field resize-y" placeholder="Tell us a little about where you're starting from." />
+                </div>
+                <button type="submit" className="btn-volt w-full">
+                  {sent ? <><CheckCircle2 className="h-4 w-4" /> Opening WhatsApp…</> : <><Send className="h-4 w-4" /> Send via WhatsApp</>}
+                </button>
+              </form>
+            </div>
           </Reveal>
 
           {/* Map */}

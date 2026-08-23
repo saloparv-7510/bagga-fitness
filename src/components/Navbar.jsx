@@ -42,7 +42,7 @@ export default function Navbar() {
       />
       <nav className="shell flex h-[var(--nav-h)] items-center justify-between gap-4">
         {/* Brand */}
-        <a href="#home" onClick={(e) => go(e, 'home')} className="group flex items-center gap-2.5">
+        <a href="#home" onClick={(e) => go(e, 'home')} className="group flex items-center gap-2.5 py-0.5">
           <span className="relative grid h-10 w-10 place-items-center rounded-xl bg-ink-800 shadow-volt">
             <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-volt-400/20 to-titan-500/20" />
             <Dumbbell className="relative h-5 w-5 text-volt-300" strokeWidth={2.4} />
@@ -56,18 +56,22 @@ export default function Navbar() {
           </span>
         </a>
 
-        {/* Desktop links */}
+        {/* Desktop links. The bar renders `short` labels — thirteen full ones do
+            not fit inside the 84rem shell — while aria-label keeps the complete
+            name for screen readers and the mobile drawer shows it in full. */}
         <ul className="hidden items-center gap-0.5 xl:flex">
           {nav.map((item) => (
             <li key={item.id}>
               <a
                 href={`#${item.id}`}
                 onClick={(e) => go(e, item.id)}
-                className={`relative rounded-lg px-2.5 py-2 text-[0.8rem] font-medium transition-colors duration-200 ${
+                aria-label={item.label}
+                aria-current={active === item.id ? 'true' : undefined}
+                className={`relative rounded-lg px-2 py-2 text-[0.78rem] font-medium transition-colors duration-200 ${
                   active === item.id ? 'text-volt-200' : 'text-silver-400 hover:text-silver-100'
                 }`}
               >
-                {item.label}
+                {item.short || item.label}
                 <span
                   className={`absolute inset-x-2 -bottom-0.5 h-0.5 rounded-full bg-gradient-to-r from-volt-400 to-titan-400 transition-transform duration-300 ${
                     active === item.id ? 'scale-x-100' : 'scale-x-0'
@@ -79,12 +83,13 @@ export default function Navbar() {
         </ul>
 
         <div className="hidden items-center gap-2 xl:flex">
+          {/* Held back to 2xl: below that the link row needs the width. */}
           <a
             href={gym.instagram}
             target="_blank"
             rel="noopener"
             aria-label={`BAGGA FITNESS on Instagram — @${gym.instagramHandle}`}
-            className="grid h-10 w-10 place-items-center rounded-xl border border-silver-300/12 bg-ink-800/70 text-silver-300 transition-colors duration-200 hover:border-rage-500/45 hover:text-rage-300"
+            className="hidden h-10 w-10 place-items-center rounded-xl border border-silver-300/12 bg-ink-800/70 text-silver-300 transition-colors duration-200 hover:border-rage-500/45 hover:text-rage-300 2xl:grid"
           >
             <Instagram className="h-5 w-5" />
           </a>

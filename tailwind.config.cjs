@@ -1,5 +1,9 @@
+/* CommonJS on purpose. package.json sets "type": "module", so a .js config here
+   is an ES module — and Tailwind v3 loads its config with require(), which makes
+   Node print an ExperimentalWarning on every build. Naming the file .cjs lets
+   require() take the native path and the build comes out clean. */
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
@@ -91,6 +95,11 @@ export default {
         rage: '0 0 0 1px rgba(239,68,68,.35), 0 12px 40px -18px rgba(239,68,68,.55)',
         titan: '0 0 0 1px rgba(34,197,94,.35), 0 12px 40px -18px rgba(34,197,94,.55)',
         plate: '0 24px 60px -32px rgba(0,0,0,.9)',
+        // Web theme: the crimson hairline reads red, the drop shadow reads
+        // electric blue — the two-tone accent used by the Legend Protocols and
+        // Feedback sections. Both colours already exist in the palette (rage +
+        // volt), so nothing new was added to `colors`.
+        spider: '0 0 0 1px rgba(239,68,68,.32), 0 14px 44px -18px rgba(56,189,248,.5)',
       },
       transitionTimingFunction: {
         power: 'cubic-bezier(.22,1,.36,1)',
@@ -120,6 +129,19 @@ export default {
           '0%,100%': { opacity: '.55' },
           '50%': { opacity: '.95' },
         },
+        // Spider-sense pulse (see SenseRings in art/Decor.jsx). Scale + opacity
+        // only, so three staggered rings still cost nothing per frame.
+        senseRing: {
+          '0%': { opacity: '.85', transform: 'scale(.45)' },
+          '70%': { opacity: '0', transform: 'scale(1.28)' },
+          '100%': { opacity: '0', transform: 'scale(1.28)' },
+        },
+        // Barely-there drift for a hanging web strand — a 1.4° rotation, which
+        // reads as weight without ever looking like a swinging pendulum.
+        strandSway: {
+          '0%,100%': { transform: 'rotate(-1.4deg)' },
+          '50%': { transform: 'rotate(1.4deg)' },
+        },
       },
       animation: {
         riseIn: 'riseIn .6s cubic-bezier(.22,1,.36,1) both',
@@ -127,6 +149,8 @@ export default {
         drift: 'drift 18s ease-in-out infinite',
         sheen: 'sheen 2.6s cubic-bezier(.22,1,.36,1) infinite',
         breathe: 'breathe 4.5s ease-in-out infinite',
+        senseRing: 'senseRing 3.2s cubic-bezier(.22,1,.36,1) infinite',
+        strandSway: 'strandSway 7s ease-in-out infinite',
       },
     },
   },

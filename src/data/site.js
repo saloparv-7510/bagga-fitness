@@ -1,54 +1,76 @@
 /* ---------------------------------------------------------------------------
    BAGGA FITNESS — single source of truth for gym details.
-   Everything the owner needs to edit (phone, hours, prices) lives here.
+   Everything the owner needs to edit (phone, prices, roster) lives here.
 
-   CONFIRMED: `gym` (address, phone, WhatsApp, email, socials), `membership`
-   prices, `brand` naming, and the coaching roster — 5 coaches, 3 male and
-   2 female. These are the gym's real values.
+   TRUTH POLICY — read before editing.
+   This file used to carry invented figures marked PLACEHOLDER (a founding year,
+   a member count, a floor area, opening times, equipment inventories). They are
+   gone. Nothing here asserts a fact about the business that has not been
+   confirmed, because a live gym site that guesses at its own hours or member
+   count damages trust the first time a visitor checks.
+
+   What is CONFIRMED and safe to state:
+     - `gym`         address, phone, WhatsApp, email, socials
+     - `membership`  the four prices and the savings arithmetic between them
+     - `brand`       naming and tagline
+     - `coaches`     5 coaches, 3 male and 2 female (roles, not real names)
+     - `stats`       every number is COUNTED from data in this repo, never typed
+
+   What we deliberately do NOT claim, and how the UI covers the gap instead:
+     - Opening times   → `timings` asks the visitor to message for today's hours
+     - Member count    → not shown anywhere
+     - Floor area      → not shown anywhere
+     - Equipment lists → `facilities` describes the training, and
+                         `facilitiesNote` invites an equipment question
+     - Tier inclusions → `membership[].perks` state price arithmetic and what
+                         this site gives; `membershipNote` covers the rest
+     - Coach names     → job titles stand in, so no person is invented
+
    `email` and `youtube` are optional: set either one to null and the UI hides
    its button instead of rendering a dead link.
 
-   PLACEHOLDER — awaiting the gym's confirmed figures. Kept deliberately for
-   now; grep this file for "PLACEHOLDER" to find every one:
-     - brand.established        the founding year
-     - hours                    all opening times
-     - stats                    member count and floor area (coach count is real)
-     - coaches[].name/.role     job titles stand in for the real names
-     - membership[].perks       what each tier actually includes
-     - faqs                     the free-induction and facilities answers
-
-   One knock-on effect to remember when these are replaced: `index.html`
-   deliberately omits `openingHoursSpecification` from the JSON-LD while
-   `hours` is a placeholder, because search engines render that as the
-   business's real hours. Add it once `hours` is confirmed.
+   Knock-on effect to remember: `index.html` omits `openingHoursSpecification`
+   from its JSON-LD on purpose. Search engines render that block as the
+   business's real hours, so it stays out until the owner confirms them.
    --------------------------------------------------------------------------- */
+
+import { exercises } from './exercises.js'
+import { week } from './workouts.js'
 
 export const brand = {
   name: 'BAGGA FITNESS',
   first: 'BAGGA',
   second: 'FITNESS',
   tagline: 'Strength. Power. Discipline.',
-  established: 2019, // PLACEHOLDER — real founding year to be confirmed
 }
 
+/* `short` is what the desktop nav bar renders — thirteen full labels do not fit
+   on a 1280px row. `label` is used everywhere there is room: the mobile drawer,
+   the footer columns and aria labels. */
 export const nav = [
-  { id: 'home', label: 'Home' },
-  { id: 'about', label: 'About Gym' },
-  { id: 'bmi', label: 'BMI / Ideal Weight' },
-  { id: 'plans', label: 'Workout Plans' },
-  { id: 'exercises', label: 'Exercise Guide' },
-  { id: 'protein', label: 'Protein Calculator' },
-  { id: 'foods', label: 'Protein Foods' },
-  { id: 'supplements', label: 'Supplements' },
-  { id: 'calendar', label: 'Calendar' },
-  { id: 'gallery', label: 'Gallery' },
-  { id: 'contact', label: 'Contact' },
+  { id: 'home', label: 'Home', short: 'Home' },
+  { id: 'about', label: 'About Gym', short: 'About' },
+  { id: 'bmi', label: 'BMI / Ideal Weight', short: 'BMI' },
+  { id: 'plans', label: 'Workout Plans', short: 'Plans' },
+  { id: 'legends', label: 'Legend Protocols', short: 'Legends' },
+  { id: 'exercises', label: 'Exercise Guide', short: 'Exercises' },
+  { id: 'protein', label: 'Protein Calculator', short: 'Protein' },
+  { id: 'foods', label: 'Protein Foods', short: 'Foods' },
+  { id: 'supplements', label: 'Supplements', short: 'Supplements' },
+  { id: 'calendar', label: 'Calendar', short: 'Calendar' },
+  { id: 'gallery', label: 'Gallery', short: 'Gallery' },
+  { id: 'feedback', label: 'Feedback', short: 'Feedback' },
+  { id: 'contact', label: 'Contact', short: 'Contact' },
 ]
 
 export const gym = {
   name: 'BAGGA FITNESS',
   addressLines: ['Prahladpur', 'Uttar Pradesh – 221112', 'India'],
   addressOneLine: 'Prahladpur, Uttar Pradesh – 221112, India',
+  /* Short form for badges and chips, where the pin code will not fit. Kept here
+     rather than typed into Hero.jsx so the state can never drift from the
+     address above — it already did once, and read "Delhi". */
+  locality: 'Prahladpur, Uttar Pradesh',
   // Used for the "Get Directions" button and the embedded map frame.
   mapQuery: 'Prahladpur, Uttar Pradesh 221112',
   phone: '+91 7510054999',
@@ -66,22 +88,31 @@ export const gym = {
 export const waLink = (message) =>
   `https://wa.me/${gym.whatsapp}?text=${encodeURIComponent(message)}`
 
-/* PLACEHOLDER — invented timings. Also gates the JSON-LD opening hours in
-   index.html, so confirm these before adding that back. */
-export const hours = [
-  { day: 'Monday – Friday', slots: ['5:00 AM – 10:30 AM', '4:00 PM – 10:00 PM'] },
-  { day: 'Saturday', slots: ['5:00 AM – 10:30 AM', '4:00 PM – 9:00 PM'] },
-  { day: 'Sunday', slots: ['6:00 AM – 10:00 AM'], note: 'Recovery & stretching only' },
-  { day: 'National Holidays', slots: ['6:00 AM – 10:00 AM'], note: 'Reduced hours' },
-]
+/* Opening times are not published here.
+   A gym's timetable shifts with seasons, festivals and holidays, and a wrong
+   time on a website sends someone to a closed shutter. So instead of a made-up
+   table, the Contact section asks for the one message that always gets an
+   accurate answer. Replace this with a real `hours` table whenever the owner
+   confirms it — and add `openingHoursSpecification` back to index.html then. */
+export const timings = {
+  title: 'Timings',
+  lead: 'We have not published a fixed timetable on this page yet — and we would rather you had the right answer than a guessed one.',
+  points: [
+    'Message us on WhatsApp for today’s opening and closing time',
+    'Or call before you travel — it takes a few seconds',
+    'Festival and holiday changes go out on Instagram first',
+  ],
+  askMessage:
+    'Hello BAGGA FITNESS, what are your opening and closing timings today? I would like to plan my visit.',
+}
 
 /* Defined before `stats` on purpose — the coach count there is derived from
    this array's length, and `const` is not hoisted.
 
    CONFIRMED: the roster is 5 coaches, 3 male and 2 female.
-   PLACEHOLDER: the individual names and specialisations. Job titles stand in
-   so nothing here invents a person, and `gender` carries the confirmed split.
-   Which discipline belongs to which coach is an arbitrary pairing for now. */
+   Individual names are not invented here. Job titles stand in, and `gender`
+   carries the confirmed split. Which discipline sits with which coach is an
+   arbitrary pairing until the owner assigns them. */
 export const coaches = [
   {
     name: 'Head Strength Coach',
@@ -129,54 +160,67 @@ export const coachSplit = {
   female: coaches.filter((c) => c.gender === 'female').length,
 }
 
-/* PLACEHOLDER — members trained, floor area and days open are invented.
-   The coach count is CONFIRMED and derived from `coaches` above, so the number
-   on the page can never drift from the number of coach cards again. */
+/* Every number in the hero strip is COUNTED, not claimed.
+   Two come from the confirmed roster, two from the training content shipped in
+   this repo — so each one stays true on its own, and none of them can drift
+   away from what the page actually shows further down. */
 export const stats = [
-  { value: 1200, suffix: '+', label: 'Members Trained' },
+  { value: exercises.length, suffix: '', label: 'Exercises Demonstrated' },
   { value: coachSplit.total, suffix: '', label: 'Certified Coaches' },
-  { value: 6500, suffix: ' sq.ft', label: 'Training Floor' },
-  { value: 7, suffix: ' days', label: 'Open Every Week' },
+  { value: week.length, suffix: '-day', label: 'Training Split' },
+  { value: coachSplit.female, suffix: '', label: 'Women Coaches' },
 ]
 
+/* Describes the TRAINING, not an equipment inventory.
+   Every card here is backed by something a visitor can check on this very page
+   — the split, the exercise library, the calculators — rather than by a count
+   of racks nobody has verified. See `facilitiesNote` for the gap that leaves. */
 export const facilities = [
   {
-    title: 'Heavy Iron Zone',
+    title: 'Heavy Compound Lifting',
     accent: 'rage',
-    text: 'Calibrated Olympic plates, four power racks, deadlift platforms and competition bars for real strength work.',
+    text: 'Squat, bench, deadlift and overhead press are the spine of every plan here. Setup, bracing and bar path get taught before the weight goes up.',
   },
   {
-    title: 'Titan Strength Floor',
+    title: 'Machine & Isolation Work',
     accent: 'titan',
-    text: 'Plate-loaded and pin-select machines covering every movement pattern, arranged for push–pull supersets.',
+    text: 'Big lifts get paired with machine and cable work, so a lagging chest or a weak upper back gets direct attention instead of being trained around.',
   },
   {
-    title: 'Thunder Cardio Deck',
+    title: 'Programmed Conditioning',
     accent: 'volt',
-    text: 'Treadmills, air bikes, rowers and a sled track for conditioning that actually moves the needle.',
+    text: 'Cardio is prescribed, not guessed — intervals when you are cutting, steady work to build an engine, and step targets you can actually hit.',
   },
   {
-    title: 'Functional & Mobility Bay',
+    title: 'Mobility & Real Rest',
     accent: 'volt',
-    text: 'Turf lane, kettlebells, battle ropes, rings and a dedicated stretching and rehab corner.',
+    text: 'Sunday is a genuine recovery day at every level: mobility flow, an easy walk, foam rolling. That is what makes the next week possible.',
   },
   {
-    title: 'Coaching & Assessment',
+    title: 'Coaching & Form Checks',
     accent: 'titan',
-    text: 'Form checks, monthly measurement tracking and a written plan tuned to your level — not a generic printout.',
+    text: 'Plans on this site are written to three levels — beginner, intermediate and experienced — so you train at your level instead of copying someone else’s.',
   },
   {
-    title: 'Clean Facilities',
+    title: 'Straight Answers',
     accent: 'rage',
-    text: 'Changing rooms, lockers, filtered drinking water, sanitised equipment and full-time floor supervision.',
+    text: 'We will tell you when a supplement is a waste of money and when a plan needs changing. Read the Supplements section — that is the same advice you get on the floor.',
   },
 ]
+
+/* The honest counterpart to `facilities`: we describe training, not gear, so
+   this invites the equipment question rather than answering it with a guess. */
+export const facilitiesNote =
+  'Looking for a specific bar, rack or machine before you commit? Message us and we will tell you exactly what is on the floor right now.'
 
 /* Real membership pricing. `duration` is the exact plan name used in the
    prefilled WhatsApp message, so it reads naturally in the chat.
    `save` is the difference against paying the 1-month rate for the same span.
-   Prices are confirmed; the `perks` lists are PLACEHOLDER until we know what
-   each tier actually includes. */
+
+   `perks` are deliberately limited to two kinds of true statement: arithmetic
+   that follows from the prices above, and access to content that ships on this
+   site. Service inclusions — inductions, personal training, classes — are not
+   listed because they are not confirmed; `membershipNote` handles those. */
 export const membership = [
   {
     id: '1-month',
@@ -187,9 +231,9 @@ export const membership = [
     accent: 'volt',
     perks: [
       'Full gym floor access',
-      'Beginner induction & form check',
-      'Weekly workout plan from this site',
-      'Locker & filtered water access',
+      'Month to month — nothing locked in',
+      'The best way to try us before committing',
+      'Every plan and calculator on this site',
     ],
   },
   {
@@ -202,9 +246,9 @@ export const membership = [
     accent: 'volt',
     perks: [
       'Everything in 1 Month',
-      'Monthly body measurement tracking',
-      'Personalised split & progression',
-      'Diet and protein guidance',
+      '₹200 a month cheaper than paying monthly',
+      '₹600 less than three single months',
+      'Long enough to add real weight to the bar',
     ],
   },
   {
@@ -217,9 +261,9 @@ export const membership = [
     accent: 'titan',
     perks: [
       'Everything in 3 Months',
-      'Two form-check sessions a month',
-      'Priority peak-hour access',
-      'Plan review every 8 weeks',
+      '₹1,000 a month held for half a year',
+      '₹1,200 less than six single months',
+      'Room to move up a full training level',
     ],
   },
   {
@@ -233,44 +277,59 @@ export const membership = [
     accent: 'rage',
     perks: [
       'Everything in 6 Months',
-      'Weekly one-to-one coaching',
-      'Competition & event prep support',
-      'Lowest monthly rate we offer',
+      'Our lowest rate — about ₹833 a month',
+      '₹4,400 less than twelve single months',
+      'A full year of training at one price',
     ],
   },
 ]
 
+export const membershipNote =
+  'Prices above are exact. For anything else — induction, personal training, classes, payment options — message us and we will confirm it before you pay, not after.'
+
 /* Gallery entries render as original SVG artwork — see components/art/GymArt.jsx.
+   Titles name a training zone, not a specific piece of the owner's equipment.
    To use real photographs later, drop files in /public/images and add a
    `photo: '/images/your-file.jpg'` key to any entry. */
 export const gallery = [
-  { art: 'rack', title: 'Power Rack Row', tag: 'Strength', accent: 'rage' },
-  { art: 'dumbbells', title: 'Free Weight Wall', tag: 'Iron Zone', accent: 'volt' },
-  { art: 'cardio', title: 'Thunder Cardio Deck', tag: 'Conditioning', accent: 'volt' },
-  { art: 'kettlebell', title: 'Functional Bay', tag: 'Mobility', accent: 'titan' },
-  { art: 'bench', title: 'Bench Press Island', tag: 'Push Day', accent: 'rage' },
-  { art: 'cable', title: 'Cable Crossover', tag: 'Isolation', accent: 'titan' },
-  { art: 'turf', title: 'Sled & Turf Lane', tag: 'Athletic', accent: 'volt' },
-  { art: 'lockers', title: 'Member Facilities', tag: 'Comfort', accent: 'titan' },
+  { art: 'rack', title: 'Squat & Rack Work', tag: 'Strength', accent: 'rage' },
+  { art: 'dumbbells', title: 'Free Weights', tag: 'Iron', accent: 'volt' },
+  { art: 'cardio', title: 'Conditioning', tag: 'Cardio', accent: 'volt' },
+  { art: 'kettlebell', title: 'Functional Work', tag: 'Mobility', accent: 'titan' },
+  { art: 'bench', title: 'Pressing Day', tag: 'Push', accent: 'rage' },
+  { art: 'cable', title: 'Cables & Isolation', tag: 'Detail', accent: 'titan' },
+  { art: 'turf', title: 'Sled & Sprint Work', tag: 'Athletic', accent: 'volt' },
+  { art: 'lockers', title: 'Before & After', tag: 'Routine', accent: 'titan' },
 ]
 
-/* PLACEHOLDER — several answers promise specific services (free induction,
-   walk-in trials, supervised floor hours, a functional bay). Confirm each one
-   before treating this section as accurate: these set customer expectations.
-   The two-female-coaches claim in the women's answer is confirmed. */
+export const galleryNote =
+  'Illustrated, not photographed — this artwork was drawn for the site. To see the real floor, message us and come take a look.'
+
+/* Answers stay inside what we can stand behind: the confirmed roster, the
+   content on this page, and general training guidance. Where a question needs
+   a business fact we have not confirmed — timings, trials, inclusions — the
+   answer points at WhatsApp instead of promising something. */
 export const faqs = [
   {
     q: 'I have never trained before. Where do I start?',
-    a: 'Start with the Beginner plan in the Workout Plans section and book a free induction at the front desk. A coach walks you through every machine, sets your starting weights and checks your form for the first two weeks.',
+    a: 'Open the Workout Plans section and switch it to Beginner — that is a full week laid out for someone starting from zero. Then read the Exercise Guide for the movements in it: every one has the setup, the cues and a common mistake. Message us before your first session and we will tell you what to bring and when to come in.',
   },
   {
-    q: 'Do you offer trial sessions?',
-    a: 'Yes. Walk in during any open hour and ask for a trial session. Bring clean indoor shoes, a towel and a water bottle.',
+    q: 'What are your timings?',
+    a: 'They are not fixed on this page yet, because they shift with the season and with holidays and we would rather not send you to a closed gym. Message or call us and you will get today’s exact opening and closing time.',
+  },
+  {
+    q: 'Can I see the gym before I join?',
+    a: 'Ask us on WhatsApp and we will sort out a visit. Whenever you do come to train, bring clean indoor shoes, a towel and a water bottle.',
   },
   {
     q: 'Is the gym suitable for women?',
-    // The two female coaches are confirmed; the rest of this answer is not yet.
-    a: 'Absolutely. Two of our five certified coaches are women, so there is always female coaching support on the team. We also run supervised floor hours and a dedicated functional bay, and the ideal weight and protein calculators on this site use separate male and female formulas.',
+    // The 2-of-5 split is confirmed; nothing else here is a service promise.
+    a: 'Yes. Two of our five certified coaches are women, so there is female coaching support on the team. The Legend Protocols section has a full women’s strength programme, and the ideal weight and protein calculators here use separate male and female formulas rather than one generic number.',
+  },
+  {
+    q: 'What exactly does my membership include?',
+    a: 'The prices in the Membership cards are exact and the savings are just arithmetic. Anything beyond floor access — induction, one-to-one coaching, group classes — message us and we will confirm what is available before you pay.',
   },
   {
     q: 'Do I need supplements to see results?',

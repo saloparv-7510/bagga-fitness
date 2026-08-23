@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { X, ChevronLeft, ChevronRight, Images } from 'lucide-react'
-import { gallery } from '../data/site.js'
+import { gallery, galleryNote } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import GymArt from './art/GymArt.jsx'
@@ -37,7 +37,7 @@ export default function Gallery() {
         title="The"
         accentWord="Gallery"
         accent="volt"
-        sub="A look around the floor — original illustrations of the zones and gear that make up BAGGA FITNESS. Tap to view."
+        sub="Original illustrations of the training that happens here — squat work, free weights, conditioning and the rest. Tap any tile to view it larger."
       />
 
       <div className="grid auto-rows-[150px] grid-cols-2 gap-3 sm:auto-rows-[160px] lg:grid-cols-4">
@@ -120,9 +120,10 @@ export default function Gallery() {
         </div>
       )}
 
-      <Reveal className="mt-6 flex items-center justify-center gap-2 text-center text-xs text-silver-500">
-        <Images className="h-3.5 w-3.5" />
-        Original artwork — swap in real photos anytime by adding a photo path in the gallery data.
+      {/* Says plainly that these are drawings, not photographs of the floor. */}
+      <Reveal className="mx-auto mt-6 flex max-w-2xl items-start justify-center gap-2 text-center text-xs leading-relaxed text-silver-500">
+        <Images className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+        <span>{galleryNote}</span>
       </Reveal>
     </Section>
   )

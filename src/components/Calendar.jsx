@@ -76,7 +76,7 @@ export default function Calendar() {
               <button
                 type="button"
                 onClick={() => shift(-1)}
-                className="grid h-9 w-9 place-items-center rounded-lg border border-silver-300/12 bg-ink-800/70 text-silver-300 hover:text-white"
+                className="grid h-11 w-11 place-items-center rounded-lg border border-silver-300/12 bg-ink-800/70 text-silver-300 hover:text-white"
                 aria-label="Previous month"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -84,14 +84,14 @@ export default function Calendar() {
               <button
                 type="button"
                 onClick={() => setView({ y: today.getFullYear(), m: today.getMonth() })}
-                className="rounded-lg border border-silver-300/12 bg-ink-800/70 px-3 py-2 text-xs font-semibold text-silver-300 hover:text-white"
+                className="tap rounded-lg border border-silver-300/12 bg-ink-800/70 px-3.5 text-xs font-semibold text-silver-300 hover:text-white"
               >
                 Today
               </button>
               <button
                 type="button"
                 onClick={() => shift(1)}
-                className="grid h-9 w-9 place-items-center rounded-lg border border-silver-300/12 bg-ink-800/70 text-silver-300 hover:text-white"
+                className="grid h-11 w-11 place-items-center rounded-lg border border-silver-300/12 bg-ink-800/70 text-silver-300 hover:text-white"
                 aria-label="Next month"
               >
                 <ChevronRight className="h-5 w-5" />
