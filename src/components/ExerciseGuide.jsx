@@ -4,7 +4,7 @@ import { exercises, muscleGroups } from '../data/exercises.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import ExerciseArt from './art/ExerciseArt.jsx'
-import { useLockBodyScroll } from '../hooks/index.js'
+import { useLockBodyScroll, useKeyDown } from '../hooks/index.js'
 
 const levelBadge = {
   Beginner: 'badge-titan',
@@ -25,6 +25,7 @@ const accentOf = (ex) => ex.accent || groupAccent[ex.group] || 'volt'
 
 function ExerciseModal({ ex, onClose }) {
   useLockBodyScroll(!!ex)
+  useKeyDown(!!ex, { Escape: onClose })
   if (!ex) return null
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true">

@@ -47,6 +47,24 @@ export function useLockBodyScroll(locked) {
   }, [locked])
 }
 
+/* Close-on-Escape for overlays (mobile drawer, modal, lightbox).
+   Pass extra keys via `keys` — the lightbox uses it for arrow navigation. */
+export function useKeyDown(active, handlers) {
+  const ref = useRef(handlers)
+  ref.current = handlers
+  useEffect(() => {
+    if (!active) return
+    const onKey = (e) => {
+      const fn = ref.current[e.key]
+      if (!fn) return
+      e.preventDefault()
+      fn(e)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [active])
+}
+
 /* True on real touch / coarse-pointer devices. Used to skip pointer-only FX. */
 export function useCoarsePointer() {
   const [coarse, setCoarse] = useState(false)

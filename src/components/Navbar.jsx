@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Menu, X, Dumbbell } from 'lucide-react'
 import { brand, nav } from '../data/site.js'
-import { useScrollSpy, useLockBodyScroll } from '../hooks/index.js'
+import { useScrollSpy, useLockBodyScroll, useKeyDown } from '../hooks/index.js'
 
 const NAV_IDS = nav.map((n) => n.id)
 
@@ -10,6 +10,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const active = useScrollSpy(NAV_IDS, 88)
   useLockBodyScroll(open)
+  useKeyDown(open, { Escape: () => setOpen(false) })
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)

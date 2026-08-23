@@ -4,7 +4,7 @@ import { gallery } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import GymArt from './art/GymArt.jsx'
-import { useLockBodyScroll } from '../hooks/index.js'
+import { useLockBodyScroll, useKeyDown } from '../hooks/index.js'
 
 const accentBadge = { volt: 'badge-volt', titan: 'badge-titan', rage: 'badge-rage' }
 
@@ -22,6 +22,12 @@ export default function Gallery() {
 
   const show = (i) => setIdx((i + gallery.length) % gallery.length)
   const active = open ? gallery[idx] : null
+
+  useKeyDown(open, {
+    Escape: () => setIdx(-1),
+    ArrowLeft: () => show(idx - 1),
+    ArrowRight: () => show(idx + 1),
+  })
 
   return (
     <Section id="gallery">
