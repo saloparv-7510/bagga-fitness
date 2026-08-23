@@ -2,9 +2,26 @@
    BAGGA FITNESS — single source of truth for gym details.
    Everything the owner needs to edit (phone, hours, prices) lives here.
 
-   Contact details below are the gym's real, confirmed values.
+   CONFIRMED: `gym` (address, phone, WhatsApp, email, socials), `membership`
+   prices and `brand` naming. These are the gym's real values.
    `email` and `youtube` are optional: set either one to null and the UI hides
    its button instead of rendering a dead link.
+
+   PLACEHOLDER — awaiting the gym's confirmed figures. Kept deliberately for
+   now; grep this file for "PLACEHOLDER" to find every one:
+     - brand.established        the founding year
+     - hours                    all opening times
+     - stats                    member count, coach count, floor area
+     - coaches                  job titles stand in for the real names
+     - membership[].perks       what each tier actually includes
+     - faqs                     the free-induction and facilities answers
+
+   Two knock-on effects to remember when these are replaced:
+     1. `stats` and `coaches` must agree — a coach count here that does not
+        match the number of `coaches` entries is visible on the page.
+     2. `index.html` deliberately omits `openingHoursSpecification` from the
+        JSON-LD while `hours` is a placeholder, because search engines render
+        that as the business's real hours. Add it once `hours` is confirmed.
    --------------------------------------------------------------------------- */
 
 export const brand = {
@@ -12,7 +29,7 @@ export const brand = {
   first: 'BAGGA',
   second: 'FITNESS',
   tagline: 'Strength. Power. Discipline.',
-  established: 2019,
+  established: 2019, // PLACEHOLDER — real founding year to be confirmed
 }
 
 export const nav = [
@@ -50,6 +67,8 @@ export const gym = {
 export const waLink = (message) =>
   `https://wa.me/${gym.whatsapp}?text=${encodeURIComponent(message)}`
 
+/* PLACEHOLDER — invented timings. Also gates the JSON-LD opening hours in
+   index.html, so confirm these before adding that back. */
 export const hours = [
   { day: 'Monday – Friday', slots: ['5:00 AM – 10:30 AM', '4:00 PM – 10:00 PM'] },
   { day: 'Saturday', slots: ['5:00 AM – 10:30 AM', '4:00 PM – 9:00 PM'] },
@@ -57,6 +76,8 @@ export const hours = [
   { day: 'National Holidays', slots: ['6:00 AM – 10:00 AM'], note: 'Reduced hours' },
 ]
 
+/* PLACEHOLDER — the first three are invented. The coach count must be kept in
+   step with the number of `coaches` entries below. */
 export const stats = [
   { value: 1200, suffix: '+', label: 'Members Trained' },
   { value: 14, suffix: '', label: 'Certified Coaches' },
@@ -97,6 +118,8 @@ export const facilities = [
   },
 ]
 
+/* PLACEHOLDER — job titles stand in for the real coaches' names on purpose,
+   so nothing here invents a person. See the coach count in `stats`. */
 export const coaches = [
   {
     name: 'Head Strength Coach',
@@ -120,7 +143,9 @@ export const coaches = [
 
 /* Real membership pricing. `duration` is the exact plan name used in the
    prefilled WhatsApp message, so it reads naturally in the chat.
-   `save` is the difference against paying the 1-month rate for the same span. */
+   `save` is the difference against paying the 1-month rate for the same span.
+   Prices are confirmed; the `perks` lists are PLACEHOLDER until we know what
+   each tier actually includes. */
 export const membership = [
   {
     id: '1-month',
@@ -198,6 +223,9 @@ export const gallery = [
   { art: 'lockers', title: 'Member Facilities', tag: 'Comfort', accent: 'titan' },
 ]
 
+/* PLACEHOLDER — several answers promise specific services (free induction,
+   walk-in trials, female coaching support, a functional bay). Confirm each one
+   before treating this section as accurate: these set customer expectations. */
 export const faqs = [
   {
     q: 'I have never trained before. Where do I start?',
