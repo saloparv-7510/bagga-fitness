@@ -10,7 +10,7 @@ import {
   Crown,
   MessageCircle,
 } from 'lucide-react'
-import { facilities, coaches, membership, waLink } from '../data/site.js'
+import { facilities, coaches, coachSplit, membership, waLink } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import { TorsoMark } from './art/Decor.jsx'
@@ -80,10 +80,19 @@ export default function About() {
           <p className="mx-auto mt-2 max-w-lg text-center text-sm text-silver-400">
             Every member gets form checks and a plan — not just a keycard and a treadmill.
           </p>
+          {/* The split is a real deciding factor for women choosing a gym, so it
+              is stated up front rather than buried in the FAQ. Counted from the
+              roster so it cannot fall out of step with the cards below. */}
+          <p className="mt-3 text-center text-sm text-silver-300">
+            <span className="font-semibold text-titan-200">
+              {coachSplit.total} certified coaches on the floor
+            </span>{' '}
+            — {coachSplit.male} male and {coachSplit.female} female.
+          </p>
         </Reveal>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {coaches.map((coach, i) => (
-            <Reveal key={coach.role} delay={i * 80}>
+            <Reveal key={coach.role} delay={(i % 3) * 80}>
               <article className="card plate-edge lift h-full p-6 text-center">
                 <div
                   className={`mx-auto grid h-16 w-16 place-items-center rounded-full bg-ink-800 ${

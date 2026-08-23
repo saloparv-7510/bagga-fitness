@@ -3,7 +3,8 @@
    Everything the owner needs to edit (phone, hours, prices) lives here.
 
    CONFIRMED: `gym` (address, phone, WhatsApp, email, socials), `membership`
-   prices and `brand` naming. These are the gym's real values.
+   prices, `brand` naming, and the coaching roster — 5 coaches, 3 male and
+   2 female. These are the gym's real values.
    `email` and `youtube` are optional: set either one to null and the UI hides
    its button instead of rendering a dead link.
 
@@ -11,17 +12,15 @@
    now; grep this file for "PLACEHOLDER" to find every one:
      - brand.established        the founding year
      - hours                    all opening times
-     - stats                    member count, coach count, floor area
-     - coaches                  job titles stand in for the real names
+     - stats                    member count and floor area (coach count is real)
+     - coaches[].name/.role     job titles stand in for the real names
      - membership[].perks       what each tier actually includes
      - faqs                     the free-induction and facilities answers
 
-   Two knock-on effects to remember when these are replaced:
-     1. `stats` and `coaches` must agree — a coach count here that does not
-        match the number of `coaches` entries is visible on the page.
-     2. `index.html` deliberately omits `openingHoursSpecification` from the
-        JSON-LD while `hours` is a placeholder, because search engines render
-        that as the business's real hours. Add it once `hours` is confirmed.
+   One knock-on effect to remember when these are replaced: `index.html`
+   deliberately omits `openingHoursSpecification` from the JSON-LD while
+   `hours` is a placeholder, because search engines render that as the
+   business's real hours. Add it once `hours` is confirmed.
    --------------------------------------------------------------------------- */
 
 export const brand = {
@@ -76,11 +75,66 @@ export const hours = [
   { day: 'National Holidays', slots: ['6:00 AM – 10:00 AM'], note: 'Reduced hours' },
 ]
 
-/* PLACEHOLDER — the first three are invented. The coach count must be kept in
-   step with the number of `coaches` entries below. */
+/* Defined before `stats` on purpose — the coach count there is derived from
+   this array's length, and `const` is not hoisted.
+
+   CONFIRMED: the roster is 5 coaches, 3 male and 2 female.
+   PLACEHOLDER: the individual names and specialisations. Job titles stand in
+   so nothing here invents a person, and `gender` carries the confirmed split.
+   Which discipline belongs to which coach is an arbitrary pairing for now. */
+export const coaches = [
+  {
+    name: 'Head Strength Coach',
+    role: 'Powerlifting & Hypertrophy',
+    focus: 'Squat, bench and deadlift technique, progressive overload programming.',
+    gender: 'male',
+    accent: 'rage',
+  },
+  {
+    name: 'Conditioning Coach',
+    role: 'Fat Loss & Endurance',
+    focus: 'Metabolic circuits, interval design, sustainable calorie strategy.',
+    gender: 'male',
+    accent: 'volt',
+  },
+  {
+    name: 'Mobility Coach',
+    role: 'Recovery & Injury Prevention',
+    focus: 'Movement screening, mobility drills, safe return-to-training work.',
+    gender: 'male',
+    accent: 'titan',
+  },
+  {
+    name: 'Strength Coach',
+    role: 'Women’s Strength & Technique',
+    focus: 'Barbell basics, upper-body strength progressions and confident lifting.',
+    gender: 'female',
+    accent: 'titan',
+  },
+  {
+    name: 'Group Training Coach',
+    role: 'Circuits & Group Classes',
+    focus: 'Class programming, pacing for mixed abilities and week-to-week accountability.',
+    gender: 'female',
+    accent: 'volt',
+  },
+]
+
+/* Confirmed count of female coaches — surfaced in the UI because it is a real
+   deciding factor for women choosing a gym, and it is what backs the
+   "female coaching support" answer in `faqs`. Derived, never typed twice. */
+export const coachSplit = {
+  total: coaches.length,
+  male: coaches.filter((c) => c.gender === 'male').length,
+  female: coaches.filter((c) => c.gender === 'female').length,
+}
+
+/* PLACEHOLDER — members trained, floor area and days open are invented.
+   The coach count is CONFIRMED and derived from `coaches` above, so the number
+   on the page can never drift from the number of coach cards again. */
 export const stats = [
   { value: 1200, suffix: '+', label: 'Members Trained' },
-  { value: 14, suffix: '', label: 'Certified Coaches' },
+  { value: coachSplit.total, suffix: '', label: 'Certified Coaches' },
   { value: 6500, suffix: ' sq.ft', label: 'Training Floor' },
   { value: 7, suffix: ' days', label: 'Open Every Week' },
 ]
@@ -115,29 +169,6 @@ export const facilities = [
     title: 'Clean Facilities',
     accent: 'rage',
     text: 'Changing rooms, lockers, filtered drinking water, sanitised equipment and full-time floor supervision.',
-  },
-]
-
-/* PLACEHOLDER — job titles stand in for the real coaches' names on purpose,
-   so nothing here invents a person. See the coach count in `stats`. */
-export const coaches = [
-  {
-    name: 'Head Strength Coach',
-    role: 'Powerlifting & Hypertrophy',
-    focus: 'Squat, bench and deadlift technique, progressive overload programming.',
-    accent: 'rage',
-  },
-  {
-    name: 'Conditioning Coach',
-    role: 'Fat Loss & Endurance',
-    focus: 'Metabolic circuits, interval design, sustainable calorie strategy.',
-    accent: 'volt',
-  },
-  {
-    name: 'Mobility Coach',
-    role: 'Recovery & Injury Prevention',
-    focus: 'Movement screening, mobility drills, safe return-to-training work.',
-    accent: 'titan',
   },
 ]
 
@@ -224,8 +255,9 @@ export const gallery = [
 ]
 
 /* PLACEHOLDER — several answers promise specific services (free induction,
-   walk-in trials, female coaching support, a functional bay). Confirm each one
-   before treating this section as accurate: these set customer expectations. */
+   walk-in trials, supervised floor hours, a functional bay). Confirm each one
+   before treating this section as accurate: these set customer expectations.
+   The two-female-coaches claim in the women's answer is confirmed. */
 export const faqs = [
   {
     q: 'I have never trained before. Where do I start?',
@@ -237,7 +269,8 @@ export const faqs = [
   },
   {
     q: 'Is the gym suitable for women?',
-    a: 'Absolutely. We run supervised floor hours, a dedicated functional bay and female coaching support. The ideal weight and protein calculators on this site have separate male and female formulas.',
+    // The two female coaches are confirmed; the rest of this answer is not yet.
+    a: 'Absolutely. Two of our five certified coaches are women, so there is always female coaching support on the team. We also run supervised floor hours and a dedicated functional bay, and the ideal weight and protein calculators on this site use separate male and female formulas.',
   },
   {
     q: 'Do I need supplements to see results?',
