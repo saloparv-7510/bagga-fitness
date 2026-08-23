@@ -1,0 +1,444 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   BAGGA FITNESS — global styles
+   Performance contract: animate opacity + transform only. No filter: blur()
+   on large decorative surfaces (see .bloom), and no backdrop-filter on touch
+   devices (see the coarse-pointer block at the bottom of this file).
+   ========================================================================== */
+
+@layer base {
+  :root {
+    --shell: 84rem;
+    --nav-h: 4.5rem;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-padding-top: calc(var(--nav-h) + 1rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink-950 text-silver-300 font-sans antialiased;
+    /* Deep gym atmosphere: cool steel light from the top, warm power below. */
+    background-image:
+      radial-gradient(120% 62% at 50% -8%, rgba(56, 189, 248, 0.14), transparent 62%),
+      radial-gradient(90% 50% at 92% 8%, rgba(34, 197, 94, 0.09), transparent 60%),
+      radial-gradient(80% 48% at 4% 22%, rgba(239, 68, 68, 0.08), transparent 58%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-semibold text-silver-100;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: rgba(56, 189, 248, 0.32);
+    color: #f4f7fb;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.volt.400');
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Slim dark scrollbar so the premium feel survives on desktop */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #070910;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #232b3d;
+    border-radius: 999px;
+    border: 2px solid #070910;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #38bdf8;
+  }
+
+  input,
+  select,
+  button,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Kill the ugly native spinners on the calculators */
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+}
+
+@layer components {
+  /* ---------- Layout ---------- */
+  .shell {
+    @apply mx-auto w-full max-w-shell px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-pad {
+    @apply py-16 sm:py-20 lg:py-28;
+  }
+
+  /* ---------- Surfaces ---------- */
+  /* Real frosted glass on pointer devices; opaque fallback on touch. */
+  .glass {
+    background: rgba(11, 14, 23, 0.62);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid rgba(199, 208, 222, 0.09);
+  }
+
+  .glass-strong {
+    background: rgba(7, 9, 16, 0.82);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(199, 208, 222, 0.12);
+  }
+
+  .nav-blur {
+    background: rgba(4, 5, 10, 0.72);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    backdrop-filter: blur(16px) saturate(150%);
+  }
+
+  .card {
+    @apply glass rounded-2xl shadow-plate;
+  }
+
+  .hairline {
+    border: 1px solid rgba(199, 208, 222, 0.09);
+  }
+
+  /* Steel plate edge — a hairline that catches light on the top edge only */
+  .plate-edge {
+    box-shadow:
+      inset 0 1px 0 rgba(244, 247, 251, 0.07),
+      0 24px 60px -32px rgba(0, 0, 0, 0.9);
+  }
+
+  /* ---------- Glow without blur ----------
+     A radial mask fades the element's own background colour out at the edges.
+     Rasterised once, then only composited — unlike filter: blur() which is
+     re-rasterised on every scroll frame. Swap `blur-*` for `bloom`, keep bg-*. */
+  .bloom {
+    -webkit-mask-image: radial-gradient(ellipse closest-side, #000 8%, rgba(0, 0, 0, 0.55) 42%, transparent 78%);
+    mask-image: radial-gradient(ellipse closest-side, #000 8%, rgba(0, 0, 0, 0.55) 42%, transparent 78%);
+    pointer-events: none;
+  }
+
+  .bloom-tight {
+    -webkit-mask-image: radial-gradient(ellipse closest-side, #000 24%, transparent 72%);
+    mask-image: radial-gradient(ellipse closest-side, #000 24%, transparent 72%);
+    pointer-events: none;
+  }
+
+  /* ---------- Typography ---------- */
+  .forge {
+    @apply font-display uppercase tracking-forge;
+  }
+
+  .eyebrow {
+    @apply forge text-[0.7rem] sm:text-xs font-medium text-volt-300;
+  }
+
+  /* BAGGA FITNESS wordmark — electric blue into titan green with a red spark */
+  .brand-text {
+    background-image: linear-gradient(96deg, #e8f6ff 4%, #7dd3fc 34%, #38bdf8 52%, #4ade80 82%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .rage-text {
+    background-image: linear-gradient(96deg, #fecaca 0%, #f87171 48%, #ef4444 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .titan-text {
+    background-image: linear-gradient(96deg, #bbf7d0 0%, #4ade80 55%, #22c55e 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    @apply forge relative inline-flex select-none items-center justify-center gap-2
+      rounded-xl px-5 py-3 text-xs sm:text-sm font-semibold
+      transition duration-200 ease-power will-change-transform;
+  }
+  .btn:active {
+    transform: translate3d(0, 1px, 0) scale(0.985);
+  }
+
+  .btn-volt {
+    @apply btn text-ink-950;
+    background-image: linear-gradient(100deg, #7dd3fc, #38bdf8 55%, #0ea5e9);
+    box-shadow: 0 10px 30px -14px rgba(56, 189, 248, 0.85);
+  }
+  .btn-volt:hover {
+    box-shadow: 0 16px 40px -14px rgba(56, 189, 248, 0.95);
+    transform: translate3d(0, -2px, 0);
+  }
+
+  .btn-titan {
+    @apply btn text-ink-950;
+    background-image: linear-gradient(100deg, #86efac, #4ade80 55%, #22c55e);
+    box-shadow: 0 10px 30px -14px rgba(34, 197, 94, 0.8);
+  }
+  .btn-titan:hover {
+    box-shadow: 0 16px 40px -14px rgba(34, 197, 94, 0.9);
+    transform: translate3d(0, -2px, 0);
+  }
+
+  .btn-rage {
+    @apply btn text-white;
+    background-image: linear-gradient(100deg, #f87171, #ef4444 55%, #dc2626);
+    box-shadow: 0 10px 30px -14px rgba(239, 68, 68, 0.8);
+  }
+  .btn-rage:hover {
+    box-shadow: 0 16px 40px -14px rgba(239, 68, 68, 0.9);
+    transform: translate3d(0, -2px, 0);
+  }
+
+  .btn-ghost {
+    @apply btn border border-silver-300/15 bg-ink-800/60 text-silver-200;
+  }
+  .btn-ghost:hover {
+    @apply border-volt-400/45 text-silver-100;
+    transform: translate3d(0, -2px, 0);
+    background-color: rgba(23, 29, 43, 0.85);
+  }
+
+  /* ---------- Pills / chips / badges ---------- */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-silver-300/12
+      bg-ink-800/70 px-3 py-1 text-[0.68rem] sm:text-xs font-medium text-silver-300;
+  }
+
+  .badge-volt {
+    @apply chip border-volt-400/35 text-volt-200;
+    background-color: rgba(14, 165, 233, 0.12);
+  }
+  .badge-titan {
+    @apply chip border-titan-400/35 text-titan-200;
+    background-color: rgba(34, 197, 94, 0.12);
+  }
+  .badge-rage {
+    @apply chip border-rage-500/35 text-rage-300;
+    background-color: rgba(239, 68, 68, 0.12);
+  }
+  .badge-silver {
+    @apply chip border-silver-300/25 text-silver-200;
+  }
+
+  /* ---------- Form controls ---------- */
+  .field {
+    @apply w-full rounded-xl border border-silver-300/12 bg-ink-900/80 px-4 py-3
+      text-sm text-silver-100 placeholder:text-silver-500
+      transition duration-200 ease-power;
+  }
+  .field:hover {
+    @apply border-silver-300/25;
+  }
+  .field:focus {
+    @apply border-volt-400/70 outline-none;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.16);
+  }
+
+  .label {
+    @apply mb-2 block text-[0.7rem] font-semibold uppercase tracking-brand text-silver-400;
+  }
+
+  /* Range slider — themed, GPU-cheap */
+  .range {
+    @apply h-1.5 w-full cursor-pointer appearance-none rounded-full bg-ink-700;
+    background-image: linear-gradient(90deg, #38bdf8, #4ade80);
+    background-repeat: no-repeat;
+  }
+  .range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 999px;
+    background: #f4f7fb;
+    border: 3px solid #38bdf8;
+    box-shadow: 0 4px 14px -4px rgba(56, 189, 248, 0.9);
+    transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .range::-webkit-slider-thumb:hover {
+    transform: scale(1.12);
+  }
+  .range::-moz-range-thumb {
+    height: 18px;
+    width: 18px;
+    border-radius: 999px;
+    background: #f4f7fb;
+    border: 3px solid #38bdf8;
+  }
+
+  /* ---------- Decorative texture ---------- */
+  /* Faint steel grid — a single tiled gradient, no per-frame work */
+  .grid-plate {
+    background-image:
+      linear-gradient(rgba(199, 208, 222, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(199, 208, 222, 0.045) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+
+  /* Diagonal hazard stripes for rest-day / accent strips */
+  .stripes {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(199, 208, 222, 0.07) 0 6px,
+      transparent 6px 14px
+    );
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Horizontal tab rail fades at the edges instead of showing a hard cut */
+  .rail-fade {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+  }
+}
+
+@layer utilities {
+  /* Scroll reveal — the class flips to .is-in from an IntersectionObserver.
+     Only opacity + translate, so it stays on the compositor. */
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+    transition:
+      opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+
+  .lift {
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.28s ease, box-shadow 0.28s ease;
+  }
+  .lift:hover {
+    transform: translate3d(0, -4px, 0);
+  }
+
+  .text-shadow-power {
+    text-shadow: 0 2px 26px rgba(56, 189, 248, 0.28), 0 1px 2px rgba(0, 0, 0, 0.7);
+  }
+
+  .contain-paint {
+    contain: paint;
+  }
+}
+
+/* ==========================================================================
+   Touch / coarse pointer — the 60fps guard rails.
+   backdrop-filter re-samples and re-blurs the moving page behind every glass
+   surface on each frame. Phones cannot afford ~40 of those, so they get a more
+   opaque flat fill instead. Must come after the base rules to win on equal
+   specificity.
+   ========================================================================== */
+@media (hover: none), (pointer: coarse) {
+  .glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(11, 14, 23, 0.9);
+  }
+  .glass-strong {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(7, 9, 16, 0.95);
+  }
+  .nav-blur {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(4, 5, 10, 0.95);
+  }
+  body {
+    /* background-attachment: fixed forces a full repaint per scroll frame in
+       mobile WebViews. Scroll it with the page instead. */
+    background-attachment: scroll;
+  }
+  /* Hover lifts are meaningless on touch and cause sticky :hover states */
+  .lift:hover,
+  .btn-volt:hover,
+  .btn-titan:hover,
+  .btn-rage:hover,
+  .btn-ghost:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+}

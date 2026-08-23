@@ -1,0 +1,226 @@
+import React, { useState } from 'react'
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Send,
+  MessageCircle,
+  Instagram,
+  Youtube,
+  Navigation,
+  ChevronDown,
+  CheckCircle2,
+} from 'lucide-react'
+import { gym, hours, faqs } from '../data/site.js'
+import { Section, SectionHeading } from './ui/Section.jsx'
+import Reveal from './ui/Reveal.jsx'
+
+const mapsSearch = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gym.mapQuery)}`
+const mapEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(gym.mapQuery)}&z=14&output=embed`
+
+function Faq({ q, a }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="card overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-3 p-4 text-left"
+        aria-expanded={open}
+      >
+        <span className="text-sm font-semibold text-silver-100">{q}</span>
+        <ChevronDown className={`h-5 w-5 shrink-0 text-volt-300 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
+      </button>
+      <div className={`grid transition-all duration-300 ease-power ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+        <div className="overflow-hidden">
+          <p className="px-4 pb-4 text-sm leading-relaxed text-silver-400">{a}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function Contact() {
+  const [form, setForm] = useState({ name: '', phone: '', goal: 'Build Muscle', message: '' })
+  const [sent, setSent] = useState(false)
+
+  const onChange = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
+
+  const submit = (e) => {
+    e.preventDefault()
+    // No backend — hand off to WhatsApp with a prefilled enquiry.
+    const text = `Hi BAGGA FITNESS! I'm ${form.name || '—'} (${form.phone || 'no phone'}).%0AGoal: ${form.goal}.%0A${form.message}`
+    window.open(`https://wa.me/${gym.whatsapp}?text=${text}`, '_blank', 'noopener')
+    setSent(true)
+    setTimeout(() => setSent(false), 6000)
+  }
+
+  const contactRows = [
+    { Icon: Phone, label: 'Call', value: gym.phone, href: gym.phoneHref, accent: 'text-volt-300' },
+    { Icon: MessageCircle, label: 'WhatsApp', value: 'Message us', href: `https://wa.me/${gym.whatsapp}`, accent: 'text-titan-300' },
+    { Icon: Mail, label: 'Email', value: gym.email, href: `mailto:${gym.email}`, accent: 'text-rage-300' },
+  ]
+
+  return (
+    <Section id="contact" plated>
+      <SectionHeading
+        eyebrow="Visit Our Gym"
+        title="Come Train At"
+        accentWord="BAGGA FITNESS"
+        accent="volt"
+        sub="Drop by, call, or send a message. Your first session is the hardest — after that, it's momentum."
+      />
+
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        {/* Left column — address, hours, contacts */}
+        <div className="flex flex-col gap-5">
+          {/* Address */}
+          <Reveal className="card plate-edge p-6">
+            <div className="flex items-start gap-4">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-ink-800 text-volt-300 shadow-volt">
+                <MapPin className="h-6 w-6" />
+              </span>
+              <div className="min-w-0">
+                <h3 className="text-lg font-semibold text-silver-100">{gym.name}</h3>
+                <address className="mt-1 not-italic leading-relaxed text-silver-400">
+                  {gym.addressLines.map((l) => (
+                    <span key={l} className="block">
+                      {l}
+                    </span>
+                  ))}
+                </address>
+                <a href={mapsSearch} target="_blank" rel="noopener" className="btn-ghost mt-4 !py-2.5">
+                  <Navigation className="h-4 w-4" /> Get Directions
+                </a>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Hours */}
+          <Reveal delay={70} className="card plate-edge p-6">
+            <div className="flex items-center gap-2 text-silver-100">
+              <Clock className="h-5 w-5 text-titan-300" />
+              <h3 className="text-lg font-semibold">Opening Hours</h3>
+            </div>
+            <ul className="mt-4 divide-y divide-silver-300/8">
+              {hours.map((h) => (
+                <li key={h.day} className="flex items-start justify-between gap-4 py-2.5">
+                  <span className="text-sm font-medium text-silver-300">{h.day}</span>
+                  <span className="text-right text-sm text-silver-400">
+                    {h.slots.map((s) => (
+                      <span key={s} className="block">
+                        {s}
+                      </span>
+                    ))}
+                    {h.note && <span className="block text-xs text-volt-300">{h.note}</span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+
+          {/* Contact methods + socials */}
+          <Reveal delay={140} className="card plate-edge p-6">
+            <div className="grid gap-2 sm:grid-cols-3">
+              {contactRows.map((r) => (
+                <a
+                  key={r.label}
+                  href={r.href}
+                  target={r.href.startsWith('http') ? '_blank' : undefined}
+                  rel="noopener"
+                  className="flex flex-col gap-1 rounded-xl border border-silver-300/10 bg-ink-900/60 p-3 transition hover:border-silver-300/25"
+                >
+                  <r.Icon className={`h-5 w-5 ${r.accent}`} />
+                  <span className="text-[0.65rem] uppercase tracking-brand text-silver-500">{r.label}</span>
+                  <span className="truncate text-sm text-silver-200">{r.value}</span>
+                </a>
+              ))}
+            </div>
+            <div className="mt-4 flex items-center gap-2 border-t border-silver-300/10 pt-4">
+              <span className="text-xs uppercase tracking-brand text-silver-500">Follow</span>
+              <a href={gym.instagram} target="_blank" rel="noopener" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded-lg bg-ink-800 text-silver-300 hover:text-rage-300">
+                <Instagram className="h-4 w-4" />
+              </a>
+              <a href={gym.youtube} target="_blank" rel="noopener" aria-label="YouTube" className="grid h-9 w-9 place-items-center rounded-lg bg-ink-800 text-silver-300 hover:text-rage-300">
+                <Youtube className="h-4 w-4" />
+              </a>
+            </div>
+            <p className="mt-3 text-[0.7rem] text-silver-600">
+              Phone, email and social links are placeholders — replace them in <code className="text-silver-400">src/data/site.js</code>.
+            </p>
+          </Reveal>
+        </div>
+
+        {/* Right column — form + map */}
+        <div className="flex flex-col gap-5">
+          <Reveal delay={70} className="card plate-edge p-6">
+            <h3 className="text-lg font-semibold text-silver-100">Send an Enquiry</h3>
+            <p className="mt-1 text-sm text-silver-400">We'll open WhatsApp with your details ready to send.</p>
+            <form onSubmit={submit} className="mt-5 grid gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="label" htmlFor="c-name">Name</label>
+                  <input id="c-name" required value={form.name} onChange={onChange('name')} className="field" placeholder="Your name" />
+                </div>
+                <div>
+                  <label className="label" htmlFor="c-phone">Phone</label>
+                  <input id="c-phone" type="tel" value={form.phone} onChange={onChange('phone')} className="field" placeholder="Mobile number" />
+                </div>
+              </div>
+              <div>
+                <label className="label" htmlFor="c-goal">Primary Goal</label>
+                <select id="c-goal" value={form.goal} onChange={onChange('goal')} className="field">
+                  <option>Build Muscle</option>
+                  <option>Fat Loss</option>
+                  <option>General Fitness</option>
+                  <option>Strength / Powerlifting</option>
+                </select>
+              </div>
+              <div>
+                <label className="label" htmlFor="c-msg">Message</label>
+                <textarea id="c-msg" rows={3} value={form.message} onChange={onChange('message')} className="field resize-none" placeholder="Tell us a little about where you're starting from." />
+              </div>
+              <button type="submit" className="btn-volt w-full">
+                {sent ? <><CheckCircle2 className="h-4 w-4" /> Opening WhatsApp…</> : <><Send className="h-4 w-4" /> Send via WhatsApp</>}
+              </button>
+            </form>
+          </Reveal>
+
+          {/* Map */}
+          <Reveal delay={140} className="card plate-edge overflow-hidden">
+            <div className="flex items-center gap-2 border-b border-silver-300/10 p-4">
+              <MapPin className="h-4 w-4 text-volt-300" />
+              <span className="text-sm font-medium text-silver-300">{gym.addressOneLine}</span>
+            </div>
+            <div className="relative aspect-[16/11] w-full bg-ink-900">
+              <iframe
+                title="BAGGA FITNESS location map"
+                src={mapEmbed}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="absolute inset-0 h-full w-full border-0 grayscale-[0.2]"
+              />
+            </div>
+          </Reveal>
+        </div>
+      </div>
+
+      {/* FAQ */}
+      <div className="mt-14">
+        <Reveal>
+          <h3 className="forge text-center text-2xl font-bold text-silver-100 sm:text-3xl">
+            Common <span className="brand-text">Questions</span>
+          </h3>
+        </Reveal>
+        <div className="mx-auto mt-6 grid max-w-3xl gap-3">
+          {faqs.map((f, i) => (
+            <Reveal key={f.q} delay={i * 60}>
+              <Faq {...f} />
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )
+}
