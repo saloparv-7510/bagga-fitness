@@ -11,7 +11,8 @@ depends on zero licensed images.
 
 - **Sticky responsive navbar** with scroll-spy active states, smooth scrolling and a mobile hamburger drawer
 - **Hero** — animated lightning, superhero-inspired figures, live-counting stats
-- **About the gym** — facilities, coaching and membership cards
+- **About the gym** — facilities, coaching and four duration-based membership cards (1 / 3 / 6 / 12
+  months) whose Join Now and WhatsApp buttons open a chat prefilled with the plan that was clicked
 - **BMI / Ideal Weight calculator** — male & female, cm or ft/in input, healthy range, BMI scale, recommendation
 - **7-day workout planner** — Beginner / Intermediate / Experienced levels via tabs
 - **Exercise guide** — filterable by body part, per-exercise illustration, targeted muscles, step-by-step form + coach tip (modal)
@@ -20,7 +21,8 @@ depends on zero licensed images.
 - **Supplements** — honest what / who / how breakdown
 - **Training calendar** — the weekly split mapped onto a real month, on an original web-lattice background
 - **Gallery** — original gym-scene artwork with a lightbox
-- **Contact / Visit Us** — address, embedded map, opening hours, WhatsApp enquiry form and FAQ
+- **Contact / Visit Us** — address, embedded map, opening hours, call / WhatsApp / email links,
+  Instagram + YouTube follow buttons, WhatsApp enquiry form and FAQ
 
 ## Getting started
 
@@ -38,8 +40,11 @@ npm run preview  # preview the production build
 
 Almost everything the gym owner needs to change lives in `src/data/`:
 
-- `site.js` — **gym name, address, phone, email, WhatsApp, socials, opening hours, membership, FAQ.**
-  Values marked `PLACEHOLDER` (phone, email, prices, social URLs) should be replaced with the real ones.
+- `site.js` — **gym name, address, phone, WhatsApp, email, Instagram, YouTube, opening hours,
+  membership, FAQ.** All contact details hold the gym's real values. `email` and `youtube` are
+  optional — set either one to `null` and the UI hides its button instead of rendering a dead link.
+  Every WhatsApp action on the site is built by the `waLink(message)` helper in this file, so the
+  number only ever needs changing in one place.
 - `workouts.js` — the weekly split and the three level plans
 - `exercises.js` — the exercise library
 - `nutrition.js` — protein foods and supplements

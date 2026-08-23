@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { Menu, X, Dumbbell } from 'lucide-react'
-import { brand, nav } from '../data/site.js'
+import { Menu, X, Dumbbell, Instagram, MessageCircle } from 'lucide-react'
+import { brand, nav, gym, waLink } from '../data/site.js'
 import { useScrollSpy, useLockBodyScroll, useKeyDown } from '../hooks/index.js'
 
 const NAV_IDS = nav.map((n) => n.id)
+
+const navEnquiry = `Hello BAGGA FITNESS, I would like to know more about your gym memberships and timings. Please provide more information.`
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
@@ -77,6 +79,15 @@ export default function Navbar() {
         </ul>
 
         <div className="hidden items-center gap-2 xl:flex">
+          <a
+            href={gym.instagram}
+            target="_blank"
+            rel="noopener"
+            aria-label={`BAGGA FITNESS on Instagram — @${gym.instagramHandle}`}
+            className="grid h-10 w-10 place-items-center rounded-xl border border-silver-300/12 bg-ink-800/70 text-silver-300 transition-colors duration-200 hover:border-rage-500/45 hover:text-rage-300"
+          >
+            <Instagram className="h-5 w-5" />
+          </a>
           <a href="#contact" onClick={(e) => go(e, 'contact')} className="btn-volt !px-4 !py-2.5">
             Join Now
           </a>
@@ -130,6 +141,29 @@ export default function Navbar() {
             <li className="col-span-2 mt-1">
               <a href="#contact" onClick={(e) => go(e, 'contact')} className="btn-volt w-full">
                 Join BAGGA FITNESS
+              </a>
+            </li>
+            <li>
+              <a
+                href={waLink(navEnquiry)}
+                target="_blank"
+                rel="noopener"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-2 rounded-xl border border-silver-300/12 bg-ink-800/70 px-4 py-3 text-sm font-medium text-silver-300 transition-colors hover:border-titan-400/40 hover:text-titan-200"
+              >
+                <MessageCircle className="h-4 w-4 text-titan-300" /> WhatsApp
+              </a>
+            </li>
+            <li>
+              <a
+                href={gym.instagram}
+                target="_blank"
+                rel="noopener"
+                onClick={() => setOpen(false)}
+                aria-label={`BAGGA FITNESS on Instagram — @${gym.instagramHandle}`}
+                className="flex items-center justify-center gap-2 rounded-xl border border-silver-300/12 bg-ink-800/70 px-4 py-3 text-sm font-medium text-silver-300 transition-colors hover:border-rage-500/45 hover:text-rage-300"
+              >
+                <Instagram className="h-4 w-4" /> Instagram
               </a>
             </li>
           </ul>

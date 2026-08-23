@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Dumbbell, ArrowUp, MapPin, Heart } from 'lucide-react'
-import { brand, nav, gym } from '../data/site.js'
+import { Dumbbell, ArrowUp, MapPin, Heart, Phone, MessageCircle, Instagram, Mail, Youtube } from 'lucide-react'
+import { brand, nav, gym, waLink } from '../data/site.js'
 
 const go = (id) => (e) => {
   e.preventDefault()
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
+
+const footerEnquiry = `Hello BAGGA FITNESS, I would like to know more about your gym memberships and timings. Please provide more information.`
 
 export default function Footer() {
   const [show, setShow] = useState(false)
@@ -38,6 +40,53 @@ export default function Footer() {
             <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-volt-300" />
             {gym.addressOneLine}
           </p>
+          <a
+            href={gym.phoneHref}
+            className="mt-2.5 inline-flex items-center gap-2 text-sm text-silver-400 transition-colors hover:text-volt-200"
+          >
+            <Phone className="h-4 w-4 shrink-0 text-volt-300" />
+            {gym.phone}
+          </a>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <a
+              href={waLink(footerEnquiry)}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex items-center gap-2 rounded-lg border border-silver-300/12 bg-ink-800/70 px-3 py-2 text-xs font-medium text-silver-300 transition-colors hover:border-titan-400/40 hover:text-titan-200"
+            >
+              <MessageCircle className="h-4 w-4 text-titan-300" /> WhatsApp
+            </a>
+            <a
+              href={gym.instagram}
+              target="_blank"
+              rel="noopener"
+              aria-label={`BAGGA FITNESS on Instagram — @${gym.instagramHandle}`}
+              className="inline-flex items-center gap-2 rounded-lg border border-silver-300/12 bg-ink-800/70 px-3 py-2 text-xs font-medium text-silver-300 transition-colors hover:border-rage-500/40 hover:text-rage-300"
+            >
+              <Instagram className="h-4 w-4" /> @{gym.instagramHandle}
+            </a>
+            {/* Rendered only while gym.email is set in src/data/site.js */}
+            {gym.email && (
+              <a
+                href={`mailto:${gym.email}`}
+                className="inline-flex items-center gap-2 rounded-lg border border-silver-300/12 bg-ink-800/70 px-3 py-2 text-xs font-medium text-silver-300 transition-colors hover:border-volt-400/40 hover:text-volt-200"
+              >
+                <Mail className="h-4 w-4" /> Email
+              </a>
+            )}
+            {/* Rendered only while gym.youtube is set in src/data/site.js */}
+            {gym.youtube && (
+              <a
+                href={gym.youtube}
+                target="_blank"
+                rel="noopener"
+                aria-label={`BAGGA FITNESS on YouTube — @${gym.youtubeHandle}`}
+                className="inline-flex items-center gap-2 rounded-lg border border-silver-300/12 bg-ink-800/70 px-3 py-2 text-xs font-medium text-silver-300 transition-colors hover:border-rage-500/40 hover:text-rage-300"
+              >
+                <Youtube className="h-4 w-4" /> YouTube
+              </a>
+            )}
+          </div>
         </div>
 
         {cols.map((col, i) => (

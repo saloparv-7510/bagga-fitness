@@ -12,12 +12,16 @@ import {
   ChevronDown,
   CheckCircle2,
 } from 'lucide-react'
-import { gym, hours, faqs } from '../data/site.js'
+import { gym, hours, faqs, waLink } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 
 const mapsSearch = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gym.mapQuery)}`
 const mapEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(gym.mapQuery)}&z=14&output=embed`
+
+/* Generic "Contact Us" handoff — plan-specific messages live on the
+   membership cards in About.jsx. */
+const generalEnquiry = `Hello BAGGA FITNESS, I would like to know more about your gym memberships and timings. Please provide more information.`
 
 function Faq({ q, a }) {
   const [open, setOpen] = useState(false)
@@ -50,16 +54,46 @@ export default function Contact() {
   const submit = (e) => {
     e.preventDefault()
     // No backend — hand off to WhatsApp with a prefilled enquiry.
-    const text = `Hi BAGGA FITNESS! I'm ${form.name || '—'} (${form.phone || 'no phone'}).%0AGoal: ${form.goal}.%0A${form.message}`
-    window.open(`https://wa.me/${gym.whatsapp}?text=${text}`, '_blank', 'noopener')
+    const lines = [
+      `Hello BAGGA FITNESS, I am ${form.name || '—'} (${form.phone || 'no phone given'}).`,
+      `Goal: ${form.goal}.`,
+      form.message,
+    ].filter(Boolean)
+    window.open(waLink(lines.join('\n')), '_blank', 'noopener')
     setSent(true)
     setTimeout(() => setSent(false), 6000)
   }
 
   const contactRows = [
     { Icon: Phone, label: 'Call', value: gym.phone, href: gym.phoneHref, accent: 'text-volt-300' },
-    { Icon: MessageCircle, label: 'WhatsApp', value: 'Message us', href: `https://wa.me/${gym.whatsapp}`, accent: 'text-titan-300' },
-    { Icon: Mail, label: 'Email', value: gym.email, href: `mailto:${gym.email}`, accent: 'text-rage-300' },
+    {
+      Icon: MessageCircle,
+      label: 'WhatsApp',
+      value: gym.phone,
+      href: waLink(generalEnquiry),
+      accent: 'text-titan-300',
+    },
+    {
+      Icon: Instagram,
+      label: 'Instagram',
+      value: `@${gym.instagramHandle}`,
+      href: gym.instagram,
+      accent: 'text-rage-300',
+    },
+    // Rendered only while gym.email is set in src/data/site.js — spans the row
+    // so the full address is readable instead of truncated.
+    ...(gym.email
+      ? [
+          {
+            Icon: Mail,
+            label: 'Email',
+            value: gym.email,
+            href: `mailto:${gym.email}`,
+            accent: 'text-silver-300',
+            span: 'sm:col-span-3',
+          },
+        ]
+      : []),
   ]
 
   return (
@@ -90,9 +124,14 @@ export default function Contact() {
                     </span>
                   ))}
                 </address>
-                <a href={mapsSearch} target="_blank" rel="noopener" className="btn-ghost mt-4 !py-2.5">
-                  <Navigation className="h-4 w-4" /> Get Directions
-                </a>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <a href={mapsSearch} target="_blank" rel="noopener" className="btn-ghost !py-2.5">
+                    <Navigation className="h-4 w-4" /> Get Directions
+                  </a>
+                  <a href={waLink(generalEnquiry)} target="_blank" rel="noopener" className="btn-titan !py-2.5">
+                    <MessageCircle className="h-4 w-4" /> Contact Us
+                  </a>
+                </div>
               </div>
             </div>
           </Reveal>
@@ -129,7 +168,9 @@ export default function Contact() {
                   href={r.href}
                   target={r.href.startsWith('http') ? '_blank' : undefined}
                   rel="noopener"
-                  className="flex flex-col gap-1 rounded-xl border border-silver-300/10 bg-ink-900/60 p-3 transition hover:border-silver-300/25"
+                  className={`flex flex-col gap-1 rounded-xl border border-silver-300/10 bg-ink-900/60 p-3 transition hover:border-silver-300/25 ${
+                    r.span || ''
+                  }`}
                 >
                   <r.Icon className={`h-5 w-5 ${r.accent}`} />
                   <span className="text-[0.65rem] uppercase tracking-brand text-silver-500">{r.label}</span>
@@ -137,18 +178,41 @@ export default function Contact() {
                 </a>
               ))}
             </div>
-            <div className="mt-4 flex items-center gap-2 border-t border-silver-300/10 pt-4">
+            <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-silver-300/10 pt-4">
               <span className="text-xs uppercase tracking-brand text-silver-500">Follow</span>
-              <a href={gym.instagram} target="_blank" rel="noopener" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded-lg bg-ink-800 text-silver-300 hover:text-rage-300">
+              <a
+                href={gym.instagram}
+                target="_blank"
+                rel="noopener"
+                aria-label={`BAGGA FITNESS on Instagram — @${gym.instagramHandle}`}
+                className="inline-flex items-center gap-2 rounded-lg bg-ink-800 px-3 py-2 text-sm text-silver-300 transition hover:text-rage-300"
+              >
                 <Instagram className="h-4 w-4" />
+                <span>@{gym.instagramHandle}</span>
               </a>
-              <a href={gym.youtube} target="_blank" rel="noopener" aria-label="YouTube" className="grid h-9 w-9 place-items-center rounded-lg bg-ink-800 text-silver-300 hover:text-rage-300">
-                <Youtube className="h-4 w-4" />
-              </a>
+              {/* Rendered only while gym.youtube is set in src/data/site.js */}
+              {gym.youtube && (
+                <a
+                  href={gym.youtube}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={`BAGGA FITNESS on YouTube — @${gym.youtubeHandle}`}
+                  className="inline-flex items-center gap-2 rounded-lg bg-ink-800 px-3 py-2 text-sm text-silver-300 transition hover:text-rage-300"
+                >
+                  <Youtube className="h-4 w-4" />
+                  <span>@{gym.youtubeHandle}</span>
+                </a>
+              )}
             </div>
-            <p className="mt-3 text-[0.7rem] text-silver-600">
-              Phone, email and social links are placeholders — replace them in <code className="text-silver-400">src/data/site.js</code>.
-            </p>
+            {(!gym.email || !gym.youtube) && (
+              <p className="mt-3 text-[0.7rem] text-silver-600">
+                {!gym.email && !gym.youtube
+                  ? 'Email and YouTube are not set up yet — call or message us on WhatsApp instead.'
+                  : !gym.email
+                    ? 'No email address yet — call or message us on WhatsApp instead.'
+                    : 'No YouTube channel yet — follow us on Instagram for updates.'}
+              </p>
+            )}
           </Reveal>
         </div>
 

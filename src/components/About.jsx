@@ -1,6 +1,16 @@
 import React from 'react'
-import { Flame, Users, Dumbbell, HeartPulse, ShieldCheck, Sparkles, Check } from 'lucide-react'
-import { facilities, coaches, membership } from '../data/site.js'
+import {
+  Flame,
+  Users,
+  Dumbbell,
+  HeartPulse,
+  ShieldCheck,
+  Sparkles,
+  Check,
+  Crown,
+  MessageCircle,
+} from 'lucide-react'
+import { facilities, coaches, membership, waLink } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import { TorsoMark } from './art/Decor.jsx'
@@ -11,6 +21,18 @@ const accentRing = {
   rage: 'shadow-rage text-rage-300',
 }
 const facilityIcon = [Flame, Dumbbell, HeartPulse, Sparkles, Users, ShieldCheck]
+
+/* Membership card accents */
+const planRing = { volt: 'ring-volt-400/40', titan: 'ring-titan-400/40', rage: 'ring-rage-500/50' }
+const planBtn = { volt: 'btn-volt', titan: 'btn-titan', rage: 'btn-rage' }
+const planPrice = { volt: 'text-volt-200', titan: 'text-titan-200', rage: 'text-rage-200' }
+
+/* Both card buttons hand off to WhatsApp, naming the exact plan that was
+   clicked so the enquiry arrives with context. */
+const joinMessage = (plan) =>
+  `Hello BAGGA FITNESS, I am interested in joining the ${plan.duration} plan. Please provide more information.`
+const askMessage = (plan) =>
+  `Hello BAGGA FITNESS, I would like to know more about the ${plan.duration} plan (${plan.price}) — timings, facilities and current offers.`
 
 export default function About() {
   return (
@@ -86,25 +108,37 @@ export default function About() {
             Simple <span className="brand-text">Membership</span>
           </h3>
           <p className="mx-auto mt-2 max-w-lg text-center text-sm text-silver-400">
-            Prices are placeholders — confirm current rates at the front desk or on WhatsApp.
+            Pick a duration — the longer you commit, the lower your monthly rate. Tap any plan to
+            message us on WhatsApp about it.
           </p>
         </Reveal>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {membership.map((plan, i) => (
-            <Reveal key={plan.name} delay={i * 80}>
+            <Reveal key={plan.id} delay={(i % 4) * 70}>
               <article
                 className={`card plate-edge lift relative flex h-full flex-col p-6 ${
-                  plan.featured ? 'ring-1 ring-titan-400/40' : ''
+                  plan.bestValue ? `ring-1 ${planRing[plan.accent]}` : ''
                 }`}
               >
-                {plan.featured && (
-                  <span className="badge-titan absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</span>
+                {plan.bestValue && (
+                  <span className="badge-rage absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                    <Crown className="h-3.5 w-3.5" /> Best Value
+                  </span>
                 )}
-                <div className="text-sm font-semibold uppercase tracking-brand text-silver-400">{plan.name}</div>
-                <div className="mt-2 flex items-end gap-1">
-                  <span className="forge text-3xl font-bold text-silver-100">{plan.price}</span>
-                  <span className="mb-1 text-xs text-silver-500">/ {plan.period}</span>
+
+                <div className="text-sm font-semibold uppercase tracking-brand text-silver-400">
+                  {plan.name}
                 </div>
+
+                <div className="mt-2 flex items-end gap-1.5">
+                  <span className={`forge text-3xl font-bold ${planPrice[plan.accent]}`}>{plan.price}</span>
+                </div>
+
+                <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-silver-500">{plan.monthly}</span>
+                  {plan.save && <span className="badge-titan !py-0.5">{plan.save}</span>}
+                </div>
+
                 <ul className="mt-5 flex flex-1 flex-col gap-2.5">
                   {plan.perks.map((perk) => (
                     <li key={perk} className="flex items-start gap-2 text-sm text-silver-300">
@@ -113,16 +147,27 @@ export default function About() {
                     </li>
                   ))}
                 </ul>
-                <a
-                  href="#contact"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
-                  }}
-                  className={`mt-6 ${plan.featured ? 'btn-titan' : 'btn-ghost'} w-full`}
-                >
-                  Enquire
-                </a>
+
+                <div className="mt-6 grid gap-2">
+                  <a
+                    href={waLink(joinMessage(plan))}
+                    target="_blank"
+                    rel="noopener"
+                    className={`${planBtn[plan.accent]} w-full`}
+                    aria-label={`Join the ${plan.duration} plan on WhatsApp`}
+                  >
+                    Join Now
+                  </a>
+                  <a
+                    href={waLink(askMessage(plan))}
+                    target="_blank"
+                    rel="noopener"
+                    className="btn-ghost w-full"
+                    aria-label={`Ask about the ${plan.duration} plan on WhatsApp`}
+                  >
+                    <MessageCircle className="h-4 w-4 text-titan-300" /> WhatsApp
+                  </a>
+                </div>
               </article>
             </Reveal>
           ))}

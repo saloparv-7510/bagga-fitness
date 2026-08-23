@@ -1,7 +1,10 @@
 /* ---------------------------------------------------------------------------
    BAGGA FITNESS — single source of truth for gym details.
-   Everything the owner needs to edit (phone, email, hours, prices) lives here.
-   Values marked PLACEHOLDER are safe defaults — swap them for the real ones.
+   Everything the owner needs to edit (phone, hours, prices) lives here.
+
+   Contact details below are the gym's real, confirmed values.
+   `email` and `youtube` are optional: set either one to null and the UI hides
+   its button instead of rendering a dead link.
    --------------------------------------------------------------------------- */
 
 export const brand = {
@@ -32,13 +35,20 @@ export const gym = {
   addressOneLine: 'Prahladpur, Uttar Pradesh – 221112, India',
   // Used for the "Get Directions" button and the embedded map frame.
   mapQuery: 'Prahladpur, Uttar Pradesh 221112',
-  phone: '+91 00000 00000', // PLACEHOLDER
-  phoneHref: 'tel:+910000000000', // PLACEHOLDER
-  whatsapp: '910000000000', // PLACEHOLDER — digits only, with country code
-  email: 'info@baggafitness.in', // PLACEHOLDER
-  instagram: 'https://instagram.com/', // PLACEHOLDER
-  youtube: 'https://youtube.com/', // PLACEHOLDER
+  phone: '+91 7510054999',
+  phoneHref: 'tel:+917510054999',
+  whatsapp: '917510054999', // digits only, with country code
+  instagramHandle: 'parvmaurya8017',
+  instagram: 'https://www.instagram.com/parvmaurya8017/',
+  email: 'parvmaurya8017@gmail.com',
+  youtubeHandle: 'parvmaurya-e5q',
+  youtube: 'https://www.youtube.com/@parvmaurya-e5q',
 }
+
+/* Builds a wa.me link with a prefilled message. Every WhatsApp action on the
+   site goes through this so there is exactly one number to change. */
+export const waLink = (message) =>
+  `https://wa.me/${gym.whatsapp}?text=${encodeURIComponent(message)}`
 
 export const hours = [
   { day: 'Monday – Friday', slots: ['5:00 AM – 10:30 AM', '4:00 PM – 10:00 PM'] },
@@ -108,38 +118,68 @@ export const coaches = [
   },
 ]
 
+/* Real membership pricing. `duration` is the exact plan name used in the
+   prefilled WhatsApp message, so it reads naturally in the chat.
+   `save` is the difference against paying the 1-month rate for the same span. */
 export const membership = [
   {
-    name: 'Starter',
-    period: 'per month',
+    id: '1-month',
+    name: '1 Month',
+    duration: '1 Month Membership',
+    price: '₹1,200',
+    monthly: '₹1,200 / month',
     accent: 'volt',
-    price: '₹ —', // PLACEHOLDER — set your real pricing
-    perks: ['Full gym floor access', 'Beginner induction session', 'Weekly plan from this site', 'Locker access'],
-  },
-  {
-    name: 'Titan',
-    period: 'per quarter',
-    accent: 'titan',
-    price: '₹ —', // PLACEHOLDER
-    featured: true,
     perks: [
-      'Everything in Starter',
-      'Monthly body measurement tracking',
-      'Personalised split & progression',
-      'Diet and protein guidance',
-      'Two form-check sessions a month',
+      'Full gym floor access',
+      'Beginner induction & form check',
+      'Weekly workout plan from this site',
+      'Locker & filtered water access',
     ],
   },
   {
-    name: 'Thunder',
-    period: 'per year',
-    accent: 'rage',
-    price: '₹ —', // PLACEHOLDER
+    id: '3-months',
+    name: '3 Months',
+    duration: '3 Months Membership',
+    price: '₹3,000',
+    monthly: '₹1,000 / month',
+    save: 'Save ₹600',
+    accent: 'volt',
     perks: [
-      'Everything in Titan',
-      'Weekly one-to-one coaching',
+      'Everything in 1 Month',
+      'Monthly body measurement tracking',
+      'Personalised split & progression',
+      'Diet and protein guidance',
+    ],
+  },
+  {
+    id: '6-months',
+    name: '6 Months',
+    duration: '6 Months Membership',
+    price: '₹6,000',
+    monthly: '₹1,000 / month',
+    save: 'Save ₹1,200',
+    accent: 'titan',
+    perks: [
+      'Everything in 3 Months',
+      'Two form-check sessions a month',
       'Priority peak-hour access',
-      'Competition prep support',
+      'Plan review every 8 weeks',
+    ],
+  },
+  {
+    id: '12-months',
+    name: '12 Months',
+    duration: '12 Months Membership',
+    price: '₹10,000',
+    monthly: '≈ ₹833 / month',
+    save: 'Save ₹4,400',
+    bestValue: true,
+    accent: 'rage',
+    perks: [
+      'Everything in 6 Months',
+      'Weekly one-to-one coaching',
+      'Competition & event prep support',
+      'Lowest monthly rate we offer',
     ],
   },
 ]
