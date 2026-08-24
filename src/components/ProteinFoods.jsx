@@ -45,7 +45,7 @@ export default function ProteinFoods() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {list.map((f, i) => (
           <Reveal key={f.name} delay={(i % 4) * 55}>
-            <article className="card plate-edge lift flex h-full items-center gap-4 p-4">
+            <article className="card plate-edge lift flex h-full items-center gap-4 p-4 cv-auto [--cv-h:6.5rem]">
               <div className="h-16 w-16 shrink-0">
                 <FoodArt name={f.art} accent={f.accent} className="block h-full w-full" />
               </div>

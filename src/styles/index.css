@@ -13,6 +13,13 @@
   :root {
     --shell: 84rem;
     --nav-h: 4.5rem;
+
+    /* App shell only. --app-header-h is republished by AppHeader from its own
+       measured height (it grows when a tab has a segmented rail); --kb is set
+       by the native keyboard listener. */
+    --app-header-h: 3.5rem;
+    --tabbar-h: 3.9rem;
+    --kb: 0px;
   }
 
   * {
@@ -111,6 +118,14 @@
     @apply py-16 sm:py-20 lg:py-28;
   }
 
+  /* In the app a section is a whole screen, not a band inside a long page, so
+     the vertical rhythm that separated 13 stacked sections would just be dead
+     space above the fold. The bottom padding is the larger of the two because
+     the tab bar sits over the last few pixels of the scroll. */
+  .section-pad-app {
+    @apply pb-8 pt-4;
+  }
+
   /* ---------- Surfaces ---------- */
   /* Real frosted glass on pointer devices; opaque fallback on touch. */
   .glass {
@@ -180,7 +195,6 @@
     background-clip: text;
     color: transparent;
   }
-
   .rage-text {
     background-image: linear-gradient(96deg, #fecaca 0%, #f87171 48%, #ef4444 100%);
     -webkit-background-clip: text;
@@ -204,6 +218,17 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  /* A gradient word has color: transparent, so an inherited text-shadow is
+     painted *inside* the letterforms instead of behind them — the hero's glow
+     was showing through and greying out the gradient. The solid-colour lines of
+     the headline keep the glow; the clipped words opt out of it. */
+  .brand-text,
+  .rage-text,
+  .titan-text,
+  .spider-text {
+    text-shadow: none;
   }
 
   /* ---------- Buttons ---------- */
@@ -426,6 +451,130 @@
     min-height: 2.75rem;
   }
 
+  /* ======================================================================
+     App shell chrome — only ever rendered under html[data-shell="app"].
+
+     Three rules govern everything below.
+
+     1. Opaque, never frosted. backdrop-filter on a fixed element makes the
+        WebView re-sample and re-blur the page behind it on every scroll
+        frame. Fixed chrome over a scrolling list is the worst possible place
+        for it, so the app bar and tab bar use flat fills.
+     2. Promoted to their own compositor layer (`contain` + translateZ) so
+        scrolling the document never repaints them.
+     3. z-40 — under the exercise modal (z-60) and the gallery lightbox
+        (z-70), so an open overlay covers the chrome instead of fighting it.
+     ====================================================================== */
+
+  .app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    /* env() is 0 on Android because adjustMarginsForEdgeToEdge insets the
+       WebView natively; on iOS it is the real notch inset. One rule, both. */
+    padding-top: env(safe-area-inset-top, 0px);
+    background: #04050a;
+    border-bottom: 1px solid rgba(199, 208, 222, 0.08);
+    contain: layout paint;
+    transform: translateZ(0);
+  }
+
+  .app-icon-btn {
+    @apply grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-silver-300/12 bg-ink-800/80
+      transition-transform duration-150 ease-power;
+  }
+  .app-icon-btn:active {
+    transform: scale(0.94);
+  }
+
+  /* Second-level pill rail. Horizontally scrollable; the fade is a mask, not
+     an overlay element, so it costs nothing per frame. */
+  .app-seg {
+    @apply flex items-center gap-1.5 overflow-x-auto px-4 pb-2.5;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-seg-pill {
+    @apply forge shrink-0 rounded-full border border-silver-300/10 bg-ink-800/70 px-3.5 py-1.5
+      text-[0.68rem] font-semibold tracking-brand text-silver-400
+      transition duration-200 ease-power;
+    scroll-snap-align: center;
+  }
+  .app-seg-pill.is-active {
+    @apply border-volt-400/45 text-volt-200;
+    background-color: rgba(14, 165, 233, 0.16);
+  }
+  .app-seg-pill:active {
+    transform: scale(0.96);
+  }
+
+  /* No z-index here, deliberately. A positioned element with a z-index creates
+     a stacking context, and every descendant is then trapped inside it — the
+     exercise modal (z-60) and gallery lightbox (z-70) would be flattened to
+     that one value and paint *below* the z-40 chrome. BackgroundFX sits at
+     -z-10, so ordinary flow already puts this above it. */
+  .app-main {
+    position: relative;
+  }
+
+  .app-tabbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: #04050a;
+    border-top: 1px solid rgba(199, 208, 222, 0.09);
+    contain: layout paint;
+    transform: translateZ(0);
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .app-tab {
+    @apply flex h-[var(--tabbar-h)] w-full flex-col items-center justify-center gap-1 text-silver-500
+      transition-colors duration-150;
+  }
+  .app-tab.is-active {
+    @apply text-volt-300;
+  }
+  .app-tab:active {
+    @apply text-volt-200;
+  }
+
+  .app-tab-label {
+    @apply forge text-[0.6rem] font-semibold tracking-brand;
+  }
+
+  /* Exit confirmation only — see showToast() in src/native. Above the chrome
+     but below nothing else, because it must be readable over an open modal. */
+  .app-toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 1.25rem);
+    z-index: 90;
+    max-width: min(85vw, 22rem);
+    padding: 0.6rem 1rem;
+    border-radius: 999px;
+    background: rgba(23, 29, 43, 0.97);
+    border: 1px solid rgba(199, 208, 222, 0.14);
+    color: #e2e8f0;
+    font-size: 0.78rem;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate3d(-50%, 8px, 0);
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .app-toast.is-in {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0);
+  }
+
 }
 
 @layer utilities {
@@ -459,6 +608,24 @@
 
   .contain-paint {
     contain: paint;
+  }
+
+  /* Skip layout, paint and rasterisation for off-screen list items.
+     Used on the three long card lists (exercises, protein foods, gallery),
+     which between them carry ~50 inline SVG illustrations — the browser would
+     otherwise lay out and paint all of them on first render of the screen.
+
+     --cv-h is the height estimate used while an item is skipped; set it per
+     list with Tailwind's arbitrary-property syntax, e.g. [--cv-h:22rem]. The
+     `auto` keyword means the real height replaces the estimate as soon as the
+     item has been rendered once, so the estimate only ever affects the very
+     first pass. Behind @supports because a browser that ignores
+     content-visibility must not be handed contain-intrinsic-size either. */
+  @supports (content-visibility: auto) {
+    .cv-auto {
+      content-visibility: auto;
+      contain-intrinsic-size: auto var(--cv-h, 22rem);
+    }
   }
 }
 
@@ -499,6 +666,62 @@
   .btn-ghost:hover {
     transform: none;
   }
+}
+
+/* ==========================================================================
+   App shell — document-level rules.
+
+   Everything here hangs off html[data-shell="app"], which main.jsx sets before
+   the first paint, so the website's rendering is unaffected. It does still
+   download these rules: cssCodeSplit is false, so both targets share one
+   stylesheet and the site carries ~4KB of app chrome it never matches.
+   ========================================================================== */
+html[data-shell='app'] {
+  /* Anchor jumps and scrollIntoView must clear the fixed app bar, not the
+     website's navbar. */
+  scroll-padding-top: calc(var(--app-header-h) + 0.75rem);
+  /* Keep the rubber-band inside the app instead of chaining it to the WebView,
+     which is what produces a browser-ish pull-to-refresh feel. */
+  overscroll-behavior-y: contain;
+}
+
+html[data-shell='app'] body {
+  /* The fixed chrome is out of flow, so the document has to reserve its space.
+     --app-header-h is republished by AppHeader from its own measured height
+     (it grows when a tab has a segmented rail) and already includes the top
+     safe-area inset, because offsetHeight includes padding. */
+  padding-top: var(--app-header-h);
+  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  /* fixed backgrounds repaint the whole viewport per frame in a WebView */
+  background-attachment: scroll;
+  /* Long-press on ordinary UI should not offer "copy"/"share" — that is what
+     makes a WebView feel like a web page. Text the user may genuinely want is
+     opted back in below. */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* …but a phone number, an address and anything the user types are all worth
+   selecting, so those keep normal behaviour. */
+html[data-shell='app'] input,
+html[data-shell='app'] textarea,
+html[data-shell='app'] address,
+html[data-shell='app'] .selectable {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Keyboard open: the tab bar would sit on top of the field being typed into,
+   and the bottom padding has to clear the keyboard instead of the tab bar.
+   Keyboard.resize is "none" (see capacitor.config.json), so the viewport never
+   changes size and this is the only thing that moves. */
+html[data-shell='app'][data-kb='1'] .app-tabbar {
+  transform: translate3d(0, 110%, 0);
+}
+html[data-shell='app'][data-kb='1'] body {
+  padding-bottom: calc(var(--kb) + 1.5rem);
 }
 
 @media (prefers-reduced-motion: reduce) {

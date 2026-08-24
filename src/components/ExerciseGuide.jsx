@@ -149,7 +149,7 @@ export default function ExerciseGuide() {
             <button
               type="button"
               onClick={() => setSelected(ex)}
-              className="card plate-edge lift group block h-full w-full overflow-hidden text-left"
+              className="card plate-edge lift group block h-full w-full overflow-hidden text-left cv-auto [--cv-h:20.5rem]"
             >
               <div className="relative aspect-[16/10] w-full overflow-hidden">
                 <ExerciseArt name={ex.art} accent={accentOf(ex)} className="block h-full w-full transition-transform duration-500 group-hover:scale-105" />

@@ -50,7 +50,7 @@ export default function Gallery() {
             <button
               type="button"
               onClick={() => show(i)}
-              className="card plate-edge group relative block h-full w-full overflow-hidden text-left"
+              className="card plate-edge group relative block h-full w-full overflow-hidden text-left cv-auto"
             >
               <GymArt name={g.art} accent={g.accent} className="block h-full w-full transition-transform duration-500 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-transparent to-transparent" />

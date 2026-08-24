@@ -1,7 +1,35 @@
 node_modules
 dist
 dist-ssr
+dist-app
 .DS_Store
 *.local
 .vite
 npm-debug.log*
+
+# ---- Capacitor native projects -------------------------------------------
+# android/ and ios/ ARE committed, deliberately. `npx cap add` scaffolds them
+# once; from then on `cap sync` only copies the web build and refreshes plugin
+# references, and never rewrites AndroidManifest.xml or build.gradle. Those
+# files carry real configuration — the portrait lock, the Android 11+ <queries>
+# block that outbound links depend on, versionName, the release signing hook —
+# so regenerating them from scratch would silently ship a different app.
+#
+# Each native project brings its own .gitignore for the machine-specific and
+# generated parts (build/, .gradle/, local.properties, the copied web assets in
+# app/src/main/assets/public, capacitor.config.json). Those stay out; the source
+# of the project goes in. See ANDROID.md.
+android/local.properties
+android/capacitor.build.gradle
+android/app/capacitor.build.gradle
+android/.idea/
+local.properties
+.gradle/
+
+# ---- Release signing ------------------------------------------------------
+# Never commit a keystore or its passwords. Losing the keystore means you can
+# never update the app on Play again, so keep it backed up somewhere private.
+*.keystore
+*.jks
+keystore.properties
+key.properties

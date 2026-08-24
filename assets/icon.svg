@@ -1,0 +1,56 @@
+<!-- BAGGA FITNESS launcher icon — 1024x1024, original artwork.
+     A bolt punched through a dumbbell: the two motifs the brand already uses
+     (Thor lightning, iron strength), reduced to one silhouette that still reads
+     at 48px. Nothing here is derived from anyone else's mark. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="plate" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101827"/>
+      <stop offset="0.55" stop-color="#080b14"/>
+      <stop offset="1" stop-color="#04050a"/>
+    </linearGradient>
+    <radialGradient id="sheen" cx="0.24" cy="0.14" r="0.78">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0.30"/>
+      <stop offset="0.55" stop-color="#22c55e" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#04050a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bolt" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#e8f6ff"/>
+      <stop offset="0.34" stop-color="#7dd3fc"/>
+      <stop offset="0.62" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+    <!-- Bound to the dumbbell's own y-range rather than the whole canvas, so the
+         bar and plates get the full bright-to-dark sweep instead of a flat slice
+         out of the middle of it. That vertical contrast is what makes the iron
+         read as metal at 48px. -->
+    <linearGradient id="iron" gradientUnits="userSpaceOnUse" x1="0" y1="418" x2="0" y2="608">
+      <stop offset="0" stop-color="#f2f5fa"/>
+      <stop offset="0.5" stop-color="#c2cad6"/>
+      <stop offset="1" stop-color="#79849a"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" rx="224" fill="url(#plate)"/>
+  <rect width="1024" height="1024" rx="224" fill="url(#sheen)"/>
+  <!-- light catching the top edge, the same trick as .plate-edge in the CSS -->
+  <rect x="1" y="1" width="1022" height="1022" rx="223" fill="none"
+        stroke="#c7d0de" stroke-opacity="0.16" stroke-width="2"/>
+
+  <!-- Dumbbell, drawn first so the bolt crosses in front of it. The bar is long
+       enough to emerge well clear of the bolt on both sides — at launcher size
+       the bolt plus its outline covers x 410-628, and a bar that stopped near
+       there left the two plate clusters looking like unrelated blobs. -->
+  <g fill="url(#iron)">
+    <rect x="262" y="484" width="500" height="56" rx="28"/>
+    <rect x="202" y="426" width="70" height="172" rx="28"/>
+    <rect x="752" y="426" width="70" height="172" rx="28"/>
+    <rect x="140" y="460" width="54" height="104" rx="24"/>
+    <rect x="830" y="460" width="54" height="104" rx="24"/>
+  </g>
+
+  <!-- Bolt: stroked in the background colour so it punches cleanly through -->
+  <path d="M562 196 L400 556 L491 556 L462 828 L630 448 L534 448 Z"
+        fill="url(#bolt)" stroke="#04050a" stroke-width="30"
+        stroke-linejoin="round" paint-order="stroke"/>
+</svg>

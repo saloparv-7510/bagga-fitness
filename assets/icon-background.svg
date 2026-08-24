@@ -1,0 +1,22 @@
+<!-- Adaptive-icon background. Full bleed with no important detail near the edges:
+     this canvas maps to the whole 108dp adaptive canvas, of which a launcher only
+     ever shows the central 66.6% — and it slides the layer around inside that
+     window when it parallaxes the icon. So the sheen is pulled in to sit inside
+     the visible window rather than at the true corner, and its falloff completes
+     before the edge. Flat plate + one off-centre sheen, nothing else. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="plate" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101827"/>
+      <stop offset="0.55" stop-color="#080b14"/>
+      <stop offset="1" stop-color="#04050a"/>
+    </linearGradient>
+    <radialGradient id="sheen" cx="0.37" cy="0.31" r="0.55">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0.32"/>
+      <stop offset="0.5" stop-color="#22c55e" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#04050a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#plate)"/>
+  <rect width="1024" height="1024" fill="url(#sheen)"/>
+</svg>
