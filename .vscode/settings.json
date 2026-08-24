@@ -1,0 +1,76 @@
+{
+  // This is a React + Vite web project that also ships as a Capacitor Android
+  // app. The whole repo contains three .java files — MainActivity.java plus two
+  // dead com.getcapacitor.myapp scaffold tests — and nobody edits Java here;
+  // the native project is built by Gradle from the terminal (`npm run
+  // android:apk`), never from the editor.
+  //
+  // Left at their defaults, the Java extension pack spins up THREE JVMs for
+  // those three files: launchMode "Hybrid" starts a standard language server AND
+  // a syntax server, each with -Xmx2G, and vscode-gradle's build server starts a
+  // third to import android/. On a 7 GB machine that shares RAM with a Gradle
+  // build, that is what killed both language servers on 24 Aug 2026 — a native
+  // malloc failure with only ~27 MB of live heap in each.
+  //
+  // Everything below is window/resource/machine-overridable scope, so it takes
+  // effect from workspace settings. Delete this file if you ever start writing
+  // real Java in android/.
+
+  // Don't import android/ as a Java project at all. Both keys are needed:
+  // java.gradle.buildServer.enabled is what actually performs the import in
+  // vscode-gradle 3.x ("It will replace the original Buildship"), so turning off
+  // java.import.gradle.enabled alone leaves the build server running.
+  "java.import.gradle.enabled": false,
+  "java.gradle.buildServer.enabled": "off",
+  "java.import.maven.enabled": false,
+  "java.import.exclusions": [
+    "**/node_modules/**",
+    "**/.metadata/**",
+    "**/archetype-resources/**",
+    "**/META-INF/maven/**",
+    "**/android/**"
+  ],
+
+  // One JVM instead of two. Costs build/refactor/IntelliSense support and keeps
+  // outline, navigation, javadoc and syntax errors — all this project needs.
+  "java.server.launchMode": "LightWeight",
+
+  // 2G is the shipped default and absurd for three files. This is a ceiling, not
+  // a reservation, so it is a safety net rather than the fix.
+  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx768m -Xms64m -Xlog:disable",
+
+  // Editing android/app/build.gradle triggered the re-import that crashed the
+  // servers. "disabled" means a build-file change no longer rebuilds a classpath
+  // nothing consumes.
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "java.autobuild.enabled": false,
+
+  // Stop vscode-gradle scanning for tasks. Gradle still runs fine from the
+  // terminal; this only removes the editor's task list.
+  "gradle.autoDetect": "off",
+  "gradle.nestedProjects": false,
+
+  // ~16k generated files VS Code otherwise holds native watch handles for.
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/android/build/**": true,
+    "**/android/app/build/**": true,
+    "**/android/.gradle/**": true,
+    "**/android/app/src/main/assets/public/**": true,
+    "**/dist/**": true,
+    "**/dist-app/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/android/build": true,
+    "**/android/app/build": true,
+    "**/android/.gradle": true,
+    "**/android/app/src/main/assets/public": true,
+    "**/dist": true,
+    "**/dist-app": true
+  },
+  "files.exclude": {
+    "**/hs_err_pid*.log": true,
+    "**/replay_pid*.log": true
+  }
+}

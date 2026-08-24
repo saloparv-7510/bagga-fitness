@@ -26,6 +26,14 @@ android/.idea/
 local.properties
 .gradle/
 
+# ---- JVM crash dumps ------------------------------------------------------
+# A JVM writes these into its working directory, which for the VS Code Java
+# language server is the workspace root — so a crash litters this folder with a
+# ~45 KB hs_err and a ~300 KB replay file. They are machine-specific diagnostics,
+# never source. Delete them once read.
+hs_err_pid*.log
+replay_pid*.log
+
 # ---- Release signing ------------------------------------------------------
 # Never commit a keystore or its passwords. The app has never been published, so
 # it auto-enrols in Play App Signing on first upload and bagga-fitness.jks is
