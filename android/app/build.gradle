@@ -4,10 +4,16 @@ apply plugin: 'com.android.application'
 // in android/, next to settings.gradle — that is where rootProject.file() below
 // resolves, and it is gitignored — with:
 //
-//   storeFile=C:/path/to/bagga-fitness.jks
+//   storeFile=C:/Users/<you>/keys/bagga-fitness.jks
 //   storePassword=...
 //   keyAlias=bagga
 //   keyPassword=...
+//
+// Two things that fail quietly if you get them wrong: use forward slashes in
+// storeFile, because a .properties file reads a backslash as an escape; and
+// keyPassword must be identical to storePassword, because keytool on JDK 9+
+// writes a PKCS12 keystore whatever the .jks extension says, and PKCS12 cannot
+// give an entry a password of its own.
 //
 // Without it, `assembleDebug` still works and `bundleRelease` produces an
 // unsigned bundle instead of failing the build — so a fresh clone is never

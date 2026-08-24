@@ -27,8 +27,12 @@ local.properties
 .gradle/
 
 # ---- Release signing ------------------------------------------------------
-# Never commit a keystore or its passwords. Losing the keystore means you can
-# never update the app on Play again, so keep it backed up somewhere private.
+# Never commit a keystore or its passwords. The app has never been published, so
+# it auto-enrols in Play App Signing on first upload and bagga-fitness.jks is
+# the UPLOAD key — losing it costs a Play Console reset request, not the
+# listing. Back it up anyway, and keep it outside this tree: these rules stop it
+# being committed, they do not stop `git clean -xfd` or `git stash -a` deleting
+# it. See the Release signing section of ANDROID.md.
 *.keystore
 *.jks
 keystore.properties

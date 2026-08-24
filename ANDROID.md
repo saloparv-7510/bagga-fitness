@@ -123,26 +123,83 @@ The release build reads an **optional** `android/keystore.properties`, which is
 gitignored:
 
 ```
-storeFile=C:/keys/bagga-fitness.jks
+storeFile=C:/Users/ssd/keys/bagga-fitness.jks
 storePassword=...
 keyAlias=bagga
 keyPassword=...
 ```
 
-Generate the key once:
+Two things about that file fail quietly rather than loudly. Use **forward
+slashes** in `storeFile` — a `.properties` file treats a backslash as an escape.
+And `keyPassword` must be **identical** to `storePassword`, for the reason below.
+
+Generate the key once, writing it **outside the repo**. The parent directory has
+to exist first — keytool generates the key pair and only then fails with
+`FileNotFoundException ... (The system cannot find the path specified)`:
 
 ```bash
-keytool -genkeypair -v -keystore bagga-fitness.jks -alias bagga -keyalg RSA -keysize 2048 -validity 10000
+mkdir -p "$HOME/keys"
 ```
 
-Without that file, `assembleDebug` still works and `bundleRelease` produces an
-*unsigned* bundle rather than failing — a fresh clone is never blocked by a
-secret it cannot have.
+```bash
+keytool -genkeypair -v -keystore "$HOME/keys/bagga-fitness.jks" -alias bagga -keyalg RSA -keysize 2048 -validity 10000
+```
 
-> **Back up the keystore somewhere private and permanent.** Play identifies the
-> app by that signature. Lose the keystore and the app can never be updated
-> again under the same listing — you would have to publish a new one and every
-> user would have to reinstall. Never commit it.
+It prompts for the password twice (minimum 6 characters, three wrong tries and
+it gives up), then for the six distinguished-name fields, then asks
+`Is CN=... correct?` with a default of `[no]` — so **pressing Enter rejects it**
+and re-asks all six. Type `y` or `yes`.
+
+There is no separate key-password prompt, and that is not a bug. Since JDK 9,
+keytool writes **PKCS12** by default regardless of the `.jks` extension
+(`keytool -list` on the result reports `Keystore type: PKCS12`), and PKCS12
+cannot give an entry a password of its own. One password protects both, which is
+why `keyPassword` has to equal `storePassword` in `keystore.properties`. Supply
+a different `-keypass` and keytool prints `Warning: Different store and key
+passwords not supported for PKCS12 KeyStores. Ignoring user-specified -keypass
+value.` and carries on with exit 0. AGP loads the file with
+`KeyStore.getDefaultType()` and no `storeType` is set in the signing config, so
+PKCS12 is exactly what it expects — verified end to end: `bundleRelease` against
+a PKCS12 keystore produces an `.aab` that `jarsigner -verify` reports as
+`jar verified`.
+
+The keystore is not on `C:\` for a reason. `icacls C:\` grants
+`Authenticated Users:(OI)(CI)(IO)(M)`, which any new top-level folder inherits;
+`C:\Users\ssd` is restricted to SYSTEM, Administrators and the owner. Keeping it
+out of the repo also matters because the `*.jks` rule in `.gitignore` stops it
+being *committed* but not being *deleted* — `git clean -xfd` and
+`git stash push --all` both remove ignored files.
+
+Re-running the command against an existing keystore is safe: the same alias
+fails with `Key pair not generated, alias <bagga> already exists` and leaves the
+file bit-identical, and a wrong password aborts before anything is written. A
+*different* alias silently adds a second key entry, which is the one case to
+avoid.
+
+Without `keystore.properties`, `assembleDebug` still works and `bundleRelease`
+produces an *unsigned* bundle rather than failing — a fresh clone is never
+blocked by a secret it cannot have. Check before uploading:
+
+```bash
+jarsigner -verify -verbose:summary -certs android/app/build/outputs/bundle/release/app-release.aab
+```
+
+`jar verified` plus a `Signed by "CN=..."` line means it is signed; the
+self-signed and no-timestamp warnings are normal for an app signing key. No
+password needed. An unsigned bundle reports `no manifest` / `jar is unsigned`.
+
+> **Back up the keystore and its password, and never commit either.**
+> `com.baggafitness.app` has never been published, so it auto-enrols in Play App
+> Signing on first upload — Google generates and holds the *app signing* key, and
+> this `.jks` is only the **upload** key. Google's own docs: *"if you lose your
+> upload key, or if it is compromised, you can request an upload key reset in the
+> Play Console."* So losing it costs a support round-trip, not the listing. What
+> *would* be unrecoverable is a self-managed app signing key, which is not this
+> setup and is only available to apps created before August 2021.
+
+`-keyalg RSA -keysize 2048` meets Play's stated upload-key rule ("must be an RSA
+key of 2048 bits or more"), and `-validity 10000` puts expiry at 2054-01-09,
+past the "validity period ending after 22 October 2033" that Play enforces.
 
 Bump `versionCode` (integer, +1 every upload) and `versionName` (the string users
 see) in `android/app/build.gradle` before each release.
