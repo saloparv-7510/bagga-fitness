@@ -1,0 +1,39 @@
+{
+  "appId": "com.baggafitness.app",
+  "appName": "BAGGA FITNESS",
+  "webDir": "dist-app",
+  "loggingBehavior": "none",
+  "android": {
+    "backgroundColor": "#04050aff",
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false,
+    "adjustMarginsForEdgeToEdge": "auto"
+  },
+  "ios": {
+    "backgroundColor": "#04050aff",
+    "contentInset": "never",
+    "scrollEnabled": true,
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "backgroundColor": "#04050aff",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "androidSplashResourceName": "splash",
+      "splashFullScreen": false,
+      "splashImmersive": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#04050a",
+      "overlaysWebView": false
+    },
+    "Keyboard": {
+      "resize": "none",
+      "resizeOnFullScreen": true
+    }
+  }
+}

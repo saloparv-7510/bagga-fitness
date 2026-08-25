@@ -1,13 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 
-/* IntersectionObserver-driven scroll spy for the navbar active link.
-   Picks the section whose top is closest to just under the sticky nav. */
+/* Scroll spy for the navbar active link.
+   Picks the section whose top is closest to just under the sticky nav.
+
+   The measurement itself is 13 getBoundingClientRect() calls, each of which
+   forces a style + layout flush. A scroll event can fire several times per
+   frame, so it is coalesced into one rAF callback: at most one measurement per
+   painted frame, and none at all while a frame is already pending. */
 export function useScrollSpy(ids, offset = 90) {
   const [active, setActive] = useState(ids[0])
 
   useEffect(() => {
     if (!ids.length) return
-    const handler = () => {
+    let frame = 0
+
+    const measure = () => {
+      frame = 0
       const line = offset + 8
       let current = ids[0]
       for (const id of ids) {
@@ -25,10 +33,17 @@ export function useScrollSpy(ids, offset = 90) {
       }
       setActive((prev) => (prev === current ? prev : current))
     }
-    handler()
+
+    const handler = () => {
+      if (frame) return
+      frame = requestAnimationFrame(measure)
+    }
+
+    measure()
     window.addEventListener('scroll', handler, { passive: true })
     window.addEventListener('resize', handler)
     return () => {
+      if (frame) cancelAnimationFrame(frame)
       window.removeEventListener('scroll', handler)
       window.removeEventListener('resize', handler)
     }
@@ -187,3 +202,11 @@ export function useInView(options = {}) {
 
   return [ref, inView]
 }
+
+/* ---------------------------------------------------------------------------
+   useClosedDay lives in its own module because it is the only hook here with a
+   wall-clock dependency — it has to survive a phone left open past midnight and
+   a Capacitor app resumed from background on a different day. Re-exported so
+   every consumer still imports hooks from one place.
+   --------------------------------------------------------------------------- */
+export { default as useClosedDay } from './useClosedDay.js'

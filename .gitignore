@@ -1,7 +1,47 @@
 node_modules
 dist
 dist-ssr
+dist-app
 .DS_Store
 *.local
 .vite
 npm-debug.log*
+
+# ---- Capacitor native projects -------------------------------------------
+# android/ and ios/ ARE committed, deliberately. `npx cap add` scaffolds them
+# once; from then on `cap sync` only copies the web build and refreshes plugin
+# references, and never rewrites AndroidManifest.xml or build.gradle. Those
+# files carry real configuration — the portrait lock, the Android 11+ <queries>
+# block that outbound links depend on, versionName, the release signing hook —
+# so regenerating them from scratch would silently ship a different app.
+#
+# Each native project brings its own .gitignore for the machine-specific and
+# generated parts (build/, .gradle/, local.properties, the copied web assets in
+# app/src/main/assets/public, capacitor.config.json). Those stay out; the source
+# of the project goes in. See ANDROID.md.
+android/local.properties
+android/capacitor.build.gradle
+android/app/capacitor.build.gradle
+android/.idea/
+local.properties
+.gradle/
+
+# ---- JVM crash dumps ------------------------------------------------------
+# A JVM writes these into its working directory, which for the VS Code Java
+# language server is the workspace root — so a crash litters this folder with a
+# ~45 KB hs_err and a ~300 KB replay file. They are machine-specific diagnostics,
+# never source. Delete them once read.
+hs_err_pid*.log
+replay_pid*.log
+
+# ---- Release signing ------------------------------------------------------
+# Never commit a keystore or its passwords. The app has never been published, so
+# it auto-enrols in Play App Signing on first upload and bagga-fitness.jks is
+# the UPLOAD key — losing it costs a Play Console reset request, not the
+# listing. Back it up anyway, and keep it outside this tree: these rules stop it
+# being committed, they do not stop `git clean -xfd` or `git stash -a` deleting
+# it. See the Release signing section of ANDROID.md.
+*.keystore
+*.jks
+keystore.properties
+key.properties

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import BackgroundFX from './components/BackgroundFX.jsx'
 import Navbar from './components/Navbar.jsx'
 import Hero from './components/Hero.jsx'
 import About from './components/About.jsx'
+import Trainers from './components/Trainers.jsx'
 import BmiCalculator from './components/BmiCalculator.jsx'
 import WorkoutPlanner from './components/WorkoutPlanner.jsx'
 import LegendsTraining from './components/LegendsTraining.jsx'
@@ -16,6 +17,7 @@ import Feedback from './components/Feedback.jsx'
 import Contact from './components/Contact.jsx'
 import Footer from './components/Footer.jsx'
 import ErrorBoundary from './components/ui/ErrorBoundary.jsx'
+import ClosedNotice from './components/ui/ClosedNotice.jsx'
 
 /* Section order, and the id each one owns. Kept here so every section can be
    wrapped in its own error boundary — a throw in the BMI calculator must not
@@ -23,6 +25,7 @@ import ErrorBoundary from './components/ui/ErrorBoundary.jsx'
 const SECTIONS = [
   { id: 'home', name: 'intro', Component: Hero },
   { id: 'about', name: 'gym and membership details', Component: About },
+  { id: 'trainers', name: 'trainer profiles', Component: Trainers },
   { id: 'bmi', name: 'BMI calculator', Component: BmiCalculator },
   { id: 'plans', name: 'workout plans', Component: WorkoutPlanner },
   { id: 'legends', name: 'legend training protocols', Component: LegendsTraining },
@@ -36,26 +39,31 @@ const SECTIONS = [
   { id: 'contact', name: 'contact details', Component: Contact },
 ]
 
-/* Thin scroll-progress bar. Reads scroll on rAF — cheap, compositor-only. */
+/* Thin scroll-progress bar.
+   Writes the transform straight to the node instead of through state: a React
+   render per scroll frame would drag the whole tree's reconciliation onto the
+   scroll path for one number that only ever ends up in a style attribute. */
 function ScrollProgress() {
-  const [p, setP] = useState(0)
+  const bar = useRef(null)
   useEffect(() => {
-    let ticking = false
+    let frame = 0
     const update = () => {
+      frame = 0
+      const el = bar.current
+      if (!el) return
       const h = document.documentElement.scrollHeight - window.innerHeight
-      setP(h > 0 ? (window.scrollY / h) * 100 : 0)
-      ticking = false
+      const p = h > 0 ? window.scrollY / h : 0
+      el.style.transform = `scaleX(${p})`
     }
     const onScroll = () => {
-      if (!ticking) {
-        ticking = true
-        requestAnimationFrame(update)
-      }
+      if (frame) return
+      frame = requestAnimationFrame(update)
     }
     update()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
     return () => {
+      if (frame) cancelAnimationFrame(frame)
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
     }
@@ -63,8 +71,9 @@ function ScrollProgress() {
   return (
     <div className="fixed inset-x-0 top-0 z-[55] h-0.5 bg-transparent">
       <div
+        ref={bar}
         className="h-full origin-left bg-gradient-to-r from-volt-400 via-titan-400 to-rage-500"
-        style={{ transform: `scaleX(${p / 100})` }}
+        style={{ transform: 'scaleX(0)' }}
       />
     </div>
   )
@@ -85,6 +94,15 @@ export default function App() {
         <Navbar />
       </ErrorBoundary>
       <main>
+        {/* Sunday-only closure notice. It sits in normal flow rather than in the
+            fixed navbar on purpose: the navbar's height is the --nav-h the
+            mobile drawer and the scroll-spy offset are both keyed to, and
+            growing it on one day a week would shift every anchor landing.
+            In flow it costs nothing — the component returns null on the other
+            six days, padding included, so there is no reserved space. */}
+        <ErrorBoundary name="closure notice" quiet>
+          <ClosedNotice className="pt-[calc(var(--nav-h)+0.85rem)]" />
+        </ErrorBoundary>
         {SECTIONS.map(({ id, name, Component }) => (
           <ErrorBoundary key={id} id={id} name={name}>
             <Component />

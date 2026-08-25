@@ -13,29 +13,40 @@
      - `gym`         address, phone, WhatsApp, email, socials
      - `membership`  the four prices and the savings arithmetic between them
      - `brand`       naming and tagline
-     - `coaches`     5 coaches, 3 male and 2 female (roles, not real names)
+     - `closedDay`   the gym is CLOSED EVERY SUNDAY (owner-confirmed)
+     - `coachSplit`  5 coaches, 3 male and 2 female — counted from
+                     src/data/trainers.js, which now holds the roster and the
+                     three real names the owner supplied
      - `stats`       every number is COUNTED from data in this repo, never typed
 
    What we deliberately do NOT claim, and how the UI covers the gap instead:
-     - Opening times   → `timings` asks the visitor to message for today's hours
+     - Opening times   → `timings` states the Sunday closure, which IS confirmed,
+                         and asks the visitor to message for the rest
      - Member count    → not shown anywhere
      - Floor area      → not shown anywhere
      - Equipment lists → `facilities` describes the training, and
                          `facilitiesNote` invites an equipment question
      - Tier inclusions → `membership[].perks` state price arithmetic and what
                          this site gives; `membershipNote` covers the rest
-     - Coach names     → job titles stand in, so no person is invented
+     - Coach names     → the three male names are owner-confirmed and published.
+                         The two female slots are unnamed PLACEHOLDERS by the
+                         owner's decision, flagged as such in the UI. See the
+                         header of src/data/trainers.js before editing either —
+                         in particular the no-invented-credentials rule, which
+                         is why nothing here calls a named coach "certified".
 
    `email` and `youtube` are optional: set either one to null and the UI hides
    its button instead of rendering a dead link.
 
    Knock-on effect to remember: `index.html` omits `openingHoursSpecification`
    from its JSON-LD on purpose. Search engines render that block as the
-   business's real hours, so it stays out until the owner confirms them.
+   business's real hours, so it stays out until the owner confirms them — the
+   confirmed Sunday closure alone is not enough to describe a week.
    --------------------------------------------------------------------------- */
 
 import { exercises } from './exercises.js'
 import { week } from './workouts.js'
+import { trainers } from './trainers.js'
 
 export const brand = {
   name: 'BAGGA FITNESS',
@@ -44,12 +55,13 @@ export const brand = {
   tagline: 'Strength. Power. Discipline.',
 }
 
-/* `short` is what the desktop nav bar renders — thirteen full labels do not fit
+/* `short` is what the desktop nav bar renders — fourteen full labels do not fit
    on a 1280px row. `label` is used everywhere there is room: the mobile drawer,
    the footer columns and aria labels. */
 export const nav = [
   { id: 'home', label: 'Home', short: 'Home' },
   { id: 'about', label: 'About Gym', short: 'About' },
+  { id: 'trainers', label: 'Our Trainers', short: 'Trainers' },
   { id: 'bmi', label: 'BMI / Ideal Weight', short: 'BMI' },
   { id: 'plans', label: 'Workout Plans', short: 'Plans' },
   { id: 'legends', label: 'Legend Protocols', short: 'Legends' },
@@ -88,16 +100,34 @@ export const gym = {
 export const waLink = (message) =>
   `https://wa.me/${gym.whatsapp}?text=${encodeURIComponent(message)}`
 
-/* Opening times are not published here.
+/* The ONE confirmed piece of the timetable: the gym is closed every Sunday.
+   Owner-confirmed, so it is stated as fact and drives the site-wide notice.
+
+   `index` is a JS Date.getDay() value, which is what useClosedDay() compares
+   against — 0 is Sunday. `notice` is the exact wording the owner asked for; it
+   is rendered verbatim by ClosedNotice.jsx, so change it here, not there. */
+export const closedDay = {
+  index: 0,
+  name: 'Sunday',
+  notice: 'Gym Closed Every Sunday',
+  detail:
+    'Sunday is a full rest day for the whole floor. Message us and we will set up your week — you will get a reply once we reopen on Monday.',
+  askMessage:
+    'Hello BAGGA FITNESS, I know you are closed on Sunday. Could you help me plan my training for the coming week?',
+}
+
+/* Opening times are not published here — with one exception.
    A gym's timetable shifts with seasons, festivals and holidays, and a wrong
    time on a website sends someone to a closed shutter. So instead of a made-up
    table, the Contact section asks for the one message that always gets an
-   accurate answer. Replace this with a real `hours` table whenever the owner
-   confirms it — and add `openingHoursSpecification` back to index.html then. */
+   accurate answer. The Sunday closure above IS confirmed and so it is stated.
+   Replace the rest with a real `hours` table whenever the owner confirms it —
+   and add `openingHoursSpecification` back to index.html then. */
 export const timings = {
   title: 'Timings',
-  lead: 'We have not published a fixed timetable on this page yet — and we would rather you had the right answer than a guessed one.',
+  lead: 'We have not published a full timetable on this page yet — and we would rather you had the right answer than a guessed one. One thing is fixed, though.',
   points: [
+    `Closed every ${closedDay.name} — that one is confirmed`,
     'Message us on WhatsApp for today’s opening and closing time',
     'Or call before you travel — it takes a few seconds',
     'Festival and holiday changes go out on Instagram first',
@@ -106,58 +136,18 @@ export const timings = {
     'Hello BAGGA FITNESS, what are your opening and closing timings today? I would like to plan my visit.',
 }
 
-/* Defined before `stats` on purpose — the coach count there is derived from
-   this array's length, and `const` is not hoisted.
-
-   CONFIRMED: the roster is 5 coaches, 3 male and 2 female.
-   Individual names are not invented here. Job titles stand in, and `gender`
-   carries the confirmed split. Which discipline sits with which coach is an
-   arbitrary pairing until the owner assigns them. */
-export const coaches = [
-  {
-    name: 'Head Strength Coach',
-    role: 'Powerlifting & Hypertrophy',
-    focus: 'Squat, bench and deadlift technique, progressive overload programming.',
-    gender: 'male',
-    accent: 'rage',
-  },
-  {
-    name: 'Conditioning Coach',
-    role: 'Fat Loss & Endurance',
-    focus: 'Metabolic circuits, interval design, sustainable calorie strategy.',
-    gender: 'male',
-    accent: 'volt',
-  },
-  {
-    name: 'Mobility Coach',
-    role: 'Recovery & Injury Prevention',
-    focus: 'Movement screening, mobility drills, safe return-to-training work.',
-    gender: 'male',
-    accent: 'titan',
-  },
-  {
-    name: 'Strength Coach',
-    role: 'Women’s Strength & Technique',
-    focus: 'Barbell basics, upper-body strength progressions and confident lifting.',
-    gender: 'female',
-    accent: 'titan',
-  },
-  {
-    name: 'Group Training Coach',
-    role: 'Circuits & Group Classes',
-    focus: 'Class programming, pacing for mixed abilities and week-to-week accountability.',
-    gender: 'female',
-    accent: 'volt',
-  },
-]
-
 /* Confirmed count of female coaches — surfaced in the UI because it is a real
    deciding factor for women choosing a gym, and it is what backs the
-   "female coaching support" answer in `faqs`. Derived, never typed twice. */
+   "female coaching support" answer in `faqs`. Derived, never typed twice.
+
+   Counted from `trainers` in src/data/trainers.js, which is now the single
+   source for the roster. This block used to hold its own array of job titles;
+   it was removed when the owner supplied real names, so there is exactly one
+   place a coach is added or removed. */
 export const coachSplit = {
-  total: coaches.length,
-  male: coaches.filter((c) => c.gender === 'male').length,
-  female: coaches.filter((c) => c.gender === 'female').length,
+  total: trainers.length,
+  male: trainers.filter((c) => c.gender === 'male').length,
+  female: trainers.filter((c) => c.gender === 'female').length,
 }
 
 /* Every number in the hero strip is COUNTED, not claimed.
@@ -166,7 +156,7 @@ export const coachSplit = {
    away from what the page actually shows further down. */
 export const stats = [
   { value: exercises.length, suffix: '', label: 'Exercises Demonstrated' },
-  { value: coachSplit.total, suffix: '', label: 'Certified Coaches' },
+  { value: coachSplit.total, suffix: '', label: 'Coaches On The Floor' },
   { value: week.length, suffix: '-day', label: 'Training Split' },
   { value: coachSplit.female, suffix: '', label: 'Women Coaches' },
 ]
@@ -325,7 +315,7 @@ export const faqs = [
   {
     q: 'Is the gym suitable for women?',
     // The 2-of-5 split is confirmed; nothing else here is a service promise.
-    a: 'Yes. Two of our five certified coaches are women, so there is female coaching support on the team. The Legend Protocols section has a full women’s strength programme, and the ideal weight and protein calculators here use separate male and female formulas rather than one generic number.',
+    a: 'Yes. Two of our five coaches are women, so there is female coaching support on the team. The Legend Protocols section has a full women’s strength programme, and the ideal weight and protein calculators here use separate male and female formulas rather than one generic number.',
   },
   {
     q: 'What exactly does my membership include?',

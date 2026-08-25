@@ -1,0 +1,73 @@
+<!-- Splash / launch screen — 2732x2732, original artwork.
+
+     Sized square because Android crops it CENTER_CROP: on a 1080x2400 phone the
+     square scales to cover the height, so the visible slice is only the middle
+     1229px of the 2732px width. Everything that matters stays inside that
+     column — measured, not assumed; the tagline was clipped on the first pass.
+
+     Text is set in a system sans (Arial) rather than the site's Oswald, because
+     the splash is rasterised at build time and cannot load a webfont. Uppercase
+     and letter-spaced so it still reads as the wordmark.
+
+     splash-dark.svg is a copy of this file; keep the two in step. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2732 2732" width="2732" height="2732">
+  <defs>
+    <radialGradient id="glow" cx="0.5" cy="0.34" r="0.52">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0.20"/>
+      <stop offset="0.48" stop-color="#22c55e" stop-opacity="0.07"/>
+      <stop offset="1" stop-color="#04050a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bolt" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#e8f6ff"/>
+      <stop offset="0.34" stop-color="#7dd3fc"/>
+      <stop offset="0.62" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+    <linearGradient id="iron" gradientUnits="userSpaceOnUse" x1="0" y1="418" x2="0" y2="608">
+      <stop offset="0" stop-color="#f2f5fa"/>
+      <stop offset="0.5" stop-color="#c2cad6"/>
+      <stop offset="1" stop-color="#79849a"/>
+    </linearGradient>
+    <linearGradient id="word" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e8f6ff"/>
+      <stop offset="0.34" stop-color="#7dd3fc"/>
+      <stop offset="0.56" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+    <linearGradient id="rule" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#38bdf8" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#4ade80" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="2732" height="2732" fill="#04050a"/>
+  <rect width="2732" height="2732" fill="url(#glow)"/>
+
+  <!-- the mark, centred above the wordmark -->
+  <g transform="translate(1366 1090) scale(1.05) translate(-512 -512)">
+    <g fill="url(#iron)">
+      <rect x="262" y="484" width="500" height="56" rx="28"/>
+      <rect x="202" y="426" width="70" height="172" rx="28"/>
+      <rect x="752" y="426" width="70" height="172" rx="28"/>
+      <rect x="140" y="460" width="54" height="104" rx="24"/>
+      <rect x="830" y="460" width="54" height="104" rx="24"/>
+    </g>
+    <path d="M562 196 L400 556 L491 556 L462 828 L630 448 L534 448 Z"
+          fill="url(#bolt)" stroke="#04050a" stroke-width="30"
+          stroke-linejoin="round" paint-order="stroke"/>
+  </g>
+
+  <g text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700">
+    <text x="1366" y="1620" font-size="200" letter-spacing="20" fill="url(#word)">BAGGA</text>
+    <text x="1366" y="1830" font-size="200" letter-spacing="20" fill="#f4f7fb">FITNESS</text>
+    <!-- Middots rather than ". " and a tight letter-spacing: at 62/16 this line
+         rendered 1475px wide and the crop lopped the first and last words off. -->
+    <text x="1366" y="1962" font-size="50" letter-spacing="8" fill="#7f8b9e">STRENGTH · POWER · DISCIPLINE</text>
+  </g>
+
+  <!-- Closing rule. 6px so it survives the downscale to a phone's pixel grid —
+       a 2732px canvas is shown at roughly a third of that, and anything thinner
+       than ~4px disappears entirely. -->
+  <rect x="1046" y="2062" width="640" height="6" rx="3" fill="url(#rule)"/>
+</svg>

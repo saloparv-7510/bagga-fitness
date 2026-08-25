@@ -51,6 +51,29 @@ npm run build    # production build to /dist
 npm run preview  # preview the production build
 ```
 
+## Android / iOS app
+
+The same `src/` also ships as a native app, wrapped with Capacitor. The website
+stays one long scroll; the app puts the same sections behind five bottom tabs, so
+no screen is long enough to scroll expensively. Twelve of the thirteen sections
+are shared verbatim — the components read a shell context and adapt. Only the
+app's Home tab is its own screen (`src/shell/HomeScreen.jsx`), standing in for
+the website's `Hero.jsx`; keep the two in step when hero copy or stats change.
+
+```bash
+npm run dev:app      # app shell in a browser on :5181, DevTools work
+npm run android:apk  # build, sync, and assemble a debug APK
+```
+
+The two targets build to **different directories on purpose** (`dist/` for the
+site, `dist-app/` for the app), because `cap sync` copies `dist-app` into the
+native project verbatim.
+
+The Android project is committed and buildable today. The code is iOS-ready but
+no iOS project exists; adding one needs `npm i @capacitor/ios` then
+`npx cap add ios` on a Mac. **See [ANDROID.md](ANDROID.md)** for prerequisites,
+release signing, the icon/splash sources, and the measured performance numbers.
+
 ## Editing content
 
 Almost everything the gym owner needs to change lives in `src/data/`:
@@ -77,7 +100,8 @@ drop files into `public/images/` and reference them — the data files already l
 
 Tuned for smooth ~60 fps scrolling on phones:
 
-- Animations use **only `opacity` + `transform`** (compositor-friendly)
+- Nothing on the scroll path animates anything but **`opacity` + `transform`** (compositor-friendly);
+  the only paint-property transitions are discrete colour changes on tap or hover
 - Decorative glows use a **radial mask (`.bloom`)**, never `filter: blur()` on large surfaces
 - `backdrop-filter` is **disabled on touch devices** via a coarse-pointer media query (opaque fallback)
 - Respects `prefers-reduced-motion`
