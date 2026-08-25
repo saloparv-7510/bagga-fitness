@@ -1,7 +1,7 @@
 import React from 'react'
 import AppHeader from './AppHeader.jsx'
 import TabBar from './TabBar.jsx'
-import { TABS, tabByKey, screenId } from './tabs.js'
+import { TABS, tabByKey, screenId, subOf } from './tabs.js'
 import { ShellContext, NavContext } from './context.js'
 import ErrorBoundary from '../components/ui/ErrorBoundary.jsx'
 import BackgroundFX from '../components/BackgroundFX.jsx'
@@ -57,7 +57,14 @@ export default function AppShell() {
     lastSub.current.set(from.tab, from.sub)
 
     const target = tabByKey(nextTab)
-    const wanted = nextSub === undefined ? lastSub.current.get(target.key) ?? 0 : nextSub
+
+    /* `nextSub` may be a screen KEY as well as an index. Callers that hardcoded
+       the index broke the moment a screen was inserted above theirs — Home's
+       quick grid ended up opening Trainers under a "Gallery" label — so a key is
+       the preferred form and resolves here, before the numeric clamp below
+       would turn a string into NaN. */
+    const asked = typeof nextSub === 'string' ? subOf(target.key, nextSub) : nextSub
+    const wanted = asked === undefined ? lastSub.current.get(target.key) ?? 0 : asked
     const clamped = Math.min(Math.max(wanted, 0), target.screens.length - 1)
     const to = screenId(target.key, clamped)
 

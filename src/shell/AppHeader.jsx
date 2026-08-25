@@ -2,6 +2,7 @@ import React from 'react'
 import { Dumbbell, Phone, MessageCircle } from 'lucide-react'
 import { brand, gym, waLink } from '../data/site.js'
 import SegmentedNav from './SegmentedNav.jsx'
+import ClosedNotice from '../components/ui/ClosedNotice.jsx'
 
 const headerEnquiry = `Hello BAGGA FITNESS, I would like to know more about your gym memberships and timings. Please provide more information.`
 
@@ -60,6 +61,12 @@ export default function AppHeader({ screens, sub, onSelectSub }) {
           </a>
         </div>
       </div>
+
+      {/* Sunday-only. Safe to put inside the fixed header because the header
+          already measures itself — the ResizeObserver above fires when the
+          notice appears or is dismissed, so --app-header-h and the main
+          padding follow it without any hardcoded number. */}
+      <ClosedNotice compact />
 
       {screens.length > 1 && <SegmentedNav screens={screens} sub={sub} onSelect={onSelectSub} />}
     </header>

@@ -13,7 +13,6 @@ import {
 import {
   facilities,
   facilitiesNote,
-  coaches,
   coachSplit,
   membership,
   membershipNote,
@@ -50,7 +49,7 @@ export default function About() {
         title="A Serious Floor Built For"
         accentWord="Real Results"
         accent="titan"
-        sub="BAGGA FITNESS is a strength-first gym in Prahladpur. No gimmicks — proper equipment, certified coaching and a plan matched to your level, whether it is day one or year ten."
+        sub="BAGGA FITNESS is a strength-first gym in Prahladpur. No gimmicks — proper equipment, hands-on coaching and a plan matched to your level, whether it is day one or year ten."
       />
 
       {/* Facilities grid */}
@@ -85,7 +84,9 @@ export default function About() {
         <p className="text-xs leading-relaxed text-silver-500">{facilitiesNote}</p>
       </Reveal>
 
-      {/* Coaches */}
+      {/* Coaching. The roster itself lives in the Trainers section — the next
+          section on the website, and the next screen in the app's Gym tab — so
+          this is the lead-in to it, not a duplicate of it. */}
       <div className="mt-16">
         <Reveal>
           <h3 className="forge text-center text-2xl font-bold text-silver-100 sm:text-3xl">
@@ -96,32 +97,15 @@ export default function About() {
           </p>
           {/* The split is a real deciding factor for women choosing a gym, so it
               is stated up front rather than buried in the FAQ. Counted from the
-              roster so it cannot fall out of step with the cards below. */}
+              roster so it cannot fall out of step with the Trainers cards. */}
           <p className="mt-3 text-center text-sm text-silver-300">
             <span className="font-semibold text-titan-200">
-              {coachSplit.total} certified coaches on the floor
+              {coachSplit.total} coaches on the floor
             </span>{' '}
-            — {coachSplit.male} male and {coachSplit.female} female.
+            — {coachSplit.male} male and {coachSplit.female} female.{' '}
+            <span className="text-silver-400">Meet them in the Trainers section.</span>
           </p>
         </Reveal>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {coaches.map((coach, i) => (
-            <Reveal key={coach.role} delay={(i % 3) * 80}>
-              <article className="card plate-edge lift h-full p-6 text-center">
-                <div
-                  className={`mx-auto grid h-16 w-16 place-items-center rounded-full bg-ink-800 ${
-                    accentRing[coach.accent] || accentRing.volt
-                  }`}
-                >
-                  <Users className="h-7 w-7" strokeWidth={2} />
-                </div>
-                <h4 className="mt-4 text-base font-semibold text-silver-100">{coach.name}</h4>
-                <div className="mt-1 text-xs uppercase tracking-brand text-volt-300">{coach.role}</div>
-                <p className="mt-3 text-sm text-silver-400">{coach.focus}</p>
-              </article>
-            </Reveal>
-          ))}
-        </div>
       </div>
 
       {/* Membership */}

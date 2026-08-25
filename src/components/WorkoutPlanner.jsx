@@ -40,7 +40,22 @@ export default function WorkoutPlanner() {
                 type="button"
                 onClick={() => setLevel(l.id)}
                 aria-pressed={on}
-                className={`tap flex-1 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition sm:px-6 ${
+                /* `flex-auto min-w-0`, and neither half is decoration.
+
+                   `flex-1` sets a zero basis, so all three tabs get an equal
+                   third — and "Intermediate" then needs more than a third and
+                   wraps even on a 375px phone, where the row actually fits.
+                   `flex-auto` bases them on their own text, which is the layout
+                   already shipping, and shrinks only when the row runs out.
+
+                   `min-w-0` (with `whitespace-nowrap` gone) is what makes that
+                   shrink legal: a flex item will not go below its min-content
+                   width, and nowrap made min-content the full unbroken label —
+                   so on a 320px screen the three tabs added up to 328px inside
+                   a 286px box and pushed the whole PAGE 28px wide. Now the
+                   longest label wraps to a second line at that width and
+                   nothing else on the page moves. */
+                className={`tap min-w-0 flex-auto rounded-xl px-4 py-2.5 text-sm font-semibold transition sm:px-6 ${
                   on ? `${a.chip}` : 'text-silver-400 hover:text-silver-100'
                 }`}
               >

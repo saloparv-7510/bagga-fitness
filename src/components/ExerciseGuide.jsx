@@ -1,9 +1,20 @@
 import React, { useMemo, useState } from 'react'
-import { X, Target, ListChecks, Lightbulb, Layers } from 'lucide-react'
-import { exercises, muscleGroups } from '../data/exercises.js'
+import {
+  X,
+  Target,
+  ListChecks,
+  Lightbulb,
+  Layers,
+  Wind,
+  TriangleAlert,
+  ShieldCheck,
+  ArrowRight,
+} from 'lucide-react'
+import { exercises, muscleGroups, muscleSummary } from '../data/exercises.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import ExerciseArt from './art/ExerciseArt.jsx'
+import MuscleMap from './art/MuscleMap.jsx'
 import { useLockBodyScroll, useKeyDown, useFocusTrap } from '../hooks/index.js'
 
 const levelBadge = {
@@ -23,11 +34,62 @@ const groupAccent = {
 }
 const accentOf = (ex) => ex.accent || groupAccent[ex.group] || 'volt'
 
+/* ==========================================================================
+   PHASE CONVENTION — the same one src/data/exercises.js uses, and the reason
+   the two never disagree:
+
+     start = where the working rep BEGINS — the stretched, loaded, bottom
+             position (bar on the chest, hips below the knee, dead hang)
+     end   = where it FINISHES — contracted and locked out (bar overhead,
+             standing tall, chin above the bar)
+
+   Every exercise follows it, including the ones a gym would casually describe
+   the other way round. `startCue` / `endCue` in the data are the captions for
+   these two, so a flip here silently mislabels the illustration.
+   ========================================================================== */
+
+/* One phase of the movement: the illustration plus its cue caption.
+   `photo` is honoured ahead of the drawing, so dropping a real image into an
+   exercise's photoStart / photoEnd swaps it in with no code change here. */
+function PhaseFigure({ ex, phase, badge }) {
+  const cue = phase === 'start' ? ex.startCue : ex.endCue
+  const photo = phase === 'start' ? ex.photoStart : ex.photoEnd
+  const label = `${ex.name} — ${phase === 'start' ? 'start' : 'end'} position${
+    cue ? `: ${cue}` : ''
+  }`
+
+  return (
+    <figure className="min-w-0">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-silver-300/10 bg-ink-950">
+        <ExerciseArt
+          name={ex.art}
+          phase={phase}
+          accent={accentOf(ex)}
+          photo={photo}
+          label={label}
+          className="block h-full w-full"
+        />
+        <span className="absolute left-2 top-2 rounded-lg bg-ink-950/80 px-2 py-1 text-[0.6rem] font-bold uppercase tracking-brand text-silver-200">
+          {badge}
+        </span>
+      </div>
+      {cue && (
+        <figcaption className="mt-2 text-[0.7rem] leading-snug text-silver-400">{cue}</figcaption>
+      )}
+    </figure>
+  )
+}
+
 function ExerciseModal({ ex, onClose }) {
   useLockBodyScroll(!!ex)
   useKeyDown(!!ex, { Escape: onClose })
   const trapRef = useFocusTrap(!!ex)
   if (!ex) return null
+
+  const worked = muscleSummary(ex)
+  const primary = ex.muscles?.primary || []
+  const secondary = ex.muscles?.secondary || []
+
   return (
     <div
       className="fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-6"
@@ -38,26 +100,21 @@ function ExerciseModal({ ex, onClose }) {
       <div className="absolute inset-0 bg-ink-950/80" onClick={onClose} />
       <div
         ref={trapRef}
-        className="glass-strong relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-silver-300/12 shadow-plate sm:rounded-3xl"
+        className="glass-strong relative z-10 max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl border border-silver-300/12 shadow-plate sm:rounded-3xl"
       >
-        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-t-3xl">
-          <ExerciseArt
-            name={ex.art}
-            accent={accentOf(ex)}
-            label={`Illustration of the ${ex.name}`}
-            className="block h-full w-full"
-          />
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-ink-950/70 text-silver-200 hover:text-white"
-            aria-label={`Close ${ex.name}`}
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="p-6">
-          <div className="flex flex-wrap items-center gap-2">
+        {/* Close sits above everything and outside the scrolling content flow so
+            it stays reachable however far down the panel is scrolled. */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="tap absolute right-3 top-3 z-20 grid h-11 w-11 place-items-center rounded-full bg-ink-950/80 text-silver-200 transition-colors hover:text-white"
+          aria-label={`Close ${ex.name}`}
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <div className="p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2 pr-12">
             <span className={levelBadge[ex.level]}>{ex.level}</span>
             <span className="badge-silver">{ex.equipment}</span>
             <span className="badge-silver">{ex.sets}</span>
@@ -69,7 +126,45 @@ function ExerciseModal({ ex, onClose }) {
             <Target className="h-4 w-4" /> {ex.body}
           </p>
 
+          {/* ---- Start → end. Both are on screen at once rather than behind a
+              toggle: the difference between the two poses IS the lesson, and a
+              toggle hides half of it behind a tap nobody is prompted to make. */}
           <div className="mt-5">
+            <div className="flex items-center gap-2 text-sm font-semibold text-silver-200">
+              <ArrowRight className="h-4 w-4 text-volt-300" /> Start &amp; end position
+            </div>
+            <div className="mt-2.5 grid grid-cols-2 gap-3">
+              <PhaseFigure ex={ex} phase="start" badge="Start" />
+              <PhaseFigure ex={ex} phase="end" badge="End" />
+            </div>
+          </div>
+
+          {/* ---- Muscles worked. One anatomical chart, lit from the data, so
+              every exercise in the library highlights the same body the same
+              way — red for primary, orange for secondary. */}
+          {(primary.length > 0 || secondary.length > 0) && (
+            <div className="mt-6">
+              <div className="flex items-center gap-2 text-sm font-semibold text-silver-200">
+                <Target className="h-4 w-4 text-rage-300" /> Muscles worked
+              </div>
+              <div className="mt-2.5 rounded-2xl border border-silver-300/10 bg-ink-950/40 p-3">
+                <MuscleMap
+                  primary={primary}
+                  secondary={secondary}
+                  view="both"
+                  label={`Muscles worked by the ${ex.name}: ${
+                    worked.primary.join(', ') || 'none listed'
+                  } as the primary movers${
+                    worked.secondary.length ? `, assisted by ${worked.secondary.join(', ')}` : ''
+                  }`}
+                  className="block w-full"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ---- How to perform */}
+          <div className="mt-6">
             <div className="flex items-center gap-2 text-sm font-semibold text-silver-200">
               <ListChecks className="h-4 w-4 text-titan-300" /> How to perform
             </div>
@@ -85,13 +180,75 @@ function ExerciseModal({ ex, onClose }) {
             </ol>
           </div>
 
-          <div className="mt-4 flex items-start gap-2.5 rounded-2xl border border-titan-400/20 bg-titan-500/8 p-3.5">
-            <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-titan-300" />
-            <p className="text-sm text-silver-300">
-              <span className="font-semibold text-titan-200">Coach tip: </span>
-              {ex.tip}
-            </p>
-          </div>
+          {/* ---- Breathing */}
+          {ex.breathing && (
+            <div className="mt-4 flex items-start gap-2.5 rounded-2xl border border-volt-400/20 bg-volt-500/8 p-3.5">
+              <Wind className="mt-0.5 h-4 w-4 shrink-0 text-volt-300" />
+              <p className="text-sm text-silver-300">
+                <span className="font-semibold text-volt-200">Breathing: </span>
+                {ex.breathing}
+              </p>
+            </div>
+          )}
+
+          {/* ---- Mistakes. Amber, not red: these cost you reps, whereas the
+              safety block below is about not getting hurt. */}
+          {ex.mistakes?.length > 0 && (
+            <div className="mt-6">
+              <div className="flex items-center gap-2 text-sm font-semibold text-silver-200">
+                <TriangleAlert className="h-4 w-4 text-amber-300" /> Common mistakes to avoid
+              </div>
+              <ul className="mt-2 space-y-2">
+                {ex.mistakes.map((m, i) => (
+                  <li key={i} className="flex gap-2.5 text-sm text-silver-300">
+                    <span
+                      aria-hidden="true"
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400"
+                    />
+                    {m}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* ---- Safety */}
+          {ex.safety?.length > 0 && (
+            <div className="mt-6">
+              <div className="flex items-center gap-2 text-sm font-semibold text-silver-200">
+                <ShieldCheck className="h-4 w-4 text-rage-300" /> Safety
+              </div>
+              <ul className="mt-2 space-y-2">
+                {ex.safety.map((s, i) => (
+                  <li
+                    key={i}
+                    className="flex gap-2.5 rounded-2xl border border-rage-500/18 bg-rage-500/8 p-3 text-sm text-silver-300"
+                  >
+                    <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-rage-300" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* ---- Coach tip */}
+          {ex.tip && (
+            <div className="mt-6 flex items-start gap-2.5 rounded-2xl border border-titan-400/20 bg-titan-500/8 p-3.5">
+              <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-titan-300" />
+              <p className="text-sm text-silver-300">
+                <span className="font-semibold text-titan-200">Coach tip: </span>
+                {ex.tip}
+              </p>
+            </div>
+          )}
+
+          {/* The same disclaimer the calculators carry. Form cues on a web page
+              are not a substitute for someone watching you lift. */}
+          <p className="mt-6 text-[0.7rem] leading-relaxed text-silver-500">
+            General technique guidance for healthy adults — it does not replace coaching or medical
+            advice. If a movement hurts, stop and ask a coach on the floor.
+          </p>
         </div>
       </div>
     </div>
@@ -114,7 +271,7 @@ export default function ExerciseGuide() {
         title="Move With"
         accentWord="Perfect Form"
         accent="titan"
-        sub="Tap any exercise for step-by-step technique, the muscles it targets and a coach tip. Filter by body part to build your session."
+        sub="Tap any exercise for the start and end position, the muscles it works, step-by-step technique, breathing, the mistakes to avoid and the safety notes. Filter by body part to build your session."
       />
 
       {/* Filter rail */}
@@ -142,21 +299,42 @@ export default function ExerciseGuide() {
         </div>
       </Reveal>
 
-      {/* Cards */}
+      {/* Cards. One pose each, not both: sixteen cards each carrying two SVG
+          figures doubles the node count on the scroll path for a difference
+          nobody can read at thumbnail size. The pair lives in the detail view,
+          where it is big enough to teach something. */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {list.map((ex, i) => (
-          <Reveal key={ex.id} delay={(i % 4) * 60}>
+          /* min-w-0 on the grid ITEM, not the container.
+
+             A `1fr` track is really `minmax(auto, 1fr)`, and that `auto`
+             floor is the item's min-content width — so a card that cannot
+             narrow past 330px makes the single-column track 330px wide no
+             matter that the page only has 288px to give it. On a 320px
+             phone that was the whole document scrolling sideways by 42px.
+
+             min-w-0 removes the floor, the track stays at the shell width,
+             and every card lays out inside it. */
+          <Reveal key={ex.id} delay={(i % 4) * 60} className="min-w-0">
             <button
               type="button"
               onClick={() => setSelected(ex)}
               className="card plate-edge lift group block h-full w-full overflow-hidden text-left cv-auto [--cv-h:20.5rem]"
             >
               <div className="relative aspect-[16/10] w-full overflow-hidden">
-                <ExerciseArt name={ex.art} accent={accentOf(ex)} className="block h-full w-full transition-transform duration-500 group-hover:scale-105" />
+                <ExerciseArt
+                  name={ex.art}
+                  phase="start"
+                  accent={accentOf(ex)}
+                  photo={ex.photo || ex.photoStart}
+                  className="block h-full w-full transition-transform duration-500 group-hover:scale-105"
+                />
                 <span className={`absolute left-3 top-3 ${levelBadge[ex.level]}`}>{ex.level}</span>
               </div>
               <div className="p-5">
-                <h3 className="text-base font-semibold text-silver-100 group-hover:text-white">{ex.name}</h3>
+                <h3 className="text-base font-semibold text-silver-100 group-hover:text-white">
+                  {ex.name}
+                </h3>
                 <p className="mt-1 flex items-center gap-1.5 text-xs text-volt-300">
                   <Target className="h-3.5 w-3.5" /> {ex.body}
                 </p>

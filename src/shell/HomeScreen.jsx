@@ -28,14 +28,18 @@ const accentRing = {
 const accentText = { volt: 'text-volt-300', titan: 'text-titan-300', rage: 'text-rage-300' }
 
 /* The six things a member opens the app to do. Each jumps straight to a tab +
-   screen, so nothing here depends on #anchors the way the website does. */
+   screen, so nothing here depends on #anchors the way the website does.
+
+   `screen` is a screen KEY, resolved through subOf() at render time — never a
+   numeric index. These were indices once, and adding a screen to the Gym tab
+   quietly re-pointed two of them at the wrong section. */
 const QUICK = [
-  { label: 'BMI & Ideal Weight', Icon: Calculator, tab: 'tools', sub: 0, accent: 'volt' },
-  { label: 'Protein Calculator', Icon: Beef, tab: 'tools', sub: 1, accent: 'titan' },
-  { label: 'Exercise Guide', Icon: Dumbbell, tab: 'train', sub: 1, accent: 'rage' },
-  { label: 'Training Calendar', Icon: CalendarDays, tab: 'train', sub: 3, accent: 'volt' },
-  { label: 'Gallery', Icon: Images, tab: 'gym', sub: 1, accent: 'titan' },
-  { label: 'Visit Us', Icon: MapPin, tab: 'gym', sub: 2, accent: 'rage' },
+  { label: 'BMI & Ideal Weight', Icon: Calculator, tab: 'tools', screen: 'bmi', accent: 'volt' },
+  { label: 'Protein Calculator', Icon: Beef, tab: 'tools', screen: 'protein', accent: 'titan' },
+  { label: 'Exercise Guide', Icon: Dumbbell, tab: 'train', screen: 'exercises', accent: 'rage' },
+  { label: 'Training Calendar', Icon: CalendarDays, tab: 'train', screen: 'calendar', accent: 'volt' },
+  { label: 'Gallery', Icon: Images, tab: 'gym', screen: 'gallery', accent: 'titan' },
+  { label: 'Visit Us', Icon: MapPin, tab: 'gym', screen: 'visit', accent: 'rage' },
 ]
 
 export default function HomeScreen() {
@@ -109,7 +113,7 @@ export default function HomeScreen() {
             style={{ animationDelay: '280ms' }}
           >
             <ShieldCheck className="h-4 w-4 shrink-0 text-titan-400" />
-            No fluff. Certified coaches and a plan for your level.
+            No fluff. Real coaching and a plan for your level.
           </p>
         </div>
       </section>
@@ -149,11 +153,11 @@ export default function HomeScreen() {
           Quick Access
         </h2>
         <div className="grid grid-cols-2 gap-2.5">
-          {QUICK.map(({ label, Icon, tab, sub, accent }) => (
+          {QUICK.map(({ label, Icon, tab, screen, accent }) => (
             <button
               key={label}
               type="button"
-              onClick={() => goTab(tab, sub)}
+              onClick={() => goTab(tab, screen)}
               className="card plate-edge flex min-h-[5.25rem] flex-col justify-between p-3.5 text-left"
             >
               <Icon className={`h-5 w-5 ${accentText[accent]}`} />

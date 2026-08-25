@@ -202,3 +202,11 @@ export function useInView(options = {}) {
 
   return [ref, inView]
 }
+
+/* ---------------------------------------------------------------------------
+   useClosedDay lives in its own module because it is the only hook here with a
+   wall-clock dependency — it has to survive a phone left open past midnight and
+   a Capacitor app resumed from background on a different day. Re-exported so
+   every consumer still imports hooks from one place.
+   --------------------------------------------------------------------------- */
+export { default as useClosedDay } from './useClosedDay.js'

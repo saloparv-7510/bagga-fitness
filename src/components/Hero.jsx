@@ -86,7 +86,7 @@ export default function Hero() {
             style={{ animationDelay: '320ms' }}
           >
             <ShieldCheck className="h-4 w-4 text-titan-400" />
-            No fluff. Certified coaches, honest guidance, and a plan for your level.
+            No fluff. Real coaching, honest guidance, and a plan for your level.
           </div>
         </div>
 
