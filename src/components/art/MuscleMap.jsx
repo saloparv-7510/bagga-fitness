@@ -1,4 +1,5 @@
 import React from 'react'
+import { useT } from '../../i18n/context.js'
 
 /* ---------------------------------------------------------------------------
    MuscleMap — the canonical anatomical chart for "what does this exercise work".
@@ -381,6 +382,7 @@ function Half({ regions, detail, toneOf }) {
 }
 
 function Figure({ view, toneOf, uid, title, ariaLabel, photo }) {
+  const t = useT()
   const spec = VIEWS[view]
   const id = `${uid}${view}`
 
@@ -476,7 +478,7 @@ function Figure({ view, toneOf, uid, title, ariaLabel, photo }) {
         </svg>
       )}
       <figcaption className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-silver-500">
-        {spec.caption}
+        {t(spec.caption)}
       </figcaption>
     </figure>
   )
@@ -500,6 +502,7 @@ export default function MuscleMap({
   label,
   photo,
 }) {
+  const t = useT()
   /* Normalise: keep only known ids, drop duplicates, and let primary win over
      secondary so no muscle is ever coloured or named twice. */
   const known = (list) =>
@@ -517,24 +520,26 @@ export default function MuscleMap({
   /* Keep the vocabulary's order rather than the caller's, so the legend reads
      top-down the body no matter how the data was written. */
   const order = (set) => MUSCLE_REGION_IDS.filter((id) => set.has(id))
-  const primaryNames = order(primarySet).map((id) => MUSCLE_LABELS[id])
-  const secondaryNames = order(secondarySet).map((id) => MUSCLE_LABELS[id])
+  const primaryNames = order(primarySet).map((id) => t(MUSCLE_LABELS[id]))
+  const secondaryNames = order(secondarySet).map((id) => t(MUSCLE_LABELS[id]))
 
   const sentence =
     primaryNames.length || secondaryNames.length
       ? [
-          primaryNames.length ? `Primary muscles: ${primaryNames.join(', ')}.` : '',
-          secondaryNames.length ? `Secondary muscles: ${secondaryNames.join(', ')}.` : '',
+          primaryNames.length ? t('Primary muscles: {list}.', { list: primaryNames.join(', ') }) : '',
+          secondaryNames.length ? t('Secondary muscles: {list}.', { list: secondaryNames.join(', ') }) : '',
         ]
           .filter(Boolean)
           .join(' ')
-      : 'No muscle groups highlighted.'
+      : t('No muscle groups highlighted.')
 
   const named = typeof label === 'string' && label.trim() ? label.trim() : ''
-  const describe = (caption) =>
-    label
-      ? `${caption} view muscle chart${named ? ` for ${named}` : ''}. ${sentence}`
-      : undefined
+  const describe = (caption) => {
+    if (!label) return undefined
+    return named
+      ? t('{caption} view muscle chart for {name}. {sentence}', { caption, name: named, sentence })
+      : t('{caption} view muscle chart. {sentence}', { caption, sentence })
+  }
 
   const views = view === 'both' ? ['front', 'back'] : [VIEWS[view] ? view : 'front']
 
@@ -552,8 +557,8 @@ export default function MuscleMap({
             view={v}
             toneOf={toneOf}
             uid={uid}
-            title={`${VIEWS[v].caption} view muscle chart. ${sentence}`}
-            ariaLabel={describe(VIEWS[v].caption)}
+            title={t('{caption} view muscle chart. {sentence}', { caption: t(VIEWS[v].caption), sentence })}
+            ariaLabel={describe(t(VIEWS[v].caption))}
             photo={photoFor(v)}
           />
         ))}
@@ -562,11 +567,11 @@ export default function MuscleMap({
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-silver-400">
         <span className="inline-flex items-center gap-1.5">
           <Swatch color={PRIMARY_FILL} />
-          Primary
+          {t('Primary')}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <Swatch color={SECONDARY_FILL} />
-          Secondary
+          {t('Secondary')}
         </span>
       </div>
 

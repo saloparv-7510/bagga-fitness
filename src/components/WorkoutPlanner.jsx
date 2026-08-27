@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { Dumbbell, Moon, Repeat, Zap } from 'lucide-react'
-import { levels, week } from '../data/workouts.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
+import { useWorkouts } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
 
 const accentMap = {
   volt: { text: 'text-volt-300', ring: 'border-volt-400/40', chip: 'bg-volt-500/12 text-volt-200', dot: 'bg-volt-400' },
@@ -11,17 +12,21 @@ const accentMap = {
 }
 
 export default function WorkoutPlanner() {
+  const t = useT()
+  const { levels, week } = useWorkouts()
   const [level, setLevel] = useState('beginner')
   const activeLevel = levels.find((l) => l.id === level)
 
   return (
     <Section id="plans" plated>
       <SectionHeading
-        eyebrow="Weekly Split"
-        title="Your 7-Day"
-        accentWord="Workout Plan"
+        eyebrow={t('Weekly Split')}
+        title={t('Your 7-Day')}
+        accentWord={t('Workout Plan')}
         accent="rage"
-        sub="The same battle-tested split at three levels. Pick yours — the days stay the same, the volume and intensity scale with you."
+        sub={t(
+          'The same battle-tested split at three levels. Pick yours — the days stay the same, the volume and intensity scale with you.'
+        )}
       />
 
       {/* Level tabs */}
@@ -29,7 +34,7 @@ export default function WorkoutPlanner() {
         <div
           className="inline-flex w-full rounded-2xl border border-silver-300/12 bg-ink-900/70 p-1 sm:w-auto"
           role="group"
-          aria-label="Training level"
+          aria-label={t('Training level')}
         >
           {levels.map((l) => {
             const a = accentMap[l.accent]
@@ -66,7 +71,7 @@ export default function WorkoutPlanner() {
         </div>
         <p className="max-w-lg text-center text-sm text-silver-400">{activeLevel.blurb}</p>
         <span className={`chip ${accentMap[activeLevel.accent].chip}`}>
-          <Zap className="h-3.5 w-3.5" /> Conditioning: {activeLevel.cardio}
+          <Zap className="h-3.5 w-3.5" /> {t('Conditioning: {cardio}', { cardio: activeLevel.cardio })}
         </span>
       </Reveal>
 
@@ -107,7 +112,9 @@ export default function WorkoutPlanner() {
 
       <Reveal className="mt-6 flex items-center justify-center gap-2 text-center text-xs text-silver-500">
         <Repeat className="h-3.5 w-3.5" />
-        Warm up 5–10 min before every session and stretch after. Progress the weight when you hit the top of the rep range with clean form.
+        {t(
+          'Warm up 5–10 min before every session and stretch after. Progress the weight when you hit the top of the rep range with clean form.'
+        )}
       </Reveal>
     </Section>
   )

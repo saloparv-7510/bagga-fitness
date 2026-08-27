@@ -18,6 +18,7 @@ import Contact from './components/Contact.jsx'
 import Footer from './components/Footer.jsx'
 import ErrorBoundary from './components/ui/ErrorBoundary.jsx'
 import ClosedNotice from './components/ui/ClosedNotice.jsx'
+import { useT } from './i18n/context.js'
 
 /* Section order, and the id each one owns. Kept here so every section can be
    wrapped in its own error boundary — a throw in the BMI calculator must not
@@ -80,13 +81,14 @@ function ScrollProgress() {
 }
 
 export default function App() {
+  const t = useT()
   return (
     <>
       <a
         href="#home"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-lg focus:bg-volt-500 focus:px-4 focus:py-2 focus:text-ink-950"
       >
-        Skip to content
+        {t('Skip to content')}
       </a>
       <BackgroundFX />
       <ScrollProgress />
@@ -104,7 +106,7 @@ export default function App() {
           <ClosedNotice className="pt-[calc(var(--nav-h)+0.85rem)]" />
         </ErrorBoundary>
         {SECTIONS.map(({ id, name, Component }) => (
-          <ErrorBoundary key={id} id={id} name={name}>
+          <ErrorBoundary key={id} id={id} name={t(name)}>
             <Component />
           </ErrorBoundary>
         ))}

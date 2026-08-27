@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { Beef, Egg, Milk, Target, Info, Utensils } from 'lucide-react'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
+import { useT } from '../i18n/context.js'
 
 /* g protein per kg bodyweight by goal (evidence-based ranges). */
 const goals = [
@@ -19,6 +20,7 @@ const W_MIN = 35
 const W_MAX = 160
 
 export default function ProteinCalculator() {
+  const t = useT()
   const [weight, setWeight] = useState(70)
   const [goal, setGoal] = useState('build')
   const active = goals.find((g) => g.id === goal)
@@ -51,11 +53,13 @@ export default function ProteinCalculator() {
   return (
     <Section id="protein" plated>
       <SectionHeading
-        eyebrow="Fuel The Machine"
-        title="Daily Protein"
-        accentWord="Calculator"
+        eyebrow={t('Fuel The Machine')}
+        title={t('Daily Protein')}
+        accentWord={t('Calculator')}
         accent="titan"
-        sub="Protein drives recovery and muscle. Set your weight and goal to get a daily target — and what it looks like on a plate."
+        sub={t(
+          'Protein drives recovery and muscle. Set your weight and goal to get a daily target — and what it looks like on a plate.'
+        )}
       />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
@@ -63,11 +67,11 @@ export default function ProteinCalculator() {
         <Reveal className="card plate-edge p-6 sm:p-7">
           <div className="flex items-center gap-2 text-silver-200">
             <Target className="h-5 w-5 text-titan-300" />
-            <h3 className="text-lg font-semibold">Your Goal</h3>
+            <h3 className="text-lg font-semibold">{t('Your Goal')}</h3>
           </div>
 
           {/* Goal selector */}
-          <div className="mt-5 grid gap-2" role="group" aria-label="Training goal">
+          <div className="mt-5 grid gap-2" role="group" aria-label={t('Training goal')}>
             {goals.map((g) => {
               const on = goal === g.id
               return (
@@ -84,9 +88,9 @@ export default function ProteinCalculator() {
                 >
                   <span>
                     <span className={`block text-sm font-semibold ${on ? 'text-silver-100' : 'text-silver-300'}`}>
-                      {g.label}
+                      {t(g.label)}
                     </span>
-                    <span className="text-xs text-silver-500">{g.note}</span>
+                    <span className="text-xs text-silver-500">{t(g.note)}</span>
                   </span>
                   <span className={`text-xs font-semibold ${accentText[g.accent]}`}>
                     {g.lo}–{g.hi} g/kg
@@ -99,7 +103,7 @@ export default function ProteinCalculator() {
           {/* Weight slider + input */}
           <div className="mt-6">
             <div className="flex items-center justify-between">
-              <span className="label mb-0">Bodyweight</span>
+              <span className="label mb-0">{t('Bodyweight')}</span>
               <span className="text-sm font-bold text-silver-100">
                 {hasWeight ? `${weight} kg` : <span className="text-silver-500">— kg</span>}
               </span>
@@ -116,7 +120,7 @@ export default function ProteinCalculator() {
               onChange={(e) => setWeight(e.target.value)}
               className="range mt-1"
               style={{ '--fill': `${sliderPct}%` }}
-              aria-label="Bodyweight in kilograms"
+              aria-label={t('Bodyweight in kilograms')}
             />
             <input
               type="number"
@@ -127,14 +131,15 @@ export default function ProteinCalculator() {
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
               className="field mt-1"
-              aria-label="Bodyweight in kilograms, exact value"
+              aria-label={t('Bodyweight in kilograms, exact value')}
             />
           </div>
 
           <p className="mt-5 flex items-start gap-2 text-xs leading-relaxed text-silver-500">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-silver-400" />
-            Spread protein across 3–4 meals. Ranges are general guidance for healthy adults, not medical or renal
-            advice.
+            {t(
+              'Spread protein across 3–4 meals. Ranges are general guidance for healthy adults, not medical or renal advice.'
+            )}
           </p>
         </Reveal>
 
@@ -143,40 +148,42 @@ export default function ProteinCalculator() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-silver-200">
               <Utensils className="h-5 w-5 text-titan-300" />
-              <h3 className="text-lg font-semibold">Your Daily Target</h3>
+              <h3 className="text-lg font-semibold">{t('Your Daily Target')}</h3>
             </div>
-            <span className={accentBadge[active.accent]}>{active.label}</span>
+            <span className={accentBadge[active.accent]}>{t(active.label)}</span>
           </div>
 
           {!res ? (
             <div className="mt-8 rounded-2xl border border-dashed border-silver-300/12 bg-ink-900/40 px-6 py-14 text-center text-sm text-silver-500">
               {hasWeight ? (
                 <>
-                  <span className="font-semibold text-silver-200">{weight} kg</span> is outside the range this
-                  calculator covers. Enter a bodyweight between {W_MIN} and {W_MAX} kg.
+                  <span className="font-semibold text-silver-200">{weight} kg</span>{' '}
+                  {t('is outside the range this calculator covers. Enter a bodyweight between {min} and {max} kg.', {
+                    min: W_MIN,
+                    max: W_MAX,
+                  })}
                 </>
               ) : (
-                <>
-                  Enter a realistic bodyweight ({W_MIN}–{W_MAX} kg) to see your target.
-                </>
+                <>{t('Enter a realistic bodyweight ({min}–{max} kg) to see your target.', { min: W_MIN, max: W_MAX })}</>
               )}
             </div>
           ) : (
             <div className="mt-6">
               <div className="rounded-2xl border border-titan-400/25 bg-titan-500/8 p-5 text-center">
-                <div className="text-xs uppercase tracking-brand text-titan-300">Aim For</div>
+                <div className="text-xs uppercase tracking-brand text-titan-300">{t('Aim For')}</div>
                 <div className="forge mt-1 text-4xl font-bold text-silver-100 sm:text-5xl">
                   {res.lo}–{res.hi}
                   <span className="ml-2 text-lg font-normal text-silver-500">g / day</span>
                 </div>
                 <div className="mt-1 text-sm text-silver-400">
-                  about <span className="font-semibold text-titan-200">{res.perMeal} g</span> across 4 meals
+                  {t('about')} <span className="font-semibold text-titan-200">{res.perMeal} g</span>{' '}
+                  {t('across 4 meals')}
                 </div>
               </div>
 
               <div className="mt-5">
                 <div className="mb-3 text-xs uppercase tracking-brand text-silver-500">
-                  ≈ {res.mid} g looks like any of these
+                  {t('≈ {mid} g looks like any of these', { mid: res.mid })}
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   {[
@@ -187,7 +194,7 @@ export default function ProteinCalculator() {
                     <div key={x.unit} className="rounded-2xl border border-silver-300/10 bg-ink-900/60 p-4 text-center">
                       <x.Icon className="mx-auto h-6 w-6 text-volt-300" />
                       <div className="mt-2 text-lg font-bold text-silver-100">{x.val}</div>
-                      <div className="text-[0.68rem] text-silver-500">{x.unit}</div>
+                      <div className="text-[0.68rem] text-silver-500">{t(x.unit)}</div>
                     </div>
                   ))}
                 </div>
@@ -201,7 +208,7 @@ export default function ProteinCalculator() {
                 }}
                 className="btn-titan mt-6 w-full"
               >
-                See High-Protein Foods
+                {t('See High-Protein Foods')}
               </a>
             </div>
           )}

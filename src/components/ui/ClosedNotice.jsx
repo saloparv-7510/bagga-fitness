@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { CalendarX, MessageCircle, X } from 'lucide-react'
-import { closedDay, waLink } from '../../data/site.js'
+import { waLink } from '../../data/site.js'
 import useClosedDay from '../../hooks/useClosedDay.js'
+import { useSiteContent } from '../../i18n/localize.js'
+import { useT } from '../../i18n/context.js'
 
 /* ---------------------------------------------------------------------------
    ClosedNotice — the one closure fact BAGGA FITNESS has confirmed.
@@ -22,9 +24,9 @@ import useClosedDay from '../../hooks/useClosedDay.js'
    --------------------------------------------------------------------------- */
 
 /* Required copy, confirmed by the owner — sourced from `closedDay` in site.js so
-   the wording lives in exactly one place. `closedDay.index` is the Date.getDay()
-   value the hook compares against, so switching the rest day is a data edit. */
-const CLOSED_TEXT = closedDay.notice
+   the wording lives in exactly one place (localized through useSiteContent at
+   render). `closedDay.index` is the Date.getDay() value the hook compares
+   against, so switching the rest day is a data edit. */
 
 /* Session-scoped dismissal, keyed by the LOCAL calendar date rather than a bare
    flag. An app WebView session can outlive the day — Capacitor keeps the page
@@ -65,7 +67,10 @@ function writeDismissed(key) {
 }
 
 export default function ClosedNotice({ className = '', compact = false, dismissible = true }) {
+  const t = useT()
+  const { closedDay } = useSiteContent()
   const { isClosedToday, dayName, nextOpenLabel } = useClosedDay(closedDay.index)
+  const CLOSED_TEXT = closedDay.notice
 
   /* Read once during the first render rather than in an effect, so a visitor who
      already dismissed it never sees a frame of the bar. Guarded for no-window. */
@@ -129,7 +134,7 @@ export default function ClosedNotice({ className = '', compact = false, dismissi
     <button
       type="button"
       onClick={onDismiss}
-      aria-label={`Dismiss the ${dayName} closure notice`}
+      aria-label={t('Dismiss the {day} closure notice', { day: t(dayName) })}
       className="tap grid w-11 shrink-0 place-items-center rounded-xl text-silver-400
         transition-transform duration-150 ease-power hover:text-silver-100 active:scale-90"
     >
@@ -154,7 +159,9 @@ export default function ClosedNotice({ className = '', compact = false, dismissi
           href={waLink(message)}
           target="_blank"
           rel="noopener"
-          aria-label={`Message BAGGA FITNESS on WhatsApp about ${nextOpenLabel} and the week ahead`}
+          aria-label={t('Message BAGGA FITNESS on WhatsApp about {day} and the week ahead', {
+            day: t(nextOpenLabel),
+          })}
           className="tap grid w-11 shrink-0 place-items-center rounded-xl text-titan-300
             transition-transform duration-150 ease-power active:scale-90"
         >
@@ -216,7 +223,7 @@ export default function ClosedNotice({ className = '', compact = false, dismissi
           <div className="ml-auto flex shrink-0 items-center gap-2">
             <a href={waLink(message)} target="_blank" rel="noopener" className="btn-titan !py-2.5">
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              WhatsApp Us
+              {t('WhatsApp Us')}
             </a>
 
             {dismissBtn}

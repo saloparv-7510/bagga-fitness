@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import { X, ChevronLeft, ChevronRight, Images } from 'lucide-react'
-import { gallery, galleryNote } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import GymArt from './art/GymArt.jsx'
 import { useLockBodyScroll, useKeyDown, useFocusTrap } from '../hooks/index.js'
+import { useSiteContent } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
 
 const accentBadge = { volt: 'badge-volt', titan: 'badge-titan', rage: 'badge-rage' }
 
@@ -16,6 +17,8 @@ const spanOf = (i) => {
 }
 
 export default function Gallery() {
+  const t = useT()
+  const { gallery, galleryNote } = useSiteContent()
   const [idx, setIdx] = useState(-1)
   const open = idx >= 0
   useLockBodyScroll(open)
@@ -33,11 +36,11 @@ export default function Gallery() {
   return (
     <Section id="gallery">
       <SectionHeading
-        eyebrow="Inside The Gym"
-        title="The"
-        accentWord="Gallery"
+        eyebrow={t('Inside The Gym')}
+        title={t('The')}
+        accentWord={t('Gallery')}
         accent="volt"
-        sub="Original illustrations of the training that happens here — squat work, free weights, conditioning and the rest. Tap any tile to view it larger."
+        sub={t('Original illustrations of the training that happens here — squat work, free weights, conditioning and the rest. Tap any tile to view it larger.')}
       />
 
       <div className="grid auto-rows-[150px] grid-cols-2 gap-3 sm:auto-rows-[160px] lg:grid-cols-4">
@@ -96,7 +99,7 @@ export default function Gallery() {
               type="button"
               onClick={() => setIdx(-1)}
               className="absolute -top-3 right-0 grid h-10 w-10 -translate-y-full place-items-center rounded-full bg-ink-800 text-silver-200 hover:text-white sm:-right-3 sm:top-0 sm:translate-y-0"
-              aria-label="Close gallery viewer"
+              aria-label={t('Close gallery viewer')}
             >
               <X className="h-5 w-5" />
             </button>
@@ -104,7 +107,7 @@ export default function Gallery() {
               type="button"
               onClick={() => show(idx - 1)}
               className="absolute left-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-ink-950/70 text-silver-200 hover:text-white"
-              aria-label="Previous image"
+              aria-label={t('Previous image')}
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
@@ -112,7 +115,7 @@ export default function Gallery() {
               type="button"
               onClick={() => show(idx + 1)}
               className="absolute right-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-ink-950/70 text-silver-200 hover:text-white"
-              aria-label="Next image"
+              aria-label={t('Next image')}
             >
               <ChevronRight className="h-6 w-6" />
             </button>

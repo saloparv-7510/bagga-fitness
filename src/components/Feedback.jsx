@@ -16,6 +16,7 @@ import { gym, waLink } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import { WebNet, WebCorner } from './art/Decor.jsx'
+import { useT } from '../i18n/context.js'
 
 /* What the member is writing in about. `tag` is what leads the WhatsApp
    message, so the owner can triage the chat at a glance. */
@@ -46,6 +47,7 @@ const KIND_ON = {
 const MAX = 900
 
 export default function Feedback() {
+  const t = useT()
   const [kindId, setKindId] = useState('feedback')
   const [area, setArea] = useState(AREAS[0])
   const [rating, setRating] = useState(0)
@@ -69,16 +71,21 @@ export default function Feedback() {
   const built = useMemo(() => {
     const lines = [
       `${kind.tag} — BAGGA FITNESS`,
-      `About: ${area}`,
-      rating > 0 ? `Rating: ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)} (${rating}/5)` : null,
+      t('About: {area}', { area: t(area) }),
+      rating > 0
+        ? t('Rating: {stars} ({rating}/5)', {
+            stars: '★'.repeat(rating) + '☆'.repeat(5 - rating),
+            rating,
+          })
+        : null,
       '',
       message.trim() || '…',
       '',
-      `From: ${name.trim() || 'name not given'}`,
-      phone.trim() ? `Contact: ${phone.trim()}` : null,
+      t('From: {name}', { name: name.trim() || t('name not given') }),
+      phone.trim() ? t('Contact: {phone}', { phone: phone.trim() }) : null,
     ].filter((l) => l !== null)
     return lines.join('\n')
-  }, [kind.tag, area, rating, message, name, phone])
+  }, [t, kind.tag, area, rating, message, name, phone])
 
   const href = waLink(built)
 
@@ -127,11 +134,13 @@ export default function Feedback() {
       />
 
       <SectionHeading
-        eyebrow="Your Voice"
-        title="Feedback, Complaints &"
-        accentWord="Requirements"
+        eyebrow={t('Your Voice')}
+        title={t('Feedback, Complaints &')}
+        accentWord={t('Requirements')}
         accent="spider"
-        sub="Tell us what is working, what is not, and what you need on the floor. This goes straight to the gym owner's WhatsApp — no ticket queue, no inbox nobody reads."
+        sub={t(
+          "Tell us what is working, what is not, and what you need on the floor. This goes straight to the gym owner's WhatsApp — no ticket queue, no inbox nobody reads."
+        )}
       />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
@@ -145,7 +154,7 @@ export default function Feedback() {
           <div className="relative grid gap-6">
             {/* Kind */}
             <fieldset>
-              <legend className="label">What is this about?</legend>
+              <legend className="label">{t('What is this about?')}</legend>
               <div className="grid gap-2 xs:grid-cols-2">
                 {KINDS.map((k) => {
                   const on = k.id === kindId
@@ -162,18 +171,18 @@ export default function Feedback() {
                       }`}
                     >
                       <k.Icon className="h-4 w-4 shrink-0" />
-                      <span className="text-sm font-semibold">{k.label}</span>
+                      <span className="text-sm font-semibold">{t(k.label)}</span>
                     </button>
                   )
                 })}
               </div>
-              <p className="mt-2 text-xs text-silver-500">{kind.hint}</p>
+              <p className="mt-2 text-xs text-silver-500">{t(kind.hint)}</p>
             </fieldset>
 
             {/* Area */}
             <div>
               <label className="label" htmlFor="fb-area">
-                Which part of the gym?
+                {t('Which part of the gym?')}
               </label>
               <select
                 id="fb-area"
@@ -182,7 +191,9 @@ export default function Feedback() {
                 className="field tap"
               >
                 {AREAS.map((a) => (
-                  <option key={a}>{a}</option>
+                  <option key={a} value={a}>
+                    {t(a)}
+                  </option>
                 ))}
               </select>
             </div>
@@ -190,7 +201,7 @@ export default function Feedback() {
             {/* Rating — optional, and clearable by re-tapping the same star. */}
             <fieldset>
               <legend className="label">
-                Rate us <span className="font-normal normal-case tracking-normal text-silver-500">(optional)</span>
+                {t('Rate us')} <span className="font-normal normal-case tracking-normal text-silver-500">({t('optional')})</span>
               </legend>
               <div className="flex items-center gap-1.5">
                 {[1, 2, 3, 4, 5].map((n) => (
@@ -199,7 +210,7 @@ export default function Feedback() {
                     type="button"
                     onClick={() => setRating((r) => (r === n ? 0 : n))}
                     aria-pressed={rating >= n}
-                    aria-label={`${n} out of 5`}
+                    aria-label={t('{n} out of 5', { n })}
                     className="grid h-11 w-11 place-items-center rounded-xl border border-silver-300/10 bg-ink-900/60 transition duration-200 hover:border-silver-300/25"
                   >
                     <Star
@@ -219,7 +230,7 @@ export default function Feedback() {
             <div>
               <div className="flex items-end justify-between gap-3">
                 <label className="label mb-0" htmlFor="fb-msg">
-                  Your message
+                  {t('Your message')}
                 </label>
                 <span className="text-xs tabular-nums text-silver-500">
                   {message.length}/{MAX}
@@ -237,14 +248,14 @@ export default function Feedback() {
                 className={`field mt-2 resize-y ${emptyError ? '!border-rage-500/70' : ''}`}
                 placeholder={
                   kindId === 'complaint'
-                    ? 'What happened, when, and which machine or area was involved?'
-                    : 'Be as specific as you like — details make it fixable.'
+                    ? t('What happened, when, and which machine or area was involved?')
+                    : t('Be as specific as you like — details make it fixable.')
                 }
               />
               {emptyError && (
                 <p id="fb-msg-error" className="mt-2 flex items-center gap-1.5 text-xs font-medium text-rage-300">
                   <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                  Write your message first — we do not want to send an empty one.
+                  {t('Write your message first — we do not want to send an empty one.')}
                 </p>
               )}
             </div>
@@ -253,20 +264,20 @@ export default function Feedback() {
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className="label" htmlFor="fb-name">
-                  Name <span className="font-normal normal-case tracking-normal text-silver-500">(optional)</span>
+                  {t('Name')} <span className="font-normal normal-case tracking-normal text-silver-500">({t('optional')})</span>
                 </label>
                 <input
                   id="fb-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="field tap"
-                  placeholder="Your name"
+                  placeholder={t('Your name')}
                   autoComplete="name"
                 />
               </div>
               <div>
                 <label className="label" htmlFor="fb-phone">
-                  Contact <span className="font-normal normal-case tracking-normal text-silver-500">(optional)</span>
+                  {t('Contact')} <span className="font-normal normal-case tracking-normal text-silver-500">({t('optional')})</span>
                 </label>
                 <input
                   id="fb-phone"
@@ -275,7 +286,7 @@ export default function Feedback() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="field tap"
-                  placeholder="Mobile number"
+                  placeholder={t('Mobile number')}
                   autoComplete="tel"
                 />
               </div>
@@ -292,16 +303,16 @@ export default function Feedback() {
                 className={`btn-spider w-full ${valid ? '' : 'opacity-62'}`}
               >
                 <Send className="h-4 w-4" />
-                Send To The Owner
+                {t('Send To The Owner')}
               </a>
               <button type="button" onClick={onCopy} className="btn-ghost w-full sm:w-auto">
                 {copied ? (
                   <>
-                    <Check className="h-4 w-4 text-titan-300" /> Copied
+                    <Check className="h-4 w-4 text-titan-300" /> {t('Copied')}
                   </>
                 ) : (
                   <>
-                    <Copy className="h-4 w-4" /> Copy Text
+                    <Copy className="h-4 w-4" /> {t('Copy Text')}
                   </>
                 )}
               </button>
@@ -311,14 +322,15 @@ export default function Feedback() {
               <p className="flex items-start gap-2 rounded-xl border border-titan-400/25 bg-titan-500/8 p-3 text-xs leading-relaxed text-titan-200">
                 <Check className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <span>
-                  WhatsApp should have opened in a new tab with your message ready to send — press
-                  send there to deliver it.{' '}
+                  {t(
+                    'WhatsApp should have opened in a new tab with your message ready to send — press send there to deliver it.'
+                  )}{' '}
                   <button
                     type="button"
                     onClick={reset}
                     className="font-semibold underline decoration-titan-400/50 underline-offset-2"
                   >
-                    Write another
+                    {t('Write another')}
                   </button>
                 </span>
               </p>
@@ -331,7 +343,7 @@ export default function Feedback() {
           <Reveal delay={70} className="card plate-edge p-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="forge text-sm font-bold uppercase tracking-brand text-silver-200">
-                Exactly what gets sent
+                {t('Exactly what gets sent')}
               </h3>
               {/* Names the receiving number, so "straight to the owner" is
                   something the member can check rather than take on trust. */}
@@ -341,8 +353,9 @@ export default function Feedback() {
               </span>
             </div>
             <p className="mt-1.5 text-xs text-silver-500">
-              Nothing is added to this and nothing is stored on the way — the site simply opens
-              WhatsApp with the text below.
+              {t(
+                'Nothing is added to this and nothing is stored on the way — the site simply opens WhatsApp with the text below.'
+              )}
             </p>
             <div className="mt-4 max-h-72 overflow-auto rounded-xl border border-silver-300/10 bg-ink-950/70 p-4">
               <p className="whitespace-pre-wrap break-words font-sans text-xs leading-relaxed text-silver-300">
@@ -357,23 +370,27 @@ export default function Feedback() {
               <li className="flex items-start gap-2 text-xs leading-relaxed text-silver-400">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-volt-300" />
                 <span>
-                  <span className="font-semibold text-silver-200">This is not anonymous.</span>{' '}
-                  It is sent from your own WhatsApp account, so the gym sees your number and profile
-                  name. If you would rather not be identified, call {gym.phone} instead and say so.
+                  <span className="font-semibold text-silver-200">{t('This is not anonymous.')}</span>{' '}
+                  {t(
+                    'It is sent from your own WhatsApp account, so the gym sees your number and profile name. If you would rather not be identified, call {phone} instead and say so.',
+                    { phone: gym.phone }
+                  )}
                 </span>
               </li>
               <li className="flex items-start gap-2 text-xs leading-relaxed text-silver-400">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-titan-300" />
                 <span>
-                  There is no server behind this form and no database — the message exists only in
-                  your WhatsApp chat.
+                  {t(
+                    'There is no server behind this form and no database — the message exists only in your WhatsApp chat.'
+                  )}
                 </span>
               </li>
               <li className="flex items-start gap-2 text-xs leading-relaxed text-silver-400">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rage-300" />
                 <span>
-                  No WhatsApp on this device? Use <span className="font-semibold text-silver-200">Copy Text</span>{' '}
-                  and paste it into an email to{' '}
+                  {t('No WhatsApp on this device? Use')}{' '}
+                  <span className="font-semibold text-silver-200">{t('Copy Text')}</span>{' '}
+                  {t('and paste it into an email to')}{' '}
                   {gym.email ? (
                     <a
                       href={`mailto:${gym.email}?subject=${encodeURIComponent('BAGGA FITNESS — member feedback')}`}
@@ -382,7 +399,7 @@ export default function Feedback() {
                       {gym.email}
                     </a>
                   ) : (
-                    'us'
+                    t('us')
                   )}
                   .
                 </span>

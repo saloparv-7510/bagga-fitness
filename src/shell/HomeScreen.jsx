@@ -11,14 +11,11 @@ import {
   Images,
   MapPin,
 } from 'lucide-react'
-import { brand, gym, stats } from '../data/site.js'
-import { week } from '../data/workouts.js'
 import { LightningField, LightningWarrior, GreenTitan, WebNet } from '../components/art/Decor.jsx'
 import CountUp from '../components/ui/CountUp.jsx'
 import { useNav } from './context.js'
-
-/* JS getDay(): 0=Sun..6=Sat. `week` runs Mon..Sun. Same mapping Calendar uses. */
-const dayToSplit = [week[6], week[0], week[1], week[2], week[3], week[4], week[5]]
+import { useSiteContent, useWorkouts } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
 
 const accentRing = {
   volt: 'border-volt-400/35 bg-volt-500/10',
@@ -44,6 +41,11 @@ const QUICK = [
 
 export default function HomeScreen() {
   const { goTab } = useNav()
+  const t = useT()
+  const { brand, gym, stats } = useSiteContent()
+  const { week } = useWorkouts()
+  /* JS getDay(): 0=Sun..6=Sat. `week` runs Mon..Sun. Same mapping Calendar uses. */
+  const dayToSplit = [week[6], week[0], week[1], week[2], week[3], week[4], week[5]]
   const today = dayToSplit[new Date().getDay()]
 
   return (
@@ -71,16 +73,16 @@ export default function HomeScreen() {
         <div className="relative flex flex-col items-center text-center">
           <span className="badge-volt animate-riseIn">
             <Zap className="h-3.5 w-3.5" />
-            {gym.locality} • Strength &amp; Conditioning
+            {t('{locality} • Strength & Conditioning', { locality: gym.locality })}
           </span>
 
           <h1
             className="forge mt-4 text-[2rem] font-bold leading-[0.98] text-shadow-power animate-riseIn xs:text-[2.35rem]"
             style={{ animationDelay: '70ms' }}
           >
-            <span className="block text-silver-100">Build Your</span>
+            <span className="block text-silver-100">{t('Build Your')}</span>
             <span className="block">
-              <span className="rage-text">Best Body</span> <span className="text-silver-100">With</span>
+              <span className="rage-text">{t('Best Body')}</span> <span className="text-silver-100">{t('With')}</span>
             </span>
             <span className="mt-0.5 block">
               <span className="brand-text">{brand.first}</span> <span className="titan-text">{brand.second}</span>
@@ -91,8 +93,9 @@ export default function HomeScreen() {
             className="mt-3.5 max-w-sm text-sm leading-relaxed text-silver-300 animate-riseIn"
             style={{ animationDelay: '140ms' }}
           >
-            Forge strength like thunder and power like a titan. Real coaching and a plan built for your
-            level — from your first rep to your heaviest lift.
+            {t(
+              'Forge strength like thunder and power like a titan. Real coaching and a plan built for your level — from your first rep to your heaviest lift.'
+            )}
           </p>
 
           <div
@@ -100,11 +103,11 @@ export default function HomeScreen() {
             style={{ animationDelay: '210ms' }}
           >
             <button type="button" onClick={() => goTab('tools', 0)} className="btn-volt w-full">
-              Start Your Fitness Journey
+              {t('Start Your Fitness Journey')}
               <ArrowRight className="h-4 w-4" />
             </button>
             <button type="button" onClick={() => goTab('train', 0)} className="btn-ghost w-full">
-              Explore Workout Plans
+              {t('Explore Workout Plans')}
             </button>
           </div>
 
@@ -113,7 +116,7 @@ export default function HomeScreen() {
             style={{ animationDelay: '280ms' }}
           >
             <ShieldCheck className="h-4 w-4 shrink-0 text-titan-400" />
-            No fluff. Real coaching and a plan for your level.
+            {t('No fluff. Real coaching and a plan for your level.')}
           </p>
         </div>
       </section>
@@ -134,13 +137,13 @@ export default function HomeScreen() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-[0.62rem] uppercase tracking-brand text-silver-500">
-              Today — {today.day}
+              {t('Today — {day}', { day: today.day })}
             </span>
             <span className="forge mt-0.5 block truncate text-lg font-bold text-silver-100">
-              {today.rest ? 'Rest & Recovery' : today.focus}
+              {today.rest ? t('Rest & Recovery') : today.focus}
             </span>
             <span className="mt-0.5 block text-xs text-silver-400">
-              {today.rest ? 'Light stretching and sleep. Recovery is training.' : 'Tap to open the full session'}
+              {today.rest ? t('Light stretching and sleep. Recovery is training.') : t('Tap to open the full session')}
             </span>
           </span>
           <ChevronRight className="h-5 w-5 shrink-0 text-silver-500" />
@@ -150,7 +153,7 @@ export default function HomeScreen() {
       {/* ---------------------------------------------------- quick grid --- */}
       <section className="px-4 pt-6">
         <h2 className="forge mb-3 text-xs font-semibold uppercase tracking-forge text-silver-500">
-          Quick Access
+          {t('Quick Access')}
         </h2>
         <div className="grid grid-cols-2 gap-2.5">
           {QUICK.map(({ label, Icon, tab, screen, accent }) => (
@@ -161,7 +164,7 @@ export default function HomeScreen() {
               className="card plate-edge flex min-h-[5.25rem] flex-col justify-between p-3.5 text-left"
             >
               <Icon className={`h-5 w-5 ${accentText[accent]}`} />
-              <span className="text-[0.8rem] font-semibold leading-tight text-silver-200">{label}</span>
+              <span className="text-[0.8rem] font-semibold leading-tight text-silver-200">{t(label)}</span>
             </button>
           ))}
         </div>

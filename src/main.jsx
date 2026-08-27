@@ -5,6 +5,7 @@ import './styles/index.css'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
+import LanguageProvider from './i18n/LanguageProvider.jsx'
 
 /* ==========================================================================
    One codebase, two shells.
@@ -61,7 +62,9 @@ async function boot() {
   const Shell = isApp ? (await import('./shell/AppShell.jsx')).default : App
   root.render(
     <React.StrictMode>
-      <Shell />
+      <LanguageProvider>
+        <Shell />
+      </LanguageProvider>
     </React.StrictMode>
   )
 }
@@ -74,10 +77,24 @@ boot().catch((err) => {
   releaseSplash()
   const el = document.getElementById('root')
   if (el && !el.firstChild) {
+    /* This runs when the shell chunk cannot load, so it cannot reach React
+       context — read the remembered language straight from localStorage and
+       fall back to English on any failure. */
+    let hi = false
+    try {
+      hi = localStorage.getItem('bf.lang') === 'hi'
+    } catch {
+      hi = false
+    }
+    const message = hi
+      ? 'BAGGA FITNESS शुरू नहीं हो सका। कृपया ऐप बंद करके दोबारा खोलें।'
+      : 'BAGGA FITNESS could not start. Please close the app and open it again.'
     el.innerHTML =
       '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;' +
       'padding:24px;background:#04050a;color:#f4f7fb;font:16px/1.5 system-ui,sans-serif;' +
-      'text-align:center">BAGGA FITNESS could not start. Please close the app and open it again.</div>'
+      'text-align:center">' +
+      message +
+      '</div>'
   }
 })
 

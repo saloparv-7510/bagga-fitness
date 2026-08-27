@@ -1,12 +1,10 @@
 import React, { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react'
-import { week } from '../data/workouts.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import { WebPattern } from './art/Decor.jsx'
-
-/* JS getDay(): 0=Sun..6=Sat. Our `week` is Mon..Sun. Map weekday→split entry. */
-const dayToSplit = [week[6], week[0], week[1], week[2], week[3], week[4], week[5]]
+import { useWorkouts } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
 
 const accentDot = { volt: 'bg-volt-400', titan: 'bg-titan-400', rage: 'bg-rage-400' }
 const accentCell = {
@@ -19,6 +17,10 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 export default function Calendar() {
+  const t = useT()
+  const { week } = useWorkouts()
+  /* JS getDay(): 0=Sun..6=Sat. Our `week` is Mon..Sun. Map weekday→split entry. */
+  const dayToSplit = [week[6], week[0], week[1], week[2], week[3], week[4], week[5]]
   const today = new Date()
   const [view, setView] = useState({ y: today.getFullYear(), m: today.getMonth() })
 
@@ -34,7 +36,7 @@ export default function Calendar() {
       out.push({ d, split: dayToSplit[date.getDay()], date })
     }
     return out
-  }, [view])
+  }, [view, week])
 
   const isToday = (c) =>
     c && c.date.getFullYear() === today.getFullYear() && c.date.getMonth() === today.getMonth() && c.d === today.getDate()
@@ -48,11 +50,11 @@ export default function Calendar() {
   return (
     <Section id="calendar">
       <SectionHeading
-        eyebrow="Stay Consistent"
-        title="Training"
-        accentWord="Calendar"
+        eyebrow={t('Stay Consistent')}
+        title={t('Training')}
+        accentWord={t('Calendar')}
         accent="rage"
-        sub="Your weekly split mapped across the month. Every day has a target — show up and tick it off."
+        sub={t('Your weekly split mapped across the month. Every day has a target — show up and tick it off.')}
       />
 
       <Reveal className="card plate-edge relative overflow-hidden">
@@ -69,7 +71,7 @@ export default function Calendar() {
             <div className="flex items-center gap-2 text-silver-100">
               <CalendarDays className="h-5 w-5 text-volt-300" />
               <span className="forge text-xl font-bold sm:text-2xl">
-                {MONTHS[view.m]} <span className="text-silver-500">{view.y}</span>
+                {t(MONTHS[view.m])} <span className="text-silver-500">{view.y}</span>
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -77,7 +79,7 @@ export default function Calendar() {
                 type="button"
                 onClick={() => shift(-1)}
                 className="grid h-11 w-11 place-items-center rounded-lg border border-silver-300/12 bg-ink-800/70 text-silver-300 hover:text-white"
-                aria-label="Previous month"
+                aria-label={t('Previous month')}
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -86,13 +88,13 @@ export default function Calendar() {
                 onClick={() => setView({ y: today.getFullYear(), m: today.getMonth() })}
                 className="tap rounded-lg border border-silver-300/12 bg-ink-800/70 px-3.5 text-xs font-semibold text-silver-300 hover:text-white"
               >
-                Today
+                {t('Today')}
               </button>
               <button
                 type="button"
                 onClick={() => shift(1)}
                 className="grid h-11 w-11 place-items-center rounded-lg border border-silver-300/12 bg-ink-800/70 text-silver-300 hover:text-white"
-                aria-label="Next month"
+                aria-label={t('Next month')}
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -103,7 +105,7 @@ export default function Calendar() {
           <div
             className="mt-5 grid grid-cols-7 gap-1.5 sm:gap-2"
             role="list"
-            aria-label={`${MONTHS[view.m]} ${view.y} training calendar`}
+            aria-label={t('{month} {year} training calendar', { month: t(MONTHS[view.m]), year: view.y })}
           >
             {DOW.map((d) => (
               <div
@@ -111,7 +113,7 @@ export default function Calendar() {
                 aria-hidden="true"
                 className="pb-1 text-center text-[0.6rem] font-semibold uppercase tracking-brand text-silver-500 sm:text-xs"
               >
-                {d}
+                {t(d)}
               </div>
             ))}
             {cells.map((c, i) => {
@@ -121,9 +123,13 @@ export default function Calendar() {
                  thing out for screen readers — and for keyboards, which never
                  see the `title` tooltip. role="listitem" so the name is
                  actually announced: a bare div supports no accessible name. */
-              const label = `${c.d} ${MONTHS[view.m]}, ${c.split.day}: ${
-                c.split.rest ? 'rest day' : c.split.focus
-              }${isToday(c) ? ' (today)' : ''}`
+              const label =
+                t('{day} {month}, {split}: {focus}', {
+                  day: c.d,
+                  month: t(MONTHS[view.m]),
+                  split: c.split.day,
+                  focus: c.split.rest ? t('rest day') : c.split.focus,
+                }) + (isToday(c) ? t(' (today)') : '')
               return (
                 <div
                   key={c.d}
@@ -145,7 +151,7 @@ export default function Calendar() {
                     aria-hidden="true"
                     className={`hidden text-[0.58rem] font-medium leading-tight sm:block ${accentText[a] || 'text-silver-400'}`}
                   >
-                    {c.split.rest ? 'Rest' : c.split.focus.split(' + ')[0]}
+                    {c.split.rest ? t('Rest') : c.split.focus.split(' + ')[0]}
                   </span>
                   <span
                     aria-hidden="true"
@@ -158,10 +164,10 @@ export default function Calendar() {
 
           {/* Legend */}
           <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 border-t border-silver-300/10 pt-4">
-            {week.map((d) => (
+            {week.map((d, i) => (
               <span key={d.day} className="flex items-center gap-1.5 text-[0.7rem] text-silver-400">
                 <span className={`h-2 w-2 rounded-full ${d.rest ? 'bg-silver-500' : accentDot[d.accent]}`} />
-                <span className="font-semibold text-silver-300">{d.day.slice(0, 3)}</span> {d.focus}
+                <span className="font-semibold text-silver-300">{t(DOW[i])}</span> {d.focus}
               </span>
             ))}
           </div>

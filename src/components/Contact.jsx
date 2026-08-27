@@ -12,17 +12,12 @@ import {
   ChevronDown,
   CheckCircle2,
 } from 'lucide-react'
-import { gym, timings, faqs, waLink } from '../data/site.js'
+import { waLink } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import { WebCorner } from './art/Decor.jsx'
-
-const mapsSearch = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gym.mapQuery)}`
-const mapEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(gym.mapQuery)}&z=14&output=embed`
-
-/* Generic "Contact Us" handoff — plan-specific messages live on the
-   membership cards in About.jsx. */
-const generalEnquiry = `Hello BAGGA FITNESS, I would like to know more about your gym memberships and timings. Please provide more information.`
+import { useSiteContent } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
 
 function Faq({ q, a }) {
   const [open, setOpen] = useState(false)
@@ -47,8 +42,18 @@ function Faq({ q, a }) {
 }
 
 export default function Contact() {
+  const t = useT()
+  const { gym, timings, faqs } = useSiteContent()
   const [form, setForm] = useState({ name: '', phone: '', goal: 'Build Muscle', message: '' })
   const [sent, setSent] = useState(false)
+
+  const mapsSearch = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gym.mapQuery)}`
+  const mapEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(gym.mapQuery)}&z=14&output=embed`
+  /* Generic "Contact Us" handoff — plan-specific messages live on the
+     membership cards in About.jsx. */
+  const generalEnquiry = t(
+    'Hello BAGGA FITNESS, I would like to know more about your gym memberships and timings. Please provide more information.'
+  )
 
   const onChange = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
@@ -56,8 +61,11 @@ export default function Contact() {
     e.preventDefault()
     // No backend — hand off to WhatsApp with a prefilled enquiry.
     const lines = [
-      `Hello BAGGA FITNESS, I am ${form.name || '—'} (${form.phone || 'no phone given'}).`,
-      `Goal: ${form.goal}.`,
+      t('Hello BAGGA FITNESS, I am {name} ({phone}).', {
+        name: form.name || '—',
+        phone: form.phone || t('no phone given'),
+      }),
+      t('Goal: {goal}.', { goal: t(form.goal) }),
       form.message,
     ].filter(Boolean)
     window.open(waLink(lines.join('\n')), '_blank', 'noopener')
@@ -100,11 +108,13 @@ export default function Contact() {
   return (
     <Section id="contact" plated strand>
       <SectionHeading
-        eyebrow="Visit Our Gym"
-        title="Come Train At"
+        eyebrow={t('Visit Our Gym')}
+        title={t('Come Train At')}
         accentWord="BAGGA FITNESS"
         accent="volt"
-        sub="Call us, message us, or come and see the place for yourself. Your first session is the hardest — after that, it's momentum."
+        sub={t(
+          "Call us, message us, or come and see the place for yourself. Your first session is the hardest — after that, it's momentum."
+        )}
       />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -127,10 +137,10 @@ export default function Contact() {
                 </address>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <a href={mapsSearch} target="_blank" rel="noopener" className="btn-ghost !py-2.5">
-                    <Navigation className="h-4 w-4" /> Get Directions
+                    <Navigation className="h-4 w-4" /> {t('Get Directions')}
                   </a>
                   <a href={waLink(generalEnquiry)} target="_blank" rel="noopener" className="btn-titan !py-2.5">
-                    <MessageCircle className="h-4 w-4" /> Contact Us
+                    <MessageCircle className="h-4 w-4" /> {t('Contact Us')}
                   </a>
                 </div>
               </div>
@@ -161,7 +171,7 @@ export default function Contact() {
                 rel="noopener"
                 className="btn-titan !py-2.5"
               >
-                <MessageCircle className="h-4 w-4" /> Ask Today's Timings
+                <MessageCircle className="h-4 w-4" /> {t("Ask Today's Timings")}
               </a>
               <a href={gym.phoneHref} className="btn-ghost !py-2.5">
                 <Phone className="h-4 w-4" /> {gym.phone}
@@ -183,18 +193,18 @@ export default function Contact() {
                   }`}
                 >
                   <r.Icon className={`h-5 w-5 ${r.accent}`} />
-                  <span className="text-[0.65rem] uppercase tracking-brand text-silver-500">{r.label}</span>
+                  <span className="text-[0.65rem] uppercase tracking-brand text-silver-500">{t(r.label)}</span>
                   <span className="truncate text-sm text-silver-200">{r.value}</span>
                 </a>
               ))}
             </div>
             <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-silver-300/10 pt-4">
-              <span className="text-xs uppercase tracking-brand text-silver-500">Follow</span>
+              <span className="text-xs uppercase tracking-brand text-silver-500">{t('Follow')}</span>
               <a
                 href={gym.instagram}
                 target="_blank"
                 rel="noopener"
-                aria-label={`BAGGA FITNESS on Instagram — @${gym.instagramHandle}`}
+                aria-label={t('BAGGA FITNESS on Instagram — @{handle}', { handle: gym.instagramHandle })}
                 className="tap inline-flex items-center gap-2 rounded-lg bg-ink-800 px-3.5 text-sm text-silver-300 transition hover:text-rage-300"
               >
                 <Instagram className="h-4 w-4" />
@@ -206,7 +216,7 @@ export default function Contact() {
                   href={gym.youtube}
                   target="_blank"
                   rel="noopener"
-                  aria-label={`BAGGA FITNESS on YouTube — @${gym.youtubeHandle}`}
+                  aria-label={t('BAGGA FITNESS on YouTube — @{handle}', { handle: gym.youtubeHandle })}
                   className="tap inline-flex items-center gap-2 rounded-lg bg-ink-800 px-3.5 text-sm text-silver-300 transition hover:text-rage-300"
                 >
                   <Youtube className="h-4 w-4" />
@@ -217,10 +227,10 @@ export default function Contact() {
             {(!gym.email || !gym.youtube) && (
               <p className="mt-3 text-[0.7rem] text-silver-500">
                 {!gym.email && !gym.youtube
-                  ? 'Email and YouTube are not set up yet — call or message us on WhatsApp instead.'
+                  ? t('Email and YouTube are not set up yet — call or message us on WhatsApp instead.')
                   : !gym.email
-                    ? 'No email address yet — call or message us on WhatsApp instead.'
-                    : 'No YouTube channel yet — follow us on Instagram for updates.'}
+                    ? t('No email address yet — call or message us on WhatsApp instead.')
+                    : t('No YouTube channel yet — follow us on Instagram for updates.')}
               </p>
             )}
           </Reveal>
@@ -236,34 +246,34 @@ export default function Contact() {
               className="pointer-events-none absolute right-0 top-0 h-24 w-24 -scale-x-100 opacity-[0.14]"
             />
             <div className="relative">
-              <h3 className="text-lg font-semibold text-silver-100">Send an Enquiry</h3>
-              <p className="mt-1 text-sm text-silver-400">We'll open WhatsApp with your details ready to send.</p>
+              <h3 className="text-lg font-semibold text-silver-100">{t('Send an Enquiry')}</h3>
+              <p className="mt-1 text-sm text-silver-400">{t("We'll open WhatsApp with your details ready to send.")}</p>
               <form onSubmit={submit} className="mt-5 grid gap-3">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
-                    <label className="label" htmlFor="c-name">Name</label>
-                    <input id="c-name" required value={form.name} onChange={onChange('name')} className="field tap" placeholder="Your name" autoComplete="name" />
+                    <label className="label" htmlFor="c-name">{t('Name')}</label>
+                    <input id="c-name" required value={form.name} onChange={onChange('name')} className="field tap" placeholder={t('Your name')} autoComplete="name" />
                   </div>
                   <div>
-                    <label className="label" htmlFor="c-phone">Phone</label>
-                    <input id="c-phone" type="tel" inputMode="tel" value={form.phone} onChange={onChange('phone')} className="field tap" placeholder="Mobile number" autoComplete="tel" />
+                    <label className="label" htmlFor="c-phone">{t('Phone')}</label>
+                    <input id="c-phone" type="tel" inputMode="tel" value={form.phone} onChange={onChange('phone')} className="field tap" placeholder={t('Mobile number')} autoComplete="tel" />
                   </div>
                 </div>
                 <div>
-                  <label className="label" htmlFor="c-goal">Primary Goal</label>
+                  <label className="label" htmlFor="c-goal">{t('Primary Goal')}</label>
                   <select id="c-goal" value={form.goal} onChange={onChange('goal')} className="field tap">
-                    <option>Build Muscle</option>
-                    <option>Fat Loss</option>
-                    <option>General Fitness</option>
-                    <option>Strength / Powerlifting</option>
+                    <option value="Build Muscle">{t('Build Muscle')}</option>
+                    <option value="Fat Loss">{t('Fat Loss')}</option>
+                    <option value="General Fitness">{t('General Fitness')}</option>
+                    <option value="Strength / Powerlifting">{t('Strength / Powerlifting')}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="label" htmlFor="c-msg">Message</label>
-                  <textarea id="c-msg" rows={3} value={form.message} onChange={onChange('message')} className="field resize-y" placeholder="Tell us a little about where you're starting from." />
+                  <label className="label" htmlFor="c-msg">{t('Message')}</label>
+                  <textarea id="c-msg" rows={3} value={form.message} onChange={onChange('message')} className="field resize-y" placeholder={t("Tell us a little about where you're starting from.")} />
                 </div>
                 <button type="submit" className="btn-volt w-full">
-                  {sent ? <><CheckCircle2 className="h-4 w-4" /> Opening WhatsApp…</> : <><Send className="h-4 w-4" /> Send via WhatsApp</>}
+                  {sent ? <><CheckCircle2 className="h-4 w-4" /> {t('Opening WhatsApp…')}</> : <><Send className="h-4 w-4" /> {t('Send via WhatsApp')}</>}
                 </button>
               </form>
             </div>
@@ -277,7 +287,7 @@ export default function Contact() {
             </div>
             <div className="relative aspect-[16/11] w-full bg-ink-900">
               <iframe
-                title="BAGGA FITNESS location map"
+                title={t('BAGGA FITNESS location map')}
                 src={mapEmbed}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
@@ -292,7 +302,7 @@ export default function Contact() {
       <div className="mt-14">
         <Reveal>
           <h3 className="forge text-center text-2xl font-bold text-silver-100 sm:text-3xl">
-            Common <span className="brand-text">Questions</span>
+            {t('Common')} <span className="brand-text">{t('Questions')}</span>
           </h3>
         </Reveal>
         <div className="mx-auto mt-6 grid max-w-3xl gap-3">

@@ -1,6 +1,7 @@
 import React from 'react'
 import { TABS } from './tabs.js'
 import { tapFeedback } from '../native/index.js'
+import { useT } from '../i18n/context.js'
 
 /* Fixed bottom tab bar.
 
@@ -13,8 +14,9 @@ import { tapFeedback } from '../native/index.js'
    It hides itself while the keyboard is open (data-kb, set by the native
    keyboard listener) so it cannot sit on top of the field being typed into. */
 export default function TabBar({ tab, onSelect }) {
+  const t = useT()
   return (
-    <nav className="app-tabbar" aria-label="Main">
+    <nav className="app-tabbar" aria-label={t('Main')}>
       <ul className="flex items-stretch">
         {TABS.map(({ key, label, Icon }) => {
           const active = key === tab
@@ -30,7 +32,7 @@ export default function TabBar({ tab, onSelect }) {
                 className={`app-tab ${active ? 'is-active' : ''}`}
               >
                 <Icon className="h-[1.35rem] w-[1.35rem]" strokeWidth={active ? 2.5 : 2} aria-hidden="true" />
-                <span className="app-tab-label">{label}</span>
+                <span className="app-tab-label">{t(label)}</span>
               </button>
             </li>
           )

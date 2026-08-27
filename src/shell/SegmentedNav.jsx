@@ -1,5 +1,6 @@
 import React from 'react'
 import { tapFeedback } from '../native/index.js'
+import { useT } from '../i18n/context.js'
 
 /* Second-level navigation for a tab that owns more than one section.
    A pill rail rather than a dropdown: one tap instead of two, and it makes
@@ -10,6 +11,7 @@ import { tapFeedback } from '../native/index.js'
    Home quick action, or the Android back button. */
 export default function SegmentedNav({ screens, sub, onSelect }) {
   const railRef = React.useRef(null)
+  const t = useT()
 
   React.useEffect(() => {
     const rail = railRef.current
@@ -18,7 +20,7 @@ export default function SegmentedNav({ screens, sub, onSelect }) {
   }, [sub])
 
   return (
-    <div ref={railRef} className="app-seg no-scrollbar" role="tablist" aria-label="Sections">
+    <div ref={railRef} className="app-seg no-scrollbar" role="tablist" aria-label={t('Sections')}>
       {screens.map((s, i) => {
         const active = i === sub
         return (
@@ -35,7 +37,7 @@ export default function SegmentedNav({ screens, sub, onSelect }) {
             }}
             className={`app-seg-pill ${active ? 'is-active' : ''}`}
           >
-            {s.label}
+            {t(s.label)}
           </button>
         )
       })}

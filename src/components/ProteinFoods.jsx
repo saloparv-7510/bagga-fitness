@@ -1,30 +1,35 @@
 import React, { useMemo, useState } from 'react'
 import { Drumstick } from 'lucide-react'
-import { proteinFoods, foodCategories } from '../data/nutrition.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import FoodArt from './art/FoodArt.jsx'
+import { useNutrition } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
 
 const MAX_P = 52 // soya chunks — used to scale the protein bars
 
 export default function ProteinFoods() {
+  const t = useT()
+  const { proteinFoods, foodCategories } = useNutrition()
   const [cat, setCat] = useState('all')
   const list = useMemo(
     () => (cat === 'all' ? proteinFoods : proteinFoods.filter((f) => f.cat === cat)),
-    [cat]
+    [cat, proteinFoods]
   )
 
   return (
     <Section id="foods">
       <SectionHeading
-        eyebrow="Eat For Strength"
-        title="High-Protein"
-        accentWord="Foods"
+        eyebrow={t('Eat For Strength')}
+        title={t('High-Protein')}
+        accentWord={t('Foods')}
         accent="titan"
-        sub="Veg and non-veg sources with protein per 100 g and a real-world serving. Build your plate around these."
+        sub={t(
+          'Veg and non-veg sources with protein per 100 g and a real-world serving. Build your plate around these.'
+        )}
       />
 
-      <Reveal className="mb-8 flex flex-wrap justify-center gap-2" role="group" aria-label="Filter foods by category">
+      <Reveal className="mb-8 flex flex-wrap justify-center gap-2" role="group" aria-label={t('Filter foods by category')}>
         {foodCategories.map((c) => (
           <button
             key={c.id}
@@ -69,7 +74,7 @@ export default function ProteinFoods() {
 
       <Reveal className="mt-6 flex items-center justify-center gap-2 text-center text-xs text-silver-500">
         <Drumstick className="h-3.5 w-3.5" />
-        Protein per 100 g of the common edible portion — typical rounded values for guidance.
+        {t('Protein per 100 g of the common edible portion — typical rounded values for guidance.')}
       </Reveal>
     </Section>
   )
