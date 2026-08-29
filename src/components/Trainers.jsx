@@ -1,10 +1,11 @@
 import React from 'react'
 import { CircleDashed, MessageCircle, Users } from 'lucide-react'
-import { trainers, rosterFact, trainersNote } from '../data/trainers.js'
 import { waLink } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import TrainerAvatar from './art/TrainerAvatar.jsx'
+import { useTrainers } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
 
 /* ---------------------------------------------------------------------------
    TRAINERS — the roster, rendered once for both shells: a band on the website
@@ -47,34 +48,45 @@ const accentRole = {
 }
 const accentBtn = { volt: 'btn-volt', titan: 'btn-titan', rage: 'btn-rage', silver: 'btn-ghost' }
 
-/* The prefill names the coach, which is the whole point — an enquiry that
-   arrives already saying who it is about can be answered in one reply.
-   The placeholder slots must not be addressed the same way: "I would like to
-   train with Female Trainer 1" lands on the owner's phone reading as a person's
-   name. Those two ask for the ROLE and cite the listing as a listing, so the
-   card is still identifiable without inventing a human being. */
-const askMessage = (t) =>
-  t.placeholderName
-    ? `Hello BAGGA FITNESS, I would like to train with your ${t.role} — the coach listed on your site as "${t.name}". Please tell me about availability and how to start.`
-    : `Hello BAGGA FITNESS, I would like to train with ${t.name} (${t.role}). Please tell me about availability and how to start.`
-
-/* Every card's button reads "Ask On WhatsApp", so the accessible name has to
-   carry the difference — otherwise a screen-reader user tabbing the grid hears
-   the same link five times. */
-const askLabel = (t) =>
-  t.placeholderName
-    ? `Ask on WhatsApp about training with the ${t.role}`
-    : `Ask on WhatsApp about training with ${t.name}`
-
 export default function Trainers() {
+  const t = useT()
+  const { trainers, rosterFact, trainersNote } = useTrainers()
+
+  /* The prefill names the coach, which is the whole point — an enquiry that
+     arrives already saying who it is about can be answered in one reply.
+     The placeholder slots must not be addressed the same way: "I would like to
+     train with Female Trainer 1" lands on the owner's phone reading as a person's
+     name. Those two ask for the ROLE and cite the listing as a listing, so the
+     card is still identifiable without inventing a human being. */
+  const askMessage = (tr) =>
+    tr.placeholderName
+      ? t(
+          'Hello BAGGA FITNESS, I would like to train with your {role} — the coach listed on your site as "{name}". Please tell me about availability and how to start.',
+          { role: tr.role, name: tr.name }
+        )
+      : t(
+          'Hello BAGGA FITNESS, I would like to train with {name} ({role}). Please tell me about availability and how to start.',
+          { name: tr.name, role: tr.role }
+        )
+
+  /* Every card's button reads "Ask On WhatsApp", so the accessible name has to
+     carry the difference — otherwise a screen-reader user tabbing the grid hears
+     the same link five times. */
+  const askLabel = (tr) =>
+    tr.placeholderName
+      ? t('Ask on WhatsApp about training with the {role}', { role: tr.role })
+      : t('Ask on WhatsApp about training with {name}', { name: tr.name })
+
   return (
     <Section id="trainers">
       <SectionHeading
-        eyebrow="Our Trainers"
-        title="Meet Your"
-        accentWord="Coaches"
+        eyebrow={t('Our Trainers')}
+        title={t('Meet Your')}
+        accentWord={t('Coaches')}
         accent="rage"
-        sub="How each coach runs a session, and who it suits. The portraits are illustrations, not photographs."
+        sub={t(
+          'How each coach runs a session, and who it suits. The portraits are illustrations, not photographs.'
+        )}
       />
 
       {/* The confirmed composition, counted in trainers.js rather than typed.
@@ -90,39 +102,39 @@ export default function Trainers() {
       {/* role="list" because preflight strips list-style, and Safari drops the
           list semantics with it — the same reason the calendar grid carries it. */}
       <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {trainers.map((t, i) => (
-          <Reveal as="li" key={t.id} delay={(i % 3) * 70}>
+        {trainers.map((tr, i) => (
+          <Reveal as="li" key={tr.id} delay={(i % 3) * 70}>
             <article className="card plate-edge lift flex h-full flex-col p-6">
               <div className="flex items-start gap-4">
-                {/* photo={t.photo} is the entire handover: drop a file in and set
+                {/* photo={tr.photo} is the entire handover: drop a file in and set
                     that one key in the data, and the same frame renders the
                     photograph instead of the illustration. Nothing here needs to
                     know which of the two it got, so nothing here branches on it. */}
                 <TrainerAvatar
-                  name={t.name}
-                  accent={t.accent}
-                  gender={t.gender}
-                  photo={t.photo}
+                  name={tr.name}
+                  accent={tr.accent}
+                  gender={tr.gender}
+                  photo={tr.photo}
                   size={null}
                   className="h-[4.5rem] w-[4.5rem] sm:h-20 sm:w-20"
                 />
                 {/* min-w-0 so a long name wraps instead of pushing the avatar
                     out of the card — flex children refuse to shrink otherwise. */}
                 <div className="min-w-0">
-                  <h3 className="text-lg font-semibold leading-tight text-silver-100">{t.name}</h3>
+                  <h3 className="text-lg font-semibold leading-tight text-silver-100">{tr.name}</h3>
                   <p
                     className={`mt-1 text-xs font-semibold uppercase tracking-brand ${
-                      accentRole[t.accent] || accentRole.volt
+                      accentRole[tr.accent] || accentRole.volt
                     }`}
                   >
-                    {t.role}
+                    {tr.role}
                   </p>
                   {/* Sits directly under the name it qualifies, so the caveat is
                       read with the name rather than found later in the card. */}
-                  {t.placeholderName && (
+                  {tr.placeholderName && (
                     <span className="chip mt-2 border-dashed border-silver-300/25 !py-0.5 text-silver-400">
                       <CircleDashed className="h-3 w-3 shrink-0" aria-hidden="true" />
-                      Name to be confirmed
+                      {t('Name to be confirmed')}
                     </span>
                   )}
                 </div>
@@ -130,11 +142,11 @@ export default function Trainers() {
 
               <ul
                 role="list"
-                aria-label={`${t.name} — areas of focus`}
+                aria-label={t('{name} — areas of focus', { name: tr.name })}
                 className="mt-4 flex flex-wrap gap-1.5"
               >
-                {t.specializations.map((s) => (
-                  <li key={s} className={accentBadge[t.accent] || accentBadge.volt}>
+                {tr.specializations.map((s) => (
+                  <li key={s} className={accentBadge[tr.accent] || accentBadge.volt}>
                     {s}
                   </li>
                 ))}
@@ -143,16 +155,16 @@ export default function Trainers() {
               {/* flex-1 on the bio, not a margin on the button: bios differ by a
                   line or two, and this keeps every CTA on the same baseline
                   across a row instead of stepping down with the text. */}
-              <p className="mt-4 flex-1 text-sm leading-relaxed text-silver-400">{t.bio}</p>
+              <p className="mt-4 flex-1 text-sm leading-relaxed text-silver-400">{tr.bio}</p>
 
               <a
-                href={waLink(askMessage(t))}
+                href={waLink(askMessage(tr))}
                 target="_blank"
                 rel="noopener"
-                className={`${accentBtn[t.accent] || accentBtn.volt} mt-5 w-full`}
-                aria-label={askLabel(t)}
+                className={`${accentBtn[tr.accent] || accentBtn.volt} mt-5 w-full`}
+                aria-label={askLabel(tr)}
               >
-                <MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" /> Ask On WhatsApp
+                <MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" /> {t('Ask On WhatsApp')}
               </a>
             </article>
           </Reveal>

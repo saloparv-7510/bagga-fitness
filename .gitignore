@@ -45,3 +45,17 @@ replay_pid*.log
 *.jks
 keystore.properties
 key.properties
+
+# ---- Local scratch --------------------------------------------------------
+# Throwaway harnesses used to build and eyeball generated art: standalone
+# render scripts, their esbuild output, and the PNG/SVG sheets they produce.
+# The art they were used to author lives in src/components/art/ and IS
+# committed; these are the scaffolding, kept on disk because re-deriving a pose
+# by hand is slow, and ignored because they are megabytes of regenerable output
+# that would otherwise sit in every `git status` forever.
+#
+# Note the asymmetry with the keystore rules above: because these are ignored,
+# `git clean -fd` now leaves them alone — but `git clean -xfd` still deletes
+# them, and unlike tracked files there is no copy in history to restore from.
+.tmp-*
+mmcheck/

@@ -1,22 +1,25 @@
 import React from 'react'
 import { ShieldAlert, User, Clock } from 'lucide-react'
-import { supplements, supplementNote } from '../data/nutrition.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import { SupplementArt } from './art/FoodArt.jsx'
+import { useNutrition } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
 
 const accentText = { volt: 'text-volt-300', titan: 'text-titan-300', rage: 'text-rage-300' }
 const accentBadge = { volt: 'badge-volt', titan: 'badge-titan', rage: 'badge-rage' }
 
 export default function Supplements() {
+  const t = useT()
+  const { supplements, supplementNote } = useNutrition()
   return (
     <Section id="supplements" plated strand>
       <SectionHeading
-        eyebrow="Smart Support"
-        title="Supplements That"
-        accentWord="Actually Help"
+        eyebrow={t('Smart Support')}
+        title={t('Supplements That')}
+        accentWord={t('Actually Help')}
         accent="volt"
-        sub="An honest breakdown — what each one does, who it is for and how to use it. Food first, always."
+        sub={t('An honest breakdown — what each one does, who it is for and how to use it. Food first, always.')}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -36,14 +39,14 @@ export default function Supplements() {
                 <div className="flex items-start gap-2">
                   <User className={`mt-0.5 h-4 w-4 shrink-0 ${accentText[s.accent]}`} />
                   <p className="text-silver-400">
-                    <span className="font-medium text-silver-300">Best for: </span>
+                    <span className="font-medium text-silver-300">{t('Best for: ')}</span>
                     {s.who}
                   </p>
                 </div>
                 <div className="flex items-start gap-2">
                   <Clock className={`mt-0.5 h-4 w-4 shrink-0 ${accentText[s.accent]}`} />
                   <p className="text-silver-400">
-                    <span className="font-medium text-silver-300">How: </span>
+                    <span className="font-medium text-silver-300">{t('How: ')}</span>
                     {s.how}
                   </p>
                 </div>
@@ -57,7 +60,7 @@ export default function Supplements() {
         <div className="card flex items-start gap-3 p-5">
           <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-rage-400" />
           <p className="text-sm leading-relaxed text-silver-400">
-            <span className="font-semibold text-silver-200">Important: </span>
+            <span className="font-semibold text-silver-200">{t('Important: ')}</span>
             {supplementNote}
           </p>
         </div>

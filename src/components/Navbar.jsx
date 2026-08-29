@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { Menu, X, Dumbbell, Instagram, MessageCircle } from 'lucide-react'
-import { brand, nav, gym, waLink } from '../data/site.js'
+import { nav, gym, waLink } from '../data/site.js'
 import { useScrollSpy, useLockBodyScroll, useKeyDown } from '../hooks/index.js'
+import { useSiteContent } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
+import LanguageToggle from '../i18n/LanguageToggle.jsx'
 
+/* Section ids are language-independent, so the scroll-spy keeps reading them
+   from the source data. Only the visible labels are localized (via the hook). */
 const NAV_IDS = nav.map((n) => n.id)
-
-const navEnquiry = `Hello BAGGA FITNESS, I would like to know more about your gym memberships and timings. Please provide more information.`
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
@@ -13,6 +16,12 @@ export default function Navbar() {
   const active = useScrollSpy(NAV_IDS, 88)
   useLockBodyScroll(open)
   useKeyDown(open, { Escape: () => setOpen(false) })
+
+  const t = useT()
+  const { brand, nav: navItems } = useSiteContent()
+  const navEnquiry = t(
+    'Hello BAGGA FITNESS, I would like to know more about your gym memberships and timings. Please provide more information.'
+  )
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -60,7 +69,7 @@ export default function Navbar() {
             not fit inside the 84rem shell — while aria-label keeps the complete
             name for screen readers and the mobile drawer shows it in full. */}
         <ul className="hidden items-center gap-0.5 xl:flex">
-          {nav.map((item) => (
+          {navItems.map((item) => (
             <li key={item.id}>
               <a
                 href={`#${item.id}`}
@@ -83,31 +92,35 @@ export default function Navbar() {
         </ul>
 
         <div className="hidden items-center gap-2 xl:flex">
+          <LanguageToggle />
           {/* Held back to 2xl: below that the link row needs the width. */}
           <a
             href={gym.instagram}
             target="_blank"
             rel="noopener"
-            aria-label={`BAGGA FITNESS on Instagram — @${gym.instagramHandle}`}
+            aria-label={t('BAGGA FITNESS on Instagram — @{handle}', { handle: gym.instagramHandle })}
             className="hidden h-10 w-10 place-items-center rounded-xl border border-silver-300/12 bg-ink-800/70 text-silver-300 transition-colors duration-200 hover:border-rage-500/45 hover:text-rage-300 2xl:grid"
           >
             <Instagram className="h-5 w-5" />
           </a>
           <a href="#contact" onClick={(e) => go(e, 'contact')} className="btn-volt !px-4 !py-2.5">
-            Join Now
+            {t('Join Now')}
           </a>
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="grid h-11 w-11 place-items-center rounded-xl border border-silver-300/12 bg-ink-800/70 text-silver-100 xl:hidden"
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          aria-expanded={open}
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        {/* Mobile: language toggle stays visible in the bar, next to the menu. */}
+        <div className="flex items-center gap-2 xl:hidden">
+          <LanguageToggle compact />
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="grid h-11 w-11 place-items-center rounded-xl border border-silver-300/12 bg-ink-800/70 text-silver-100"
+            aria-label={open ? t('Close menu') : t('Open menu')}
+            aria-expanded={open}
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </nav>
 
       {/* Mobile drawer */}
@@ -128,7 +141,7 @@ export default function Navbar() {
           }`}
         >
           <ul className="shell grid max-h-[70vh] grid-cols-2 gap-1.5 overflow-y-auto py-4">
-            {nav.map((item) => (
+            {navItems.map((item) => (
               <li key={item.id}>
                 <a
                   href={`#${item.id}`}
@@ -145,7 +158,7 @@ export default function Navbar() {
             ))}
             <li className="col-span-2 mt-1">
               <a href="#contact" onClick={(e) => go(e, 'contact')} className="btn-volt w-full">
-                Join BAGGA FITNESS
+                {t('Join BAGGA FITNESS')}
               </a>
             </li>
             <li>
@@ -156,7 +169,7 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
                 className="flex items-center justify-center gap-2 rounded-xl border border-silver-300/12 bg-ink-800/70 px-4 py-3 text-sm font-medium text-silver-300 transition-colors hover:border-titan-400/40 hover:text-titan-200"
               >
-                <MessageCircle className="h-4 w-4 text-titan-300" /> WhatsApp
+                <MessageCircle className="h-4 w-4 text-titan-300" /> {t('WhatsApp')}
               </a>
             </li>
             <li>
@@ -165,10 +178,10 @@ export default function Navbar() {
                 target="_blank"
                 rel="noopener"
                 onClick={() => setOpen(false)}
-                aria-label={`BAGGA FITNESS on Instagram — @${gym.instagramHandle}`}
+                aria-label={t('BAGGA FITNESS on Instagram — @{handle}', { handle: gym.instagramHandle })}
                 className="flex items-center justify-center gap-2 rounded-xl border border-silver-300/12 bg-ink-800/70 px-4 py-3 text-sm font-medium text-silver-300 transition-colors hover:border-rage-500/45 hover:text-rage-300"
               >
-                <Instagram className="h-4 w-4" /> Instagram
+                <Instagram className="h-4 w-4" /> {t('Instagram')}
               </a>
             </li>
           </ul>

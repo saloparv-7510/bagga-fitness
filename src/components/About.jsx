@@ -10,17 +10,12 @@ import {
   Crown,
   MessageCircle,
 } from 'lucide-react'
-import {
-  facilities,
-  facilitiesNote,
-  coachSplit,
-  membership,
-  membershipNote,
-  waLink,
-} from '../data/site.js'
+import { waLink } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import { TorsoMark } from './art/Decor.jsx'
+import { useSiteContent } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
 
 const accentRing = {
   volt: 'shadow-volt text-volt-300',
@@ -34,22 +29,32 @@ const planRing = { volt: 'ring-volt-400/40', titan: 'ring-titan-400/40', rage: '
 const planBtn = { volt: 'btn-volt', titan: 'btn-titan', rage: 'btn-rage' }
 const planPrice = { volt: 'text-volt-200', titan: 'text-titan-200', rage: 'text-rage-200' }
 
-/* Both card buttons hand off to WhatsApp, naming the exact plan that was
-   clicked so the enquiry arrives with context. */
-const joinMessage = (plan) =>
-  `Hello BAGGA FITNESS, I am interested in joining the ${plan.duration} plan. Please provide more information.`
-const askMessage = (plan) =>
-  `Hello BAGGA FITNESS, I would like to know more about the ${plan.duration} plan (${plan.price}) — timings, facilities and current offers.`
-
 export default function About() {
+  const t = useT()
+  const { facilities, facilitiesNote, coachSplit, membership, membershipNote } = useSiteContent()
+
+  /* Both card buttons hand off to WhatsApp, naming the exact plan that was
+     clicked so the enquiry arrives with context. */
+  const joinMessage = (plan) =>
+    t('Hello BAGGA FITNESS, I am interested in joining the {duration} plan. Please provide more information.', {
+      duration: plan.duration,
+    })
+  const askMessage = (plan) =>
+    t(
+      'Hello BAGGA FITNESS, I would like to know more about the {duration} plan ({price}) — timings, facilities and current offers.',
+      { duration: plan.duration, price: plan.price }
+    )
+
   return (
     <Section id="about" plated>
       <SectionHeading
-        eyebrow="About The Gym"
-        title="A Serious Floor Built For"
-        accentWord="Real Results"
+        eyebrow={t('About The Gym')}
+        title={t('A Serious Floor Built For')}
+        accentWord={t('Real Results')}
         accent="titan"
-        sub="BAGGA FITNESS is a strength-first gym in Prahladpur. No gimmicks — proper equipment, hands-on coaching and a plan matched to your level, whether it is day one or year ten."
+        sub={t(
+          'BAGGA FITNESS is a strength-first gym in Prahladpur. No gimmicks — proper equipment, hands-on coaching and a plan matched to your level, whether it is day one or year ten.'
+        )}
       />
 
       {/* Facilities grid */}
@@ -90,20 +95,20 @@ export default function About() {
       <div className="mt-16">
         <Reveal>
           <h3 className="forge text-center text-2xl font-bold text-silver-100 sm:text-3xl">
-            Coaching That <span className="titan-text">Actually Coaches</span>
+            {t('Coaching That')} <span className="titan-text">{t('Actually Coaches')}</span>
           </h3>
           <p className="mx-auto mt-2 max-w-lg text-center text-sm text-silver-400">
-            Every member gets form checks and a plan — not just a keycard and a treadmill.
+            {t('Every member gets form checks and a plan — not just a keycard and a treadmill.')}
           </p>
           {/* The split is a real deciding factor for women choosing a gym, so it
               is stated up front rather than buried in the FAQ. Counted from the
               roster so it cannot fall out of step with the Trainers cards. */}
           <p className="mt-3 text-center text-sm text-silver-300">
             <span className="font-semibold text-titan-200">
-              {coachSplit.total} coaches on the floor
+              {t('{total} coaches on the floor', { total: coachSplit.total })}
             </span>{' '}
-            — {coachSplit.male} male and {coachSplit.female} female.{' '}
-            <span className="text-silver-400">Meet them in the Trainers section.</span>
+            — {t('{male} male and {female} female.', { male: coachSplit.male, female: coachSplit.female })}{' '}
+            <span className="text-silver-400">{t('Meet them in the Trainers section.')}</span>
           </p>
         </Reveal>
       </div>
@@ -112,11 +117,12 @@ export default function About() {
       <div className="mt-16">
         <Reveal>
           <h3 className="forge text-center text-2xl font-bold text-silver-100 sm:text-3xl">
-            Simple <span className="brand-text">Membership</span>
+            {t('Simple')} <span className="brand-text">{t('Membership')}</span>
           </h3>
           <p className="mx-auto mt-2 max-w-lg text-center text-sm text-silver-400">
-            Pick a duration — the longer you commit, the lower your monthly rate. Tap any plan to
-            message us on WhatsApp about it.
+            {t(
+              'Pick a duration — the longer you commit, the lower your monthly rate. Tap any plan to message us on WhatsApp about it.'
+            )}
           </p>
         </Reveal>
         <div className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -129,7 +135,7 @@ export default function About() {
               >
                 {plan.bestValue && (
                   <span className="badge-rage absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                    <Crown className="h-3.5 w-3.5" /> Best Value
+                    <Crown className="h-3.5 w-3.5" /> {t('Best Value')}
                   </span>
                 )}
 
@@ -161,18 +167,18 @@ export default function About() {
                     target="_blank"
                     rel="noopener"
                     className={`${planBtn[plan.accent]} w-full`}
-                    aria-label={`Join the ${plan.duration} plan on WhatsApp`}
+                    aria-label={t('Join the {plan} plan on WhatsApp', { plan: plan.duration })}
                   >
-                    Join Now
+                    {t('Join Now')}
                   </a>
                   <a
                     href={waLink(askMessage(plan))}
                     target="_blank"
                     rel="noopener"
                     className="btn-ghost w-full"
-                    aria-label={`Ask about the ${plan.duration} plan on WhatsApp`}
+                    aria-label={t('Ask about the {plan} plan on WhatsApp', { plan: plan.duration })}
                   >
-                    <MessageCircle className="h-4 w-4 text-titan-300" /> WhatsApp
+                    <MessageCircle className="h-4 w-4 text-titan-300" /> {t('WhatsApp')}
                   </a>
                 </div>
               </article>

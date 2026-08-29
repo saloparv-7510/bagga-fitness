@@ -8,11 +8,12 @@ import {
   ChevronRight,
   Sparkles,
 } from 'lucide-react'
-import { legends, legendsNote } from '../data/legends.js'
 import { waLink } from '../data/site.js'
 import { Section, SectionHeading } from './ui/Section.jsx'
 import Reveal from './ui/Reveal.jsx'
 import { WebNet, WebEmblem, PowerLiftMark, AthleteMark, SenseRings } from './art/Decor.jsx'
+import { useLegends } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
 
 /* One accent key per protocol, so the card, the tab and the CTA all agree. */
 const A = {
@@ -35,6 +36,8 @@ const A = {
 const ART = { lift: PowerLiftMark, athlete: AthleteMark }
 
 export default function LegendsTraining() {
+  const t = useT()
+  const { legends, legendsNote } = useLegends()
   const [openId, setOpenId] = useState(legends[0].id)
 
   return (
@@ -53,11 +56,13 @@ export default function LegendsTraining() {
       />
 
       <SectionHeading
-        eyebrow="Legend Protocols"
-        title="Train Like The"
-        accentWord="Greats"
+        eyebrow={t('Legend Protocols')}
+        title={t('Train Like The')}
+        accentWord={t('Greats')}
         accent="spider"
-        sub="Two templates built on how the strongest people in the sport actually train — brutal volume on one side, strength-first women’s programming on the other. Pick the one that matches your goal, then earn it."
+        sub={t(
+          'Two templates built on how the strongest people in the sport actually train — brutal volume on one side, strength-first women’s programming on the other. Pick the one that matches your goal, then earn it.'
+        )}
       />
 
       {/* Protocol switcher. Buttons rather than links: nothing navigates. */}
@@ -134,7 +139,7 @@ export default function LegendsTraining() {
                       </p>
                       <p className="mt-3 rounded-xl border border-silver-300/12 bg-ink-900/70 p-3 text-xs leading-relaxed text-silver-400">
                         <span className="badge-silver mr-2 !py-0.5 align-middle">
-                          Illustrated persona
+                          {t('Illustrated persona')}
                         </span>
                         {l.personaLine}
                       </p>
@@ -159,7 +164,7 @@ export default function LegendsTraining() {
                     className={`${a.btn} mt-6 w-full`}
                   >
                     <MessageCircle className="h-4 w-4" />
-                    Start This With A Coach
+                    {t('Start This With A Coach')}
                   </a>
                 </div>
               </Reveal>
@@ -169,7 +174,7 @@ export default function LegendsTraining() {
                 {/* Principles */}
                 <Reveal delay={70} className="card plate-edge p-6 sm:p-7">
                   <h4 className="forge text-sm font-bold uppercase tracking-brand text-silver-200">
-                    How It Works
+                    {t('How It Works')}
                   </h4>
                   <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                     {l.principles.map((p, i) => (
@@ -217,7 +222,7 @@ export default function LegendsTraining() {
                   <p className="flex items-start gap-2 text-sm leading-relaxed text-silver-300">
                     <ShieldAlert className={`mt-0.5 h-4 w-4 shrink-0 ${a.dot}`} />
                     <span>
-                      <span className="font-semibold text-silver-100">Reality check — </span>
+                      <span className="font-semibold text-silver-100">{t('Reality check — ')}</span>
                       {l.reality}
                     </span>
                   </p>

@@ -1,8 +1,9 @@
 import React from 'react'
 import { ArrowRight, Zap, ChevronDown, ShieldCheck } from 'lucide-react'
-import { brand, gym, stats } from '../data/site.js'
 import { LightningWarrior, GreenTitan, LightningField, Bolt, WebNet } from './art/Decor.jsx'
 import CountUp from './ui/CountUp.jsx'
+import { useSiteContent } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
 
 const scrollTo = (id) => (e) => {
   e.preventDefault()
@@ -10,6 +11,8 @@ const scrollTo = (id) => (e) => {
 }
 
 export default function Hero() {
+  const t = useT()
+  const { brand, gym, stats } = useSiteContent()
   return (
     <section id="home" className="relative flex min-h-[100svh] items-center overflow-hidden pt-[var(--nav-h)]">
       {/* Webs strung into both top corners. Kept under 0.12 opacity so they read
@@ -44,16 +47,16 @@ export default function Hero() {
         <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
           <span className="badge-volt animate-riseIn">
             <Zap className="h-3.5 w-3.5" />
-            {gym.locality} • Strength &amp; Conditioning
+            {t('{locality} • Strength & Conditioning', { locality: gym.locality })}
           </span>
 
           <h1
             className="forge mt-6 text-4xl font-bold leading-[0.98] text-shadow-power animate-riseIn sm:text-6xl lg:text-7xl"
             style={{ animationDelay: '80ms' }}
           >
-            <span className="block text-silver-100">Build Your</span>
+            <span className="block text-silver-100">{t('Build Your')}</span>
             <span className="block">
-              <span className="rage-text">Best Body</span> <span className="text-silver-100">With</span>
+              <span className="rage-text">{t('Best Body')}</span> <span className="text-silver-100">{t('With')}</span>
             </span>
             <span className="mt-1 block">
               <span className="brand-text">{brand.first}</span> <span className="titan-text">{brand.second}</span>
@@ -64,8 +67,9 @@ export default function Hero() {
             className="mt-6 max-w-xl text-base leading-relaxed text-silver-300 animate-riseIn sm:text-lg"
             style={{ animationDelay: '160ms' }}
           >
-            Forge strength like thunder and power like a titan. Real coaching, a serious iron floor and a
-            plan built for your level — from your very first rep to your heaviest lift.
+            {t(
+              'Forge strength like thunder and power like a titan. Real coaching, a serious iron floor and a plan built for your level — from your very first rep to your heaviest lift.'
+            )}
           </p>
 
           <div
@@ -73,11 +77,11 @@ export default function Hero() {
             style={{ animationDelay: '240ms' }}
           >
             <a href="#bmi" onClick={scrollTo('bmi')} className="btn-volt w-full sm:w-auto">
-              Start Your Fitness Journey
+              {t('Start Your Fitness Journey')}
               <ArrowRight className="h-4 w-4" />
             </a>
             <a href="#plans" onClick={scrollTo('plans')} className="btn-ghost w-full sm:w-auto">
-              Explore Workout Plans
+              {t('Explore Workout Plans')}
             </a>
           </div>
 
@@ -86,7 +90,7 @@ export default function Hero() {
             style={{ animationDelay: '320ms' }}
           >
             <ShieldCheck className="h-4 w-4 text-titan-400" />
-            No fluff. Real coaching, honest guidance, and a plan for your level.
+            {t('No fluff. Real coaching, honest guidance, and a plan for your level.')}
           </div>
         </div>
 
@@ -111,7 +115,7 @@ export default function Hero() {
         href="#about"
         onClick={scrollTo('about')}
         className="absolute inset-x-0 bottom-5 z-10 mx-auto hidden w-fit flex-col items-center gap-1 px-4 text-silver-500 transition-colors hover:text-volt-300 sm:flex"
-        aria-label="Scroll to about"
+        aria-label={t('Scroll to about')}
       >
         <Bolt className="h-5 w-3 animate-breathe" stroke="#38bdf8" />
         <ChevronDown className="h-4 w-4 animate-bounce" />

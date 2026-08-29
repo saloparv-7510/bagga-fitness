@@ -6,6 +6,7 @@ import { ShellContext, NavContext } from './context.js'
 import ErrorBoundary from '../components/ui/ErrorBoundary.jsx'
 import BackgroundFX from '../components/BackgroundFX.jsx'
 import { initNative, hideSplash } from '../native/index.js'
+import { useT } from '../i18n/context.js'
 
 /* ==========================================================================
    The mobile app shell: fixed header, one visible screen, fixed tab bar.
@@ -30,6 +31,7 @@ import { initNative, hideSplash } from '../native/index.js'
 export default function AppShell() {
   const [tab, setTab] = React.useState('home')
   const [sub, setSub] = React.useState(0)
+  const t = useT()
 
   /* Which screens have ever been opened — the mount cache. */
   const [mounted, setMounted] = React.useState(() => new Set([screenId('home', 0)]))
@@ -117,23 +119,23 @@ export default function AppShell() {
       <NavContext.Provider value={navValue}>
         <BackgroundFX />
 
-        <ErrorBoundary name="app navigation" quiet>
+        <ErrorBoundary name={t('app navigation')} quiet>
           <AppHeader screens={screens} sub={sub} onSelectSub={goSub} />
         </ErrorBoundary>
 
         <main className="app-main">
-          {TABS.map((t) =>
-            t.screens.map((s, i) => {
-              const id = screenId(t.key, i)
+          {TABS.map((tabDef) =>
+            tabDef.screens.map((s, i) => {
+              const id = screenId(tabDef.key, i)
               if (!mounted.has(id)) return null
-              const active = t.key === tab && i === sub
+              const active = tabDef.key === tab && i === sub
               return (
                 <div
                   key={id}
                   style={active ? undefined : { display: 'none' }}
                   aria-hidden={active ? undefined : 'true'}
                 >
-                  <ErrorBoundary id={s.key} name={s.title}>
+                  <ErrorBoundary id={s.key} name={t(s.title)}>
                     <s.Component />
                   </ErrorBoundary>
                 </div>

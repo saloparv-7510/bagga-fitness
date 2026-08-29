@@ -1,10 +1,11 @@
 import React from 'react'
 import { Dumbbell, Phone, MessageCircle } from 'lucide-react'
-import { brand, gym, waLink } from '../data/site.js'
+import { gym, waLink } from '../data/site.js'
 import SegmentedNav from './SegmentedNav.jsx'
 import ClosedNotice from '../components/ui/ClosedNotice.jsx'
-
-const headerEnquiry = `Hello BAGGA FITNESS, I would like to know more about your gym memberships and timings. Please provide more information.`
+import { useSiteContent } from '../i18n/localize.js'
+import { useT } from '../i18n/context.js'
+import LanguageToggle from '../i18n/LanguageToggle.jsx'
 
 /* Fixed top bar: the wordmark stays visible on every screen (branding), with
    the two actions a gym visitor actually wants one tap away.
@@ -15,6 +16,11 @@ const headerEnquiry = `Hello BAGGA FITNESS, I would like to know more about your
    nothing while scrolling. */
 export default function AppHeader({ screens, sub, onSelectSub }) {
   const ref = React.useRef(null)
+  const t = useT()
+  const { brand } = useSiteContent()
+  const headerEnquiry = t(
+    'Hello BAGGA FITNESS, I would like to know more about your gym memberships and timings. Please provide more information.'
+  )
 
   React.useEffect(() => {
     const el = ref.current
@@ -49,12 +55,13 @@ export default function AppHeader({ screens, sub, onSelectSub }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5">
-          <a href={gym.phoneHref} aria-label={`Call BAGGA FITNESS on ${gym.phone}`} className="app-icon-btn">
+          <LanguageToggle compact />
+          <a href={gym.phoneHref} aria-label={t('Call BAGGA FITNESS on {phone}', { phone: gym.phone })} className="app-icon-btn">
             <Phone className="h-[1.15rem] w-[1.15rem] text-volt-300" />
           </a>
           <a
             href={waLink(headerEnquiry)}
-            aria-label="Message BAGGA FITNESS on WhatsApp"
+            aria-label={t('Message BAGGA FITNESS on WhatsApp')}
             className="app-icon-btn"
           >
             <MessageCircle className="h-[1.15rem] w-[1.15rem] text-titan-300" />
